@@ -29,14 +29,6 @@ cd aws
 
 Create and populate a `terraform.tfvars` file according to the `terraform.tfvars.example` file.
 
-Once complete run the command:
-
-```sh
-terraform init
-```
-
-to install dependencies in preparation of deploying the infrastructure.
-
 ##### GitHub (Optional)
 
 If using GitHub as your code provider you will need to create a GitHub App to allow Greptile to access your repositories

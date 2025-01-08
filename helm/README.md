@@ -143,17 +143,17 @@ If using GitHub as your code provider you will need to create a GitHub App to al
 		"privateKey": "-----BEGIN RSA PRIVATE KEY-----\nYour private key content...\n-----END RSA PRIVATE KEY-----"
 	}
 	```
-	7. Update your `values-override.yaml` with the GitHub app details:
-	```yaml
-	github:
-		oauth:
-			enabled: true
-		config:
-			enterprise: false  # set to true if using GitHub Enterprise and populate the other fields accordingly
-			appId: "your_app_id"
-			appUrl: "https://github.com/apps/your-app-name"
-			name: "your-app-name"
-	```
+7. Update your `values-override.yaml` with the GitHub app details:
+```yaml
+github:
+	oauth:
+		enabled: true
+	config:
+		enterprise: false  # set to true if using GitHub Enterprise and populate the other fields accordingly
+		appId: "your_app_id"
+		appUrl: "https://github.com/apps/your-app-name"
+		name: "your-app-name"
+```
 ##### Setting Up RDS 
 
 We recommend the following configuration
@@ -245,8 +245,6 @@ If setting up a custom domain you should use these urls to set up required domai
 You should set the `url` field under ` .Values.api.config` and ` .Values.web.config` (outlined in `values-override.yaml.example`) respective service/custom domains.
 
 Then run:
-
-Now you deploy Greptile to your EKS cluster:
 ```sh
 helm upgrade --install greptile . -f values.yaml -f aws.yaml -f values-override.yaml
 kubectl rollout restart deployment/web deployment/api
