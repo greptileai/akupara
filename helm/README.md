@@ -63,6 +63,14 @@ helm dependency update
 helm dependency build
 ```
 
+To use external secrets we also install the external-secrets repo as well
+
+```sh
+helm install external-secrets external-secrets/external-secrets \
+    --namespace default \
+    --set installCRDs=true
+```
+
 Create a `values-override.yaml` file from the template outlined in `values-override.yaml.example` file. 
 
 If coming from the Terraform setup, populate the fields from the outputs obtained from the `terraform apply` command.
@@ -135,17 +143,17 @@ If using GitHub as your code provider you will need to create a GitHub App to al
 		"privateKey": "-----BEGIN RSA PRIVATE KEY-----\nYour private key content...\n-----END RSA PRIVATE KEY-----"
 	}
 	```
-7. Update your `values-override.yaml` with the GitHub app details:
-```yaml
-github:
-	oauth:
-		enabled: true
-	config:
-		enterprise: false  # set to true if using GitHub Enterprise and populate the other fields accordingly
-		appId: "your_app_id"
-		appUrl: "https://github.com/apps/your-app-name"
-		name: "your-app-name"
-```
+	7. Update your `values-override.yaml` with the GitHub app details:
+	```yaml
+	github:
+		oauth:
+			enabled: true
+		config:
+			enterprise: false  # set to true if using GitHub Enterprise and populate the other fields accordingly
+			appId: "your_app_id"
+			appUrl: "https://github.com/apps/your-app-name"
+			name: "your-app-name"
+	```
 ##### Setting Up RDS 
 
 We recommend the following configuration
@@ -209,13 +217,6 @@ Verify that `kubectl` is pointing to the correct cluster by running:
 kubectl config current-context
 ```
 
-To use external secrets we also install the external-secrets repo as well
-
-```sh
-helm install external-secrets external-secrets/external-secrets \
-    --namespace default \
-    --set installCRDs=true
-```
 
 For aws we need to set up storage classes that Greptile will use, run:
 ```sh
@@ -258,7 +259,7 @@ http://[svc/web url]:[svc/web port]
 
 
 
-### Step 6: Complete Integrations Setup
+### Step 5: Complete Integrations Setup
 
 There are additional steps to connect Greptile to the different integrations provided.
 
