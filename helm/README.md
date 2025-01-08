@@ -234,7 +234,7 @@ kubectl get pods
 ```
 ### Step 5: URL set up
 
-For services that should be publicly accessible, (`api`, `jackson`, `web`, `github`, `gitlab`) you should retrieve them with:
+For services that should be publicly accessible, (`api` and `web`) you should retrieve them with:
 
 ```sh
 kubectl get svc
@@ -242,9 +242,11 @@ kubectl get svc
 
 If setting up a custom domain you should use these urls to set up required domain name records.
 
-You should set the `url` field under ` .Values.api.config`, ` .Values.jackson.config`, and ` .Values.web.config` (outlined in `values-override.yaml.example`) respective service/custom domains.
+You should set the `url` field under ` .Values.api.config` and ` .Values.web.config` (outlined in `values-override.yaml.example`) respective service/custom domains.
 
 Then run:
+
+Now you deploy Greptile to your EKS cluster:
 ```sh
 helm upgrade --install greptile . -f values.yaml -f aws.yaml -f values-override.yaml
 kubectl rollout restart deployment/web deployment/api
@@ -259,7 +261,7 @@ http://[svc/web url]:[svc/web port]
 
 
 
-### Step 5: Complete Integrations Setup
+### Step 6: Complete Integrations Setup
 
 There are additional steps to connect Greptile to the different integrations provided.
 
