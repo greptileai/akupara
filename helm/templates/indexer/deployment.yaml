@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: indexer
+  annotations:
+    "helm.sh/hook-weight": "0"
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: {{ .Values.indexer.replicaCount }}
+  selector:
+    matchLabels:
+      app: indexer
+  template:
+    metadata:
+      labels:
+        app: indexer
+    spec:
+      serviceAccountName: indexer-sa
+      volumes:
+        - name: shared-mnt
+          emptyDir: {}
+      containers:
+        - name: chunker
+          image: "{{ .Values.global.ecr.registry }}/{{ .Values.indexer.service.chunker.image.repository }}:{{ .Values.indexer.service.chunker.image.tag }}"
+          imagePullPolicy: {{ .Values.indexer.service.chunker.image.pullPolicy }}
+          volumeMounts:
+            - name: shared-mnt
+              mountPath: /mnt
+          ports:
+            - containerPort: {{ .Values.indexer.service.chunker.port }}
+          envFrom:
+            - configMapRef:
+                name: indexer-config
+            - configMapRef:
+                name: indexer-chunker-config
+          env:
+            - name: HATCHET_CLIENT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hatchet-client-config
+                  key: HATCHET_CLIENT_TOKEN
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: jwtSecret
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: url
+            - name: VECTOR_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: username
+            - name: VECTOR_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: password
+          resources:
+            {{- toYaml .Values.indexer.resources | nindent 12 }}
+        - name: summarizer
+          image: "{{ .Values.global.ecr.registry }}/{{ .Values.indexer.service.summarizer.image.repository }}:{{ .Values.indexer.service.summarizer.image.tag }}"
+          imagePullPolicy: {{ .Values.indexer.service.summarizer.image.pullPolicy }}
+          volumeMounts:
+            - name: shared-mnt
+              mountPath: /mnt
+          ports:
+            - containerPort: {{ .Values.indexer.service.summarizer.port }}
+          envFrom:
+            - configMapRef:
+                name: indexer-config
+            - configMapRef:
+                name: indexer-summarizer-config
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: url
+            - name: HATCHET_CLIENT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hatchet-client-config
+                  key: HATCHET_CLIENT_TOKEN
+            - name: VECTOR_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: username
+            - name: VECTOR_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: password
+          resources:
+            {{- toYaml .Values.indexer.resources | nindent 12 }}

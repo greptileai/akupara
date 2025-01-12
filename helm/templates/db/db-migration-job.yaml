@@ -1,0 +1,54 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-db-migration
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-1"
+    # "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      name: {{ .Release.Name }}-db-migration
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: db-migration
+          image: "{{ .Values.global.ecr.registry }}/{{ .Values.database.migration.image.repository }}:{{ .Values.database.migration.image.tag }}"
+          imagePullPolicy: {{ .Values.database.migration.image.pullPolicy }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              cd /app/packages/db
+              echo "Starting migration..."
+              pnpm prisma db execute --file ./scripts/create.sql
+              pnpm prisma db execute --file ./scripts/hatchet.sql
+              if pnpm prisma migrate deploy; then
+                echo "Migration completed successfully"
+                exit 0
+              else
+                echo "Migration failed"
+                exit 1
+              fi
+          resources:
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+          envFrom:
+            - configMapRef:
+                name: db-config
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: url
+            - name: DIRECT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: url

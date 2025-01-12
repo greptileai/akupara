@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vectordb-config
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-2"
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+data:
+  DEFAULT_EMBEDDINGS_PROVIDER: {{ .Values.indexer.config.embeddingsModelProvider | quote }}
+  DEFAULT_EMBEDDINGS_MODEL: {{ .Values.indexer.config.embeddingsModel | quote }}

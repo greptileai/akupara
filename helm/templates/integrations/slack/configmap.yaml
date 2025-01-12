@@ -1,0 +1,15 @@
+{{- if .Values.slack.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: slack-config
+data:
+  PORT: {{ .Values.slack.service.port | quote }}
+  SLACK_CLIENT_ID: {{ .Values.slack.env.SLACK_CLIENT_ID | quote }}
+  SLACK_CLIENT_SECRET: {{ .Values.slack.env.SLACK_CLIENT_SECRET | quote }}
+  SLACK_SIGNING_SECRET: {{ .Values.slack.env.SLACK_SIGNING_SECRET | quote }}
+  SLACK_STATE_SECRET: {{ .Values.slack.env.SLACK_STATE_SECRET | quote }}
+  {{- range $key, $value := .Values.slack.config }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+{{- end }}

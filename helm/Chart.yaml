@@ -1,0 +1,14 @@
+apiVersion: v2
+name: greptile
+description: A Helm chart for Greptile
+type: application
+version: 0.0.1
+
+dependencies:
+  - name: hatchet-stack
+    repository: "https://hatchet-dev.github.io/hatchet-charts"
+    version: "0.8.0"
+    condition: hatchet-stack.enabled
+  - name: aws-efs-csi-driver # needed for aws eks, efs storage
+    version: "2.1.1"
+    repository: https://kubernetes-sigs.github.io/aws-efs-csi-driver

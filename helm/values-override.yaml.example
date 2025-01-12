@@ -1,0 +1,65 @@
+global:
+  environment: "production"
+  region: "us-east-1" # TODO: set this to your region
+  ecr:
+    registry: "example.dkr.ecr.region.amazonaws.com" # TODO: replace this with the ECR registry provided
+  secrets:
+    store: "greptile-secrets"
+    external:
+      keys:
+        app: ""
+        database: ""
+        github: ""
+        # llm: "" # (optional) if using openai, azure openai or anthropic, set this to your secret store name
+aws:
+  irsa:
+    indexer:
+      role: "arn:aws:iam::<account>:role/<app_name>-indexer-role"
+    query:
+      role: "arn:aws:iam::<account>:role/<app_name>-query-role"
+    secrets:
+      role: "arn:aws:iam::<account>:role/<app_name>-external-secrets-role"
+
+database:
+  env:
+    host: "" # TODO: set this to your database host
+    port: 5432
+
+redis:
+  env:
+    host: "" # TODO: set this to your redis host 
+    port: 6379
+
+api:
+  config:
+    url: "" # set this to the service url or a custom domain (format https://url[:port].com)
+
+web:
+  config:
+    url: "" # set this to the service url or a custom domain (format https://url[:port].com)
+
+jackson:
+  config:
+    url: "" # set this to the service url or a custom domain (format https://url[:port].com)
+
+# integrations
+github: # if using the github integration
+  oauth:
+    enabled: false
+  config:
+    url: "" # set this to the service url or a custom domain (format https://url[:port].com)
+    enterprise: false # set this to true if using a github enterprise instance
+    instanceUrl: "" # set this to the github enterprise instance url
+    apiUrl: "" # set this to the github enterprise api url
+    appId: ""
+    appUrl: ""
+    name: ""
+
+gitlab:
+  config:
+    url: "" # set this to the service url or a custom domain (format https://url[:port].com)
+
+hatchet-stack:
+  sharedConfig:
+    defaultAdminEmail: "admin@example.com" # (recommended to change)
+    defaultAdminPassword: "Admin123!!" # (recommended to change)

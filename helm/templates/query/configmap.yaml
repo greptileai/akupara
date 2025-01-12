@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: query-config
+data:
+  PORT: {{ .Values.query.service.port | quote }}
+  ONPREM: "true"
+  AWS_REGION: {{ .Values.global.region | quote }} # Only works in us-east-1 for bedrock
+  NOTIFICATIONS: {{ .Values.notifications.enabled | quote }}
+  ANALYTICS: {{ .Values.analytics.enabled | quote }}
+  DEFAULT_AGENT_MODEL: {{ .Values.query.config.agentModel | quote }}
+  DEFAULT_CHAT_MODEL: {{ .Values.query.config.chatModel | quote }}
+  DEFAULT_EMBEDDING_MODEL: {{ .Values.query.config.embeddingsModel | quote }}
+  AGENT_MODEL_PROVIDER: {{ .Values.query.config.agentModelProvider | quote }}
+  CHAT_MODEL_PROVIDER: {{ .Values.query.config.chatModelProvider | quote }}
+  EMBEDDING_MODEL_PROVIDER: {{ .Values.query.config.embeddingsModelProvider | quote }}
+  EMBEDDINGS_MODEL: {{ .Values.query.config.embeddingsModel | quote }} # for vector db
+  EMBEDDINGS_MODEL_PROVIDER: {{ .Values.query.config.embeddingsModelProvider | quote }}
+  VECTOR_DB_PROVIDER: {{ .Values.vectordb.config.provider | quote }}
+  VECTOR_EMBEDDINGS_TABLE_NAME: "embeddings"
+  VECTOR_DB_NAME: "vector"
+  VECTOR_DB_HOST: {{ .Values.database.env.host | quote }}
+  VECTOR_DB_PORT: {{ .Values.database.env.port | quote }}
+  {{- range $key, $value := .Values.query.config }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}

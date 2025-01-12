@@ -1,0 +1,29 @@
+{{- if .Values.linear.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: linear
+  annotations:
+    "helm.sh/hook-weight": "0"
+spec:
+  replicas: {{ .Values.linear.replicaCount }}
+  selector:
+    matchLabels:
+      app: linear
+  template:
+    metadata:
+      labels:
+        app: linear
+    spec:
+      containers:
+        - name: linear
+          image: "{{ .Values.global.ecr.registry }}/{{ .Values.linear.image.repository }}:{{ .Values.linear.image.tag }}"
+          imagePullPolicy: {{ .Values.linear.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.linear.service.port }}
+          envFrom:
+            - configMapRef:
+                name: linear-config
+          resources:
+            {{- toYaml .Values.linear.resources | nindent 12 }}
+{{- end }}

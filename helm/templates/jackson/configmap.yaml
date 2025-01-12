@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jackson-config
+data:
+  PORT: {{ .Values.jackson.service.port | quote }}
+  DO_NOT_TRACK: "1" # hide
+  DB_ENGINE: "sql"
+  DB_TYPE: "postgres"
+  DB_SSL: "true"
+  DB_SSL_REJECT_UNAUTHORIZED: "false"
+  {{- range $key, $value := .Values.jackson.config }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}

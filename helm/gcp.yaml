@@ -1,0 +1,27 @@
+# AWS configuration
+global: 
+  region: "us-east1"
+
+query:
+  config:
+    agentModelProvider: "bedrock"
+    agentModel: "us.anthropic.claude-3-5-haiku-20241022-v1:0"
+    chatModelProvider: "bedrock"
+    chatModel: "us.anthropic.claude-3-5-sonnet-20241022-v2:0"
+    embeddingsModelProvider: "bedrock"
+    embeddingsModel: "amazon.titan-embed-text-v1"
+
+indexer:
+  config:
+    summarizerModelProvider: "bedrock"
+    summarizerModel: "us.anthropic.claude-3-5-haiku-20241022-v1:0"
+    embeddingsModelProvider: "bedrock"
+    embeddingsModel: "amazon.titan-embed-text-v1"
+
+github:
+  enabled: true
+  config:
+    refinerModelProvider: "bedrock"
+    refinerModel: "us.anthropic.claude-3-5-sonnet-20241022-v2:0"
+    embeddingsModelProvider: "bedrock"
+    embeddingsModel: "amazon.titan-embed-text-v1"

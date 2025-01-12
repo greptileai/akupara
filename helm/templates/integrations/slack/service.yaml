@@ -1,0 +1,13 @@
+{{- if .Values.slack.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: slack
+spec:
+  type: {{ .Values.slack.service.type }}
+  ports:
+    - port: {{ .Values.slack.service.port }}
+      targetPort: {{ .Values.slack.service.port }}
+  selector:
+    app: slack
+{{- end }}

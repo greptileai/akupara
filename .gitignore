@@ -1,0 +1,6 @@
+*.tfvars
+.terraform*
+*.tfstate*
+*.tar.gz
+
+values-override*.yaml

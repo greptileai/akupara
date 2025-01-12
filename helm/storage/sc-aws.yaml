@@ -1,0 +1,14 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: auto-ebs-sc
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+volumeBindingMode: WaitForFirstConsumer
+provisioner: ebs.csi.eks.amazonaws.com
+allowVolumeExpansion: true
+reclaimPolicy: Delete
+parameters:
+  type: gp3
+  fsType: ext4
+  encrypted: "true"

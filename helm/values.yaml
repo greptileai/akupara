@@ -1,0 +1,286 @@
+global:
+  environment: "development"
+  ecr:
+    registry: "example.dkr.ecr.region.amazonaws.com"
+  
+billing:
+  enabled: false
+
+analytics:
+  enabled: false
+
+notifications:
+  enabled: false
+
+database:
+  migration:
+    image:
+      repository: "greptile/db-migration"
+      tag: "latest"
+      pullPolicy: Always
+  env:
+    host: "" # TODO: set this with your database host in values-override.yaml
+    port: 5432
+    name: "postgres"
+
+vectordb: 
+  migration:
+    image:
+      repository: "greptile/vectordb-migration"
+      tag: "latest"
+      pullPolicy: Always
+  config:
+    provider: "pgvector"
+  env:
+    host: "" # (optional) will default to the database host in values-override.yaml
+    port: 5432
+    name: "vector"
+
+redis:
+  env:
+    host: ""
+    port: 6379
+
+api:
+  replicaCount: 1
+  image:
+    repository: "greptile/api"
+    tag: "latest"
+    pullPolicy: Always
+  service:
+    type: LoadBalancer
+    port: 3002
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+auth:
+  replicaCount: 1
+  image:
+    repository: "greptile/auth"
+    tag: "latest"
+    pullPolicy: Always
+  service:
+    type: LoadBalancer
+    port: 3001
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+query:
+  replicaCount: 3
+  image: 
+    repository: "greptile/query"
+    tag: "latest"
+    pullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 8081
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+web:
+  replicaCount: 1
+  image:
+    repository: "greptile/web"
+    tag: "latest"
+    pullPolicy: Always
+  service:
+    type: LoadBalancer
+    port: 3000
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  config:
+    emailProvider: "SES"
+    authEmailFrom: "noreply@greptile.com"
+
+indexer:
+  replicaCount: 2
+  service:
+    type: ClusterIP
+    chunker:
+      port: 3003
+      image:
+        repository: "greptile/chunker"
+        tag: "latest"
+        pullPolicy: Always
+    summarizer:
+      port: 3004
+      image:
+        repository: "greptile/summarizer"
+        tag: "latest"
+        pullPolicy: Always
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  config:
+    batchSize: 100
+    rootDir: "/mnt/data/"
+    llmTimeout: 300000
+
+# Integrations
+github:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: "greptile/github"
+    tag: "latest"
+    pullPolicy: Always
+  service:
+    type: LoadBalancer
+    port: 3010
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+gitlab:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: "greptile/gitlab"
+    tag: "latest"
+    pullPolicy: Always
+  service:
+    type: LoadBalancer
+    port: 3011
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+jira:
+  enabled: false
+  replicaCount: 1
+  image:
+    repository: "greptile/jira"
+    tag: "latest"
+    pullPolicy: Always
+  service:
+    type: LoadBalancer
+    port: 3012
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+linear:
+  enabled: false
+  replicaCount: 1
+  image:
+    repository: "greptile/linear"
+    tag: "latest"
+    pullPolicy: Always
+  service:
+    type: LoadBalancer
+    port: 3013
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+slack:
+  enabled: false
+  replicaCount: 1
+  image:
+    repository: "greptile/slack"
+    tag: "latest"
+    pullPolicy: Always
+  service:
+    type: LoadBalancer
+    port: 3014
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# Hatchet Stack
+hatchet-stack:
+  enabled: true
+  sharedConfig:
+    enabled: true
+    serverUrl: "http://greptile-api:8080" # k8s converts api url to greptile-api instead of hatchet-stack-api
+    serverAuthCookieDomain: "localhost:8080"
+    serverAuthCookieInsecure: "t"
+    serverAuthSetEmailVerified: "t"
+    serverAuthBasicAuthEnabled: "t"
+    grpcBroadcastAddress: "greptile-engine:7070" # same for hatchet-stack-engine
+    grpcInsecure: "true"
+    defaultAdminEmail: "admin@example.com"
+    defaultAdminPassword: "Admin123!!"
+
+  caddy:
+    enabled: true
+
+  postgres:
+    enabled: false
+
+  api:
+    service:
+      port: 8080
+
+  engine:
+    service:
+      port: 7070
+
+jackson:
+  replicaCount: 1
+  image:
+    repository: "boxyhq/jackson"
+    tag: "1.29.0"
+    pullPolicy: Always
+  service:
+    type: LoadBalancer
+    port: 5225
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+external-secrets:
+  enabled: true
+  installCRDs: true
+  webhook:
+    create: true
+  certController:
+    create: true

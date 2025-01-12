@@ -1,0 +1,23 @@
+{{- if .Values.github.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: github-config
+data:
+  PORT: {{ .Values.github.service.port | quote }}
+  GITHUB_APP_ID: {{ .Values.github.config.appId | quote }}
+  GITHUB_APP_URL: {{ .Values.github.config.appUrl | quote }}
+  GITHUB_BOT_LOGIN: {{ .Values.github.config.name | lower | quote }}
+  GITHUB_BOT_USERNAME: "${GITHUB_BOT_LOGIN}[bot]"
+  GREPTILE_API_URL: {{ printf "http://api.%s.svc.cluster.local:%v" .Release.Namespace (.Values.api.service.port) | quote }}
+  REFINER_MODEL_PROVIDER: {{ .Values.github.config.refinerModelProvider | quote }}
+  REFINER_MODEL: {{ .Values.github.config.refinerModel | quote }}
+  EMBEDDINGS_MODEL_PROVIDER: {{ .Values.github.config.embeddingsModelProvider | quote }}
+  EMBEDDINGS_MODEL: {{ .Values.github.config.embeddingsModel | quote }}
+  ANALYTICS: {{ .Values.analytics.enabled | quote }}
+  NOTIFICATIONS: {{ .Values.notifications.enabled | quote }}
+  BILLING: {{ .Values.billing.enabled | quote }}
+  {{- range $key, $value := .Values.github.config }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+{{- end }}

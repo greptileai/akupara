@@ -1,0 +1,13 @@
+{{- if .Values.linear.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: linear
+spec:
+  type: {{ .Values.linear.service.type }}
+  ports:
+    - port: {{ .Values.linear.service.port }}
+      targetPort: {{ .Values.linear.service.port }}
+  selector:
+    app: linear
+{{- end }}

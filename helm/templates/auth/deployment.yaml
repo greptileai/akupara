@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth
+  annotations:
+    "helm.sh/hook-weight": "0"
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: {{ .Values.auth.replicaCount }}
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+        - name: auth
+          image: "{{ .Values.global.ecr.registry }}/{{ .Values.auth.image.repository }}:{{ .Values.auth.image.tag }}"
+          imagePullPolicy: {{ .Values.auth.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.auth.service.port }}
+          envFrom:
+            - configMapRef:
+                name: auth-config
+          env:
+            - name: APP_URL
+              value: {{ default (printf "http://web.%s.svc.cluster.local:%v" .Release.Namespace (.Values.web.service.port | default 3000)) .Values.web.url | quote }}
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: jwtSecret
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: url
+          resources: {{ toYaml .Values.auth.resources | nindent 12 }}
+    
+

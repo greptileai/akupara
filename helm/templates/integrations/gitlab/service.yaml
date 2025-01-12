@@ -1,0 +1,16 @@
+{{- if .Values.gitlab.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitlab
+  {{- with .Values.gitlab.service.metadata }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+spec:
+  type: {{ .Values.gitlab.service.type }}
+  ports:
+    - port: {{ .Values.gitlab.service.port }}
+      targetPort: {{ .Values.gitlab.service.port }}
+  selector:
+    app: gitlab
+{{- end }}

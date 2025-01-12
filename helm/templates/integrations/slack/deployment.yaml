@@ -1,0 +1,29 @@
+{{- if .Values.slack.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slack
+  annotations:
+    "helm.sh/hook-weight": "0"
+spec:
+  replicas: {{ .Values.slack.replicaCount }}
+  selector:
+    matchLabels:
+      app: slack
+  template:
+    metadata:
+      labels:
+        app: slack
+    spec:
+      containers:
+        - name: slack
+          image: "{{ .Values.global.ecr.registry }}/{{ .Values.slack.image.repository }}:{{ .Values.slack.image.tag }}"
+          imagePullPolicy: {{ .Values.slack.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.slack.service.port }}
+          envFrom:
+            - configMapRef:
+                name: slack-config
+          resources:
+            {{- toYaml .Values.slack.resources | nindent 12 }}
+{{- end }}

@@ -1,0 +1,17 @@
+aws_region = "us-east-1"
+aws_profile = "default"
+app_name="greptile"
+
+# GitHub App Secrets
+github_client_id = ""
+github_client_secret = ""
+github_webhook_secret = ""
+github_private_key = ""
+
+# LLM API Keys (optional)
+openai_api_key = ""
+anthropic_api_key = ""
+
+# SAML (optional)
+saml_admin_email = "" # defaults to admin@greptile.com
+saml_admin_password = "" # randomly generated (accessible via vault)

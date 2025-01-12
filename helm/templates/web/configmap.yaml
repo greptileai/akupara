@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: web-config
+data:
+  PORT: {{ .Values.web.service.port | quote }}
+  NEXTAUTH_URL: {{ .Values.web.config.url | default (printf "http://web.%s.svc.cluster.local:%v" .Release.Namespace (.Values.web.service.port | int)) | quote }}
+  APP_URL: {{ .Values.web.config.url | default (printf "http://web.%s.svc.cluster.local:%v" .Release.Namespace (.Values.web.service.port | int)) | quote }}
+  EMAIL_PROVIDER: {{ .Values.web.config.emailProvider | quote }}
+  AUTH_EMAIL_FROM: {{ .Values.web.config.authEmailFrom | quote }}
+  GREPTILE_AUTH_SERVER: {{ printf "http://auth.%s.svc.cluster.local:%v" .Release.Namespace (.Values.auth.service.port | int) | quote }}
+  AUTH_BOXYHQ_URL: {{ printf "http://jackson.%s.svc.cluster.local:%v" .Release.Namespace (.Values.jackson.service.port | int) | quote }}
+  # TODO: configurable github oauth
+  GITHUB_OAUTH_ENABLED: {{ .Values.github.oauth.enabled | quote }}
+  POSTHOG_KEY: "dummy"
+  POSTHOG_HOST: "dummy"
+  NEXT_PUBLIC_GITHUB_APP_URL: {{ .Values.github.appUrl | quote }}
+  GITHUB_ENABLED: {{ .Values.github.enabled | quote }}
+  {{- if .Values.github.enabled }}
+  GITHUB_WEBHOOK_URL: {{ printf "%s/webhook" (.Values.github.config.url) | default (printf "http://github.%s.svc.cluster.local:%v" .Release.Namespace (.Values.github.service.port | int)) | quote }}
+  GITHUB_APP_ID: {{ .Values.github.config.appId | quote }}
+  {{- end }}
+  {{- if .Values.gitlab.enabled }}
+  GITLAB_ENABLED: {{ .Values.gitlab.enabled | quote }}
+  GITLAB_WEBHOOK_URL: {{ printf "%s/webhook" (.Values.gitlab.config.url) | default (printf "http://gitlab.%s.svc.cluster.local:%v" .Release.Namespace (.Values.gitlab.service.port | int)) | quote }}
+  {{- end }}
+  SLACK_ENABLED: {{ .Values.slack.enabled | quote }}
+  LINEAR_ENABLED: {{ .Values.linear.enabled | quote }}
+  {{- range $key, $value := .Values.web.config }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}

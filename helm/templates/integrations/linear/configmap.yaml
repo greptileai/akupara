@@ -1,0 +1,14 @@
+{{- if .Values.linear.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: linear-config
+data:
+  PORT: {{ .Values.linear.service.port | quote }}
+  LINEAR_APP_CLIENT_ID: {{ .Values.linear.env.LINEAR_APP_CLIENT_ID | quote }}
+  LINEAR_APP_CLIENT_SECRET: {{ .Values.linear.env.LINEAR_APP_CLIENT_SECRET | quote }}
+  LINEAR_APP_SIGNING_SECRET: {{ .Values.linear.env.LINEAR_APP_SIGNING_SECRET | quote }}
+  {{- range $key, $value := .Values.linear.config }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+{{- end }}

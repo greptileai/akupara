@@ -1,0 +1,16 @@
+{{- if .Values.github.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: github
+  {{- with .Values.github.service.metadata }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+spec:
+  type: {{ .Values.github.service.type }}
+  ports:
+    - port: {{ .Values.github.service.port }}
+      targetPort: {{ .Values.github.service.port }}
+  selector:
+    app: github
+{{- end }}
