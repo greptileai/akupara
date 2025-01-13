@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-config
+data:
+  EMAIL_FROM: {{ .Values.web.config.authEmailFrom | quote }}
+  PORT: {{ .Values.auth.service.port | quote }}
+  {{- range $key, $value := .Values.auth.config }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}

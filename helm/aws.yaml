@@ -1,0 +1,89 @@
+
+
+# https://github.com/kubernetes-sigs/aws-efs-csi-driver
+aws-efs-csi-driver:
+  node:
+    tolerateAllTaints: true
+  enableVolumeScheduling: true
+  enableVolumeResizing: true
+  enableVolumeSnapshot: true
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+query:
+  config:
+    agentModelProvider: "bedrock"
+    agentModel: "us.anthropic.claude-3-5-haiku-20241022-v1:0"
+    chatModelProvider: "bedrock"
+    chatModel: "us.anthropic.claude-3-5-sonnet-20241022-v2:0"
+    embeddingsModelProvider: "bedrock"
+    embeddingsModel: "amazon.titan-embed-text-v1"
+
+indexer:
+  config:
+    summarizerModelProvider: "bedrock"
+    summarizerModel: "us.anthropic.claude-3-5-haiku-20241022-v1:0"
+    embeddingsModelProvider: "bedrock"
+    embeddingsModel: "amazon.titan-embed-text-v1"
+
+
+api:
+  service:
+    metadata:
+      annotations:
+        "service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
+        "service.beta.kubernetes.io/aws-load-balancer-attributes": "load_balancing.cross_zone.enabled=true"
+
+web:
+  service:
+    metadata:
+      annotations:
+        "service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
+        "service.beta.kubernetes.io/aws-load-balancer-attributes": "load_balancing.cross_zone.enabled=true"
+
+auth:
+  service:
+    metadata:
+      annotations:
+        "service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
+        "service.beta.kubernetes.io/aws-load-balancer-attributes": "load_balancing.cross_zone.enabled=true"
+
+github:
+  enabled: true
+  service:
+    metadata:
+      annotations:
+        "service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
+        "service.beta.kubernetes.io/aws-load-balancer-attributes": "load_balancing.cross_zone.enabled=true"
+  config:
+    refinerModelProvider: "bedrock"
+    refinerModel: "us.anthropic.claude-3-5-sonnet-20241022-v2:0"
+    embeddingsModelProvider: "bedrock"
+    embeddingsModel: "amazon.titan-embed-text-v1"
+
+
+gitlab:
+  enabled: true
+  service:
+    metadata:
+      annotations:
+        "service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
+        "service.beta.kubernetes.io/aws-load-balancer-attributes": "load_balancing.cross_zone.enabled=true"
+  config:
+    refinerModelProvider: "bedrock"
+    refinerModel: "us.anthropic.claude-3-5-sonnet-20241022-v2:0"
+    embeddingsModelProvider: "bedrock"
+    embeddingsModel: "amazon.titan-embed-text-v1"
+
+jackson:
+  enabled: true
+  service:
+    metadata:
+      annotations:
+        "service.beta.kubernetes.io/aws-load-balancer-scheme": "internet-facing"
+        "service.beta.kubernetes.io/aws-load-balancer-attributes": "load_balancing.cross_zone.enabled=true"

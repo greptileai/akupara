@@ -1,0 +1,9 @@
+dependencies:
+- name: hatchet-stack
+  repository: https://hatchet-dev.github.io/hatchet-charts
+  version: 0.8.0
+- name: aws-efs-csi-driver
+  repository: https://kubernetes-sigs.github.io/aws-efs-csi-driver
+  version: 2.1.1
+digest: sha256:7987e5ea1da6c2386e4715e4ae0cd7ecfb6c34168767c32c68c648768ffa4acd
+generated: "2025-01-09T21:32:47.315597-08:00"

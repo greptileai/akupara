@@ -1,0 +1,21 @@
+{{- if .Values.gitlab.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gitlab-config
+data:
+  PORT: {{ .Values.gitlab.service.port | quote }}
+  MAX_CONCURRENT_REQUESTS: {{ .Values.gitlab.config.maxConcurrentRequests | quote }}
+  GREPTILE_API_URL: {{ printf "http://api.%s.svc.cluster.local:%v" .Release.Namespace (.Values.api.service.port) | quote }}
+  REFINER_MODEL_PROVIDER: {{ .Values.gitlab.config.refinerModelProvider | quote }}
+  REFINER_MODEL: {{ .Values.gitlab.config.refinerModel | quote }}
+  EMBEDDINGS_MODEL_PROVIDER: {{ .Values.gitlab.config.embeddingsModelProvider | quote }}
+  EMBEDDINGS_MODEL: {{ .Values.gitlab.config.embeddingsModel | quote }}
+  ANALYTICS: {{ .Values.analytics.enabled | quote }}
+  NOTIFICATIONS: {{ .Values.notifications.enabled | quote }}
+  BILLING: {{ .Values.billing.enabled | quote }}
+  {{- range $key, $value := .Values.gitlab.config }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+{{- end }}
+

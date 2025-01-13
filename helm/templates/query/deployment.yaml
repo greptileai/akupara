@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: query
+  annotations:
+    "helm.sh/hook-weight": "0"
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: {{ .Values.query.replicaCount }}
+  selector:
+    matchLabels:
+      app: query
+  template:
+    metadata:
+      labels:
+        app: query
+    spec:
+      serviceAccountName: query-sa
+      containers:
+        - name: query
+          image: "{{ .Values.global.ecr.registry }}/{{ .Values.query.image.repository }}:{{ .Values.query.image.tag }}"
+          imagePullPolicy: {{ .Values.query.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.query.service.port }}
+          envFrom:
+            - configMapRef:
+                name: query-config
+          env:
+            - name: VECTOR_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: username
+            - name: VECTOR_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: password
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: url
+          resources:
+            {{- toYaml .Values.query.resources | nindent 12 }}

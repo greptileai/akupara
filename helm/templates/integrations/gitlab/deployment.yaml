@@ -1,0 +1,36 @@
+{{- if .Values.gitlab.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitlab
+  annotations:
+    "helm.sh/hook-weight": "0"
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: {{ .Values.gitlab.replicaCount }}
+  selector:
+    matchLabels:
+      app: gitlab
+  template:
+    metadata:
+      labels:
+        app: gitlab
+    spec:
+      containers:
+        - name: gitlab
+          image: "{{ .Values.global.ecr.registry }}/{{ .Values.gitlab.image.repository }}:{{ .Values.gitlab.image.tag }}"
+          imagePullPolicy: {{ .Values.gitlab.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.gitlab.service.port }}
+          envFrom:
+            - configMapRef:
+                name: gitlab-config
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: url
+          resources:
+            {{- toYaml .Values.gitlab.resources | nindent 12 }}
+{{- end }}

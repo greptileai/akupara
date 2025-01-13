@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  annotations:
+    "helm.sh/hook-weight": "0"
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: {{ .Values.web.replicaCount }}
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: web
+          image: "{{ .Values.global.ecr.registry }}/{{ .Values.web.image.repository }}:{{ .Values.web.image.tag }}"
+          imagePullPolicy: {{ .Values.web.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.web.service.port }}
+          envFrom:
+            - configMapRef:
+                name: web-config
+          env:
+            - name: AUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: jwtSecret
+            - name: GITHUB_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: github-secrets
+                  key: clientId
+            - name: GITHUB_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: github-secrets
+                  key: clientSecret
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secrets
+                  key: url
+            - name: AUTH_BOXYHQ_SAML_ID
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: boxyhqSamlId
+            - name: AUTH_BOXYHQ_SAML_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: boxyhqSamlSecret
+            - name: AUTH_BOXYHQ_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: boxyhqApiKey
+            
+          resources:
+            {{- toYaml .Values.web.resources | nindent 12 }}
+

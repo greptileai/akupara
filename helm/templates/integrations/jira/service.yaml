@@ -1,0 +1,13 @@
+{{- if .Values.jira.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: jira
+spec:
+  type: {{ .Values.jira.service.type }}
+  ports:
+    - port: {{ .Values.jira.service.port }}
+      targetPort: {{ .Values.jira.service.port }}
+  selector:
+    app: jira
+{{- end }}

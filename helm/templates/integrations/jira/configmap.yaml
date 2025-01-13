@@ -1,0 +1,12 @@
+{{- if .Values.jira.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jira-config
+data:
+  PORT: {{ .Values.jira.service.port | quote }}
+  JIRA_TABLE_NAME: {{ .Values.jira.env.JIRA_TABLE_NAME | quote }}
+  {{- range $key, $value := .Values.jira.config }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+{{- end }}

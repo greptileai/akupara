@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-config
+data:
+  HATCHET_CLIENT_TLS_STRATEGY: "none"
+  API_CALL_PRICE_CENTS: "0"
+  PORT: {{ .Values.api.service.port | quote }}
+  QUERY_URL: {{ printf "http://query.%s.svc.cluster.local:%v/query" .Release.Namespace (.Values.query.service.port) | quote }}
+  NOTIFICATIONS: {{ .Values.notifications.enabled | quote }}
+  BILLING: {{ .Values.billing.enabled | quote }}
+  ANALYTICS: {{ .Values.analytics.enabled | quote }}
+  X_AWS_REGION: {{ .Values.global.region | quote }}
+  NODE_ENV: {{ .Values.global.environment | quote }}
+  REDIS_HOST: {{ .Values.redis.env.host | quote }}
+  REDIS_PORT: {{ .Values.redis.env.port | quote }}
+  REDIS_PASSWORD: {{ .Values.redis.env.password | quote }}
+  {{- range $key, $value := .Values.api.config }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}

@@ -1,0 +1,29 @@
+{{- if .Values.jira.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jira
+  annotations:
+    "helm.sh/hook-weight": "0"
+spec:
+  replicas: {{ .Values.jira.replicaCount }}
+  selector:
+    matchLabels:
+      app: jira
+  template:
+    metadata:
+      labels:
+        app: jira
+    spec:
+      containers:
+        - name: jira
+          image: "{{ .Values.global.ecr.registry }}/{{ .Values.jira.image.repository }}:{{ .Values.jira.image.tag }}"
+          imagePullPolicy: {{ .Values.jira.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.jira.service.port }}
+          envFrom:
+            - configMapRef:
+                name: jira-config
+          resources:
+            {{- toYaml .Values.jira.resources | nindent 12 }}
+{{- end }}
