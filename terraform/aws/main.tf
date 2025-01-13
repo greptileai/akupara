@@ -457,9 +457,8 @@ resource "aws_secretsmanager_secret" "app_secrets" {
   name = "${var.app_name}-app-secrets"
 }
 
-resource "random_password" "jwt_secret" {
-  length           = 64
-  special          = false
+resource "random_id" "jwt_secret" {
+  byte_length = 32
 }
 
 resource "random_password" "jackson_admin_password" {
@@ -490,12 +489,12 @@ resource "random_password" "boxyhq_api_key" {
 resource "aws_secretsmanager_secret_version" "app_secrets" {
   secret_id = aws_secretsmanager_secret.app_secrets.id
   secret_string = jsonencode({
-    "jwtSecret"                   = random_password.jwt_secret.result
+    "jwtSecret"                   = random_id.jwt_secret.b64_std
     "jacksonAdminCredentials"     = "${var.saml_admin_email}:${var.saml_admin_password != "" ? var.saml_admin_password : random_password.jackson_admin_password.result}"
     "jacksonClientSecretVerifier" = base64encode(random_password.jackson_client_secret_verifier.result)
     "jacksonDbEncryptionKey"      = base64encode(random_password.jackson_db_encryption_key.result)
-    "jacksonPrivateKey"           = tls_private_key.jackson_key.private_key_pem
-    "jacksonPublicKey"            = tls_private_key.jackson_key.public_key_pem
+    "jacksonPrivateKey"           = base64encode(tls_private_key.jackson_key.private_key_pem)
+    "jacksonPublicKey"            = base64encode(tls_private_key.jackson_key.public_key_pem)
     "boxyhqSamlId"                = "dummy"
     "boxyhqSamlSecret"            = "dummy"
     "boxyhqApiKey"                = base64encode(random_password.boxyhq_api_key.result)

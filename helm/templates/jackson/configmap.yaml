@@ -4,7 +4,7 @@ metadata:
   name: jackson-config
 data:
   PORT: {{ .Values.jackson.service.port | quote }}
-  DO_NOT_TRACK: "1" # hide
+  DO_NOT_TRACK: "1"
   DB_ENGINE: "sql"
   DB_TYPE: "postgres"
   DB_SSL: "true"

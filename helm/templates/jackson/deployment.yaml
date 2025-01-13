@@ -51,7 +51,7 @@ spec:
                   name: app-secrets
                   key: jacksonDbEncryptionKey
             - name: HOST_URL 
-              value: {{ .Values.jackson.config.url | trimPrefix "https://" | trimPrefix "http://" | default (printf "jackson.%s.svc.cluster.local:%v" .Release.Namespace .Values.jackson.service.port) }}
+              value: localhost
             - name: EXTERNAL_URL
               value: {{ .Values.jackson.config.url | default (printf "jackson.%s.svc.cluster.local:%v" .Release.Namespace .Values.jackson.service.port) }}
             - name: SAML_AUDIENCE

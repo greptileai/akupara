@@ -264,7 +264,7 @@ jackson:
   replicaCount: 1
   image:
     repository: "boxyhq/jackson"
-    tag: "1.29.0"
+    tag: "1.35.1"
     pullPolicy: Always
   service:
     type: LoadBalancer
