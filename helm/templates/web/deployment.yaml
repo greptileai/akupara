@@ -54,7 +54,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: app-secrets
-                  key: boxyhqSamlSecret
+                  key: jacksonClientSecretVerifier
             - name: AUTH_BOXYHQ_API_KEY
               valueFrom:
                 secretKeyRef:
