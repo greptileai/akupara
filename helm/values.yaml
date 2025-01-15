@@ -130,11 +130,11 @@ indexer:
         pullPolicy: Always
   resources:
     limits:
-      cpu: 500m
-      memory: 512Mi
+      cpu: "2"
+      memory: "8Gi"
     requests:
-      cpu: 100m
-      memory: 128Mi
+      cpu: "1"
+      memory: "4Gi"
   config:
     batchSize: 100
     rootDir: "/mnt/data/"
