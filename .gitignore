@@ -17,12 +17,8 @@ dist
 cdk.out
 **/cdk.out
 
-.env
-.env.local
-.env.staging
-.env.production
-.env.development
-.env.staging
+.env*
+!.env*.example
 
 __pycache__
 .vscode
@@ -40,3 +36,8 @@ logs
 .turbo
 *.tsbuildinfo
 out
+*.rdb
+
+/apps
+/packages
+/infra 
