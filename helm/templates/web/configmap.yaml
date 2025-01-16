@@ -10,10 +10,10 @@ data:
   AUTH_SAML_ONLY: {{ .Values.web.config.authSamlOnly | default true | quote }}
   AUTH_EMAIL_FROM: {{ .Values.web.config.authEmailFrom | quote }}
   GREPTILE_AUTH_SERVER: {{ printf "http://auth.%s.svc.cluster.local:%v" .Release.Namespace (.Values.auth.service.port | int) | quote }}
+  GREPTILE_API_URL: {{ printf "http://api.%s.svc.cluster.local:%v" .Release.Namespace (.Values.api.service.port | int) | quote }}
   AUTH_BOXYHQ_URL:  {{ .Values.jackson.config.url | default (printf "jackson.%s.svc.cluster.local:%v" .Release.Namespace .Values.jackson.service.port) }}
   AUTH_BOXYHQ_SAML_ISSUER:  {{ .Values.jackson.config.url | default (printf "jackson.%s.svc.cluster.local:%v" .Release.Namespace .Values.jackson.service.port) }}
   # TODO: configurable github oauth
-  GREPTILE_API_URL: {{ printf "http://api.%s.svc.cluster.local:%v" .Release.Namespace (.Values.api.service.port | int) | quote }}
   GITHUB_OAUTH_ENABLED: {{ .Values.github.oauth.enabled | quote }}
   POSTHOG_KEY: "dummy"
   POSTHOG_HOST: "dummy"
