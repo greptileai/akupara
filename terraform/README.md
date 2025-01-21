@@ -21,9 +21,9 @@ We recommend starting Greptile from this template and managing any of the change
 ### Setup
 
 
-Go to the directory of the cloud provider that will be used to deploy Greptile 
+Go to the directory of the cloud provider that will be used to deploy Greptile
 ```sh
-cd aws 
+cd aws
 # cd gcp # the provider you are using
 ```
 
@@ -66,7 +66,7 @@ If using GitHub as your code provider you will need to create a GitHub App to al
 
 ### Deployment
 
-After you have supplied the variables you will be using, you can plan your stack with 
+After you have supplied the variables you will be using, you can plan your stack with
 
 ```sh
 terraform plan
@@ -76,7 +76,7 @@ And after deploy with:
 
 ```sh
 terraform apply
-``` 
+```
 
 When prompted and ready to deploy, type in `yes`
 
