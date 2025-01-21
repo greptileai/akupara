@@ -696,7 +696,7 @@ resource "aws_iam_role_policy_attachment" "gitlab" {
   policy_arn = aws_iam_policy.bedrock.arn
 }
 
-resource "aws_iam_role_policy_attachment" "cloudwatch_agent" {
+resource "aws_iam_role_policy" "cloudwatch_agent" {
   role       = aws_iam_role.cloudwatch_agent.name
   name       = "${var.app_name}-cloudwatch-agent-policy"
   policy     = file("${path.module}/roles/CloudwatchAgentRole.json")
