@@ -17,10 +17,12 @@ data:
   GITHUB_OAUTH_ENABLED: {{ .Values.github.oauth.enabled | quote }}
   POSTHOG_KEY: "dummy"
   POSTHOG_HOST: "dummy"
-  GITHUB_APP_URL: {{ .Values.web.config.githubAppUrl | quote }}
-  GITHUB_ENTERPRISE_URL: {{ .Values.web.config.githubEnterpriseUrl | quote }}
-  GITHUB_ENABLED: {{ .Values.github.enabled | quote }}
   {{- if .Values.github.enabled }}
+  GITHUB_APP_URL: {{ .Values.github.config.appUrl | quote }}
+  GITHUB_ENTERPRISE_URL: {{ .Values.github.config.enterpriseUrl | quote }}
+  GITHUB_ENTERPRISE_API_URL: {{ .Values.github.config.apiUrl | quote }}
+  GITHUB_ENTERPRISE_APP_ID: {{ .Values.github.config.appId | quote }}
+  GITHUB_ENABLED: {{ .Values.github.enabled | quote }}
   GITHUB_WEBHOOK_URL: {{ printf "%s/webhook" (.Values.github.config.url) | default (printf "http://github.%s.svc.cluster.local:%v" .Release.Namespace (.Values.github.service.port | int)) | quote }}
   GITHUB_APP_ID: {{ .Values.github.config.appId | quote }}
   {{- end }}

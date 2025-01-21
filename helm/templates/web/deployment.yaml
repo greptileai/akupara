@@ -40,6 +40,16 @@ spec:
                 secretKeyRef:
                   name: github-secrets
                   key: clientSecret
+            - name: GITHUB_ENTERPRISE_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: github-secrets
+                  key: clientId
+            - name: GITHUB_ENTERPRISE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: github-secrets
+                  key: clientSecret
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
@@ -60,7 +70,6 @@ spec:
                 secretKeyRef:
                   name: app-secrets
                   key: boxyhqApiKey
-            
+
           resources:
             {{- toYaml .Values.web.resources | nindent 12 }}
-
