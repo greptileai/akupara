@@ -279,19 +279,31 @@ resource "aws_iam_role" "node" {
 }
 
 # 3. Attach required EKS policies
-# Add inline policy to cluster role from EKSClusterRole.json
 resource "aws_iam_role_policy" "cluster_custom_policy" {
   name = "${var.app_name}-eks-cluster-custom-policy"
   role = aws_iam_role.cluster.name
   policy = file("${path.module}/roles/EKSClusterRole.json")
 }
 
-# Add inline policy to node role from EKSWorkerRole.json
+resource "aws_iam_role_policy" "cluster_network_custom_policy" {
+  name = "${var.app_name}-eks-cluster-network-custom-policy"
+  role = aws_iam_role.cluster.name
+  policy = file("${path.module}/roles/EKSClusterNetworkRole.json")
+}
+
+resource "aws_iam_role_policy" "node_volume_custom_policy" {
+  name = "${var.app_name}-eks-node-volume-custom-policy"
+  role = aws_iam_role.node.name
+  policy = file("${path.module}/roles/EKSWorkerVolumeRole.json")
+}
+
 resource "aws_iam_role_policy" "node_custom_policy" {
   name = "${var.app_name}-eks-node-custom-policy"
   role = aws_iam_role.node.name
   policy = file("${path.module}/roles/EKSWorkerRole.json")
 }
+
+
 
 # 4. Create EKS Cluster with Auto Mode
 resource "aws_eks_cluster" "main" {
