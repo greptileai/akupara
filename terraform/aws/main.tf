@@ -244,28 +244,7 @@ resource "aws_elasticache_cluster" "redis" {
 }
 
 ###############################################################################
-# 9) IAM Policy for Bedrock (attach to EKS nodes)
-###############################################################################
-resource "aws_iam_policy" "bedrock" {
-  name   = "${var.app_name}-bedrock-access"
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "InvokeDomainInferenceProfiles"
-        Effect = "Allow"
-        Action = [
-          "bedrock:InvokeModel",
-          "bedrock:InvokeModelWithResponseStream"
-        ]
-        Resource = "arn:aws:bedrock:*:*:*"
-      }
-    ]
-  })
-}
-
-###############################################################################
-# 10) EKS Cluster
+# 9) EKS Cluster
 ###############################################################################
 # 1. Create EKS Cluster Role
 resource "aws_iam_role" "cluster" {
@@ -299,179 +278,10 @@ resource "aws_iam_role" "node" {
   })
 }
 
-# 4. Create EKS Cluster with Auto Mode
-resource "aws_eks_cluster" "main" {
-  name     = "${var.app_name}-staging"
-  version  = "1.31"
-  role_arn = aws_iam_role.cluster.arn
-
-  # Disable self-managed addons for Auto Mode
-  bootstrap_self_managed_addons = false
-
-  # Enable Auto Mode compute
-  compute_config {
-    enabled       = true
-    node_pools    = ["general-purpose"]
-    node_role_arn = aws_iam_role.node.arn
-  }
-
-  # Enable Auto Mode networking
-  kubernetes_network_config {
-    elastic_load_balancing {
-      enabled = true
-    }
-  }
-
-  # Enable Auto Mode storage
-  storage_config {
-    block_storage {
-      enabled = true
-    }
-  }
-
-  vpc_config {
-    subnet_ids = concat(module.vpc.private_subnets, module.vpc.public_subnets) # allowing public access to the cluster
-    endpoint_private_access = true
-    endpoint_public_access  = true
-  }
-
-  access_config {
-    authentication_mode = "API_AND_CONFIG_MAP"
-    bootstrap_cluster_creator_admin_permissions = true
-  }
-
-  depends_on = [
-    aws_iam_role_policy_attachment.cluster_policy,
-    aws_iam_role_policy_attachment.cluster_compute_policy,
-    aws_iam_role_policy_attachment.cluster_block_storage_policy,
-    aws_iam_role_policy_attachment.cluster_load_balancing_policy,
-    aws_iam_role_policy_attachment.cluster_networking_policy,
-    aws_iam_role_policy_attachment.node_bedrock_policy,
-    aws_iam_role_policy_attachment.node_cni_policy,
-    aws_iam_role_policy.node_secrets_policy
-
-  ]
-}
-
-# 1. Enable kube-proxy add-on
-resource "aws_eks_addon" "kube_proxy" {
-  cluster_name = aws_eks_cluster.main.name
-  addon_name   = "kube-proxy"
-
-  # Use the latest compatible version
-  addon_version = "v1.30.6-eksbuild.3"
-
-  depends_on = [
-    aws_eks_cluster.main
-  ]
-}
-
-# 2. Enable CoreDNS add-on
-resource "aws_eks_addon" "coredns" {
-  cluster_name                = aws_eks_cluster.main.name
-  addon_name                  = "coredns"
-  resolve_conflicts_on_create = "OVERWRITE"
-
-  depends_on = [
-    aws_eks_addon.vpc_cni,
-    aws_eks_addon.kube_proxy
-  ]
-}
-
-# 3. Enable VPC CNI add-on
-resource "aws_eks_addon" "vpc_cni" {
-  cluster_name = aws_eks_cluster.main.name
-  addon_name   = "vpc-cni"
-
-  # Use the latest compatible version
-  addon_version = "v1.19.0-eksbuild.1"
-
-  depends_on = [
-    aws_eks_cluster.main
-  ]
-}
-
-###############################################################################
-# 11) Your existing Secrets Manager resources (LLM, GitHub, App)
-###############################################################################
-# LLM Secrets
-resource "aws_secretsmanager_secret" "llm_secrets" {
-  count = var.openai_api_key != "" || var.anthropic_api_key != "" ? 1 : 0
-  name  = "${var.app_name}-llm-secrets-1"
-}
-
-resource "aws_secretsmanager_secret_version" "llm_secrets" {
-  count         = var.openai_api_key != "" || var.anthropic_api_key != "" ? 1 : 0
-  secret_id     = aws_secretsmanager_secret.llm_secrets[0].id
-  secret_string = jsonencode({
-    "openai-key"    = coalesce(var.openai_api_key, "")
-    "anthropic-key" = coalesce(var.anthropic_api_key, "")
-  })
-}
-
-# GitHub Secrets
-resource "aws_secretsmanager_secret" "github_secrets" {
-  name = "${var.app_name}-github-secrets-1"
-}
-
-resource "aws_secretsmanager_secret_version" "github_secrets" {
-  secret_id = aws_secretsmanager_secret.github_secrets.id
-  secret_string = jsonencode({
-    "clientId"      = var.github_client_id
-    "clientSecret"  = var.github_client_secret
-    "webhookSecret" = var.github_webhook_secret
-    "privateKey"    = var.github_private_key
-  })
-}
-
-# App Secrets
-resource "aws_secretsmanager_secret" "app_secrets" {
-  name = "${var.app_name}-app-secrets-1"
-}
-
-resource "random_password" "jwt_secret" {
-  length  = 64
-  special = true
-}
-
-resource "random_password" "jackson_admin_password" {
-  length  = 16
-  special = false
-}
-
-resource "random_password" "jackson_client_secret_verifier" {
-  length  = 32
-  special = false
-}
-
-resource "random_password" "jackson_db_encryption_key" {
-  length  = 32
-  special = false
-}
-
-resource "tls_private_key" "jackson_key" {
-  algorithm = "RSA"
-  rsa_bits  = 2048
-}
-
-resource "random_password" "boxyhq_api_key" {
-  length  = 32
-  special = false
-}
-
-resource "aws_secretsmanager_secret_version" "app_secrets" {
-  secret_id = aws_secretsmanager_secret.app_secrets.id
-  secret_string = jsonencode({
-    "jwtSecret"                   = random_password.jwt_secret.result
-    "jacksonAdminCredentials"     = "admin@greptile.com:${random_password.jackson_admin_password.result}"
-    "jacksonClientSecretVerifier" = base64encode(random_password.jackson_client_secret_verifier.result)
-    "jacksonDbEncryptionKey"      = base64encode(random_password.jackson_db_encryption_key.result)
-    "jacksonPrivateKey"           = tls_private_key.jackson_key.private_key_pem
-    "jacksonPublicKey"            = tls_private_key.jackson_key.public_key_pem
-    "boxyhqSamlId"                = "dummy"
-    "boxyhqSamlSecret"            = "dummy"
-    "boxyhqApiKey"                = base64encode(random_password.boxyhq_api_key.result)
-  })
+# 3. Attach required EKS policies
+resource "aws_iam_role_policy_attachment" "cluster_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+  role       = aws_iam_role.cluster.name
 }
 
 # Update the cluster role policy attachments
@@ -504,35 +314,6 @@ resource "aws_iam_role_policy_attachment" "node_minimal_policy" {
 resource "aws_iam_role_policy_attachment" "node_ecr_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPullOnly"
   role       = aws_iam_role.node.name
-}
-
-# Add the Bedrock policy attachment to the node role
-resource "aws_iam_role_policy_attachment" "node_bedrock_policy" {
-  policy_arn = aws_iam_policy.bedrock.arn
-  role       = aws_iam_role.node.name
-}
-
-# Add Secrets Manager permissions to the node role
-resource "aws_iam_role_policy" "node_secrets_policy" {
-  name = "${var.app_name}-secrets-manager-access"
-  role = aws_iam_role.node.name
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "secretsmanager:GetResourcePolicy",
-          "secretsmanager:GetSecretValue",
-          "secretsmanager:DescribeSecret",
-          "secretsmanager:ListSecretVersionIds",
-          "secretsmanager:ListSecrets"
-        ]
-        Resource = ["*"]
-      }
-    ]
-  })
 }
 
 resource "aws_iam_role_policy_attachment" "node_cni_policy" {

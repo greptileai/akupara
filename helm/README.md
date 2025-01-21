@@ -63,14 +63,6 @@ helm dependency update
 helm dependency build
 ```
 
-To use external secrets we also install the external-secrets repo as well
-
-```sh
-helm install external-secrets external-secrets/external-secrets \
-    --namespace default \
-    --set installCRDs=true
-```
-
 Create a `values-override.yaml` file from the template outlined in `values-override.yaml.example` file. 
 
 If coming from the Terraform setup, populate the fields from the outputs obtained from the `terraform apply` command.
@@ -217,6 +209,13 @@ Verify that `kubectl` is pointing to the correct cluster by running:
 kubectl config current-context
 ```
 
+To use external secrets we also install the external-secrets repo as well
+
+```sh
+helm install external-secrets external-secrets/external-secrets \
+    --namespace default \
+    --set installCRDs=true
+```
 
 For aws we need to set up storage classes that Greptile will use, run:
 ```sh
@@ -234,7 +233,7 @@ kubectl get pods
 ```
 ### Step 5: URL set up
 
-For services that should be publicly accessible, (`api` and `web`) you should retrieve them with:
+For services that should be publicly accessible, (`api`, `jackson`, `web`, `github`, `gitlab`) you should retrieve them with:
 
 ```sh
 kubectl get svc
@@ -242,7 +241,7 @@ kubectl get svc
 
 If setting up a custom domain you should use these urls to set up required domain name records.
 
-You should set the `url` field under ` .Values.api.config` and ` .Values.web.config` (outlined in `values-override.yaml.example`) respective service/custom domains.
+You should set the `url` field under ` .Values.api.config`, ` .Values.jackson.config`, and ` .Values.web.config` (outlined in `values-override.yaml.example`) respective service/custom domains.
 
 Then run:
 ```sh
