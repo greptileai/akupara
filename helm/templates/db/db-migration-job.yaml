@@ -26,6 +26,13 @@ spec:
               pnpm prisma db execute --file ./scripts/hatchet.sql
               if pnpm prisma migrate deploy; then
                 echo "Migration completed successfully"
+                API_KEY=$(openssl rand -base64 32)
+                sed "s|\$ORG_NAME|$ORG_NAME|g; s|\$TENANT_ID|$TENANT_ID|g; s|\$API_KEY|$API_KEY|g" ./scripts/root_org.sql > /tmp/processed.sql
+                cat /tmp/processed.sql | pnpm prisma db execute --stdin || {
+                  echo "Failed to execute root_org.sql"
+                  cat /tmp/processed.sql
+                  exit 1
+                }
                 exit 0
               else
                 echo "Migration failed"
@@ -42,6 +49,10 @@ spec:
             - configMapRef:
                 name: db-config
           env:
+            - name: ORG_NAME
+              value: {{ .Values.global.org.name }}
+            - name: TENANT_ID
+              value: {{ .Values.global.org.tenant }}
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:

@@ -34,6 +34,8 @@ spec:
             - configMapRef:
                 name: indexer-chunker-config
           env:
+            - name: LOG_FORMAT
+              value: json
             - name: HATCHET_CLIENT_TOKEN
               valueFrom:
                 secretKeyRef:

@@ -25,6 +25,8 @@ spec:
             - configMapRef:
                 name: api-config
           env:
+            - name: LOG_FORMAT
+              value: json
             - name: URL
               value: {{ default (printf "http://api.%s.svc.cluster.local:%v" .Release.Namespace (.Values.api.service.port | default 3002)) .Values.api.url | quote }}
             - name: JWT_SECRET

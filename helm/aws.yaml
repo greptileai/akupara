@@ -1,5 +1,3 @@
-
-
 # https://github.com/kubernetes-sigs/aws-efs-csi-driver
 aws-efs-csi-driver:
   node:
@@ -14,7 +12,7 @@ aws-efs-csi-driver:
     requests:
       cpu: 100m
       memory: 128Mi
-
+      
 query:
   config:
     agentModelProvider: "bedrock"

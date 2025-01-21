@@ -27,12 +27,12 @@ cd aws
 # cd gcp # the provider you are using
 ```
 
-Create and populate a `terraform.tfvars` file according to the `terraform.tfvars.example` file.
+Create and populate a `terraform.tfvars` file according to the `terraform.tfvars.example` file. We recommend you change the `backend.tf` file depending where you store your remote `tfstate`.
 
 Once complete run the command:
 
 ```sh
-terraform init
+terraform init # run with -backend-config="[key]=[value]" to set up the remote target depending on remote used.
 ```
 
 to install dependencies in preparation of deploying the infrastructure.
@@ -82,7 +82,11 @@ When prompted and ready to deploy, type in `yes`
 
 This should take around 20-30 minutes
 
+<<<<<<< HEAD
 Once completed make note of the output variables from the `apply` command, these will be used as values in the helm chart deployment of the cluster.
+=======
+Once completed make note of the output variables from the `terraform apply` command, these will be used as values in the helm chart deployment of the cluster.
+>>>>>>> temp-split
 
 ### Tear Down
 
