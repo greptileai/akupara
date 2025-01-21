@@ -293,9 +293,6 @@ resource "aws_iam_role_policy" "node_custom_policy" {
   policy = file("${path.module}/roles/EKSWorkerRole.json")
 }
 
-
-
-
 # 4. Create EKS Cluster with Auto Mode
 resource "aws_eks_cluster" "main" {
   name     = local.cluster_name
@@ -338,13 +335,8 @@ resource "aws_eks_cluster" "main" {
   }
 
   depends_on = [
-    aws_iam_role_policy_attachment.cluster_policy,
-    aws_iam_role_policy_attachment.cluster_compute_policy,
-    aws_iam_role_policy_attachment.cluster_block_storage_policy,
-    aws_iam_role_policy_attachment.cluster_load_balancing_policy,
-    aws_iam_role_policy_attachment.cluster_networking_policy,
-    aws_iam_role_policy_attachment.node_cni_policy,
-    aws_iam_role_policy_attachment.node_ebs_csi_policy
+    aws_iam_role_policy_attachment.cluster_custom_policy,
+    aws_iam_role_policy_attachment.node_custom_policy
   ]
 }
 
