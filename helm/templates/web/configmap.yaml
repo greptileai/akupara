@@ -17,7 +17,8 @@ data:
   GITHUB_OAUTH_ENABLED: {{ .Values.github.oauth.enabled | quote }}
   POSTHOG_KEY: "dummy"
   POSTHOG_HOST: "dummy"
-  NEXT_PUBLIC_GITHUB_APP_URL: {{ .Values.github.appUrl | quote }}
+  GITHUB_APP_URL: {{ .Values.web.config.githubAppUrl | quote }}
+  GITHUB_ENTERPRISE_URL: {{ .Values.web.config.githubEnterpriseUrl | quote }}
   GITHUB_ENABLED: {{ .Values.github.enabled | quote }}
   {{- if .Values.github.enabled }}
   GITHUB_WEBHOOK_URL: {{ printf "%s/webhook" (.Values.github.config.url) | default (printf "http://github.%s.svc.cluster.local:%v" .Release.Namespace (.Values.github.service.port | int)) | quote }}
