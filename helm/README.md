@@ -258,8 +258,6 @@ You can then access the Greptile web app with the `web` custom or service url an
 http://[svc/web url]:[svc/web port]
 ```
 
-
-
 ### Step 6: Complete Integrations Setup
 
 There are additional steps to connect Greptile to the different integrations provided.
