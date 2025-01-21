@@ -335,8 +335,8 @@ resource "aws_eks_cluster" "main" {
   }
 
   depends_on = [
-    aws_iam_role_policy_attachment.cluster_custom_policy,
-    aws_iam_role_policy_attachment.node_custom_policy
+    aws_iam_role_policy.cluster_custom_policy,
+    aws_iam_role_policy.node_custom_policy
   ]
 }
 
