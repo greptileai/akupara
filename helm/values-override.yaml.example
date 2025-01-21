@@ -1,8 +1,12 @@
 global:
+  cloud: "aws" # aws or gcp
   environment: "production"
   region: "us-east-1" # TODO: set this to your region
   ecr:
     registry: "example.dkr.ecr.region.amazonaws.com" # TODO: replace this with the ECR registry provided
+  org:
+    name: "" # Name of the main organization to be created
+    tenant: "" # Usually the domain of your email (e.g. example.com), used for SAML
   secrets:
     store: "greptile-secrets"
     external:
@@ -17,6 +21,12 @@ aws:
       role: "arn:aws:iam::<account>:role/<app_name>-indexer-role"
     query:
       role: "arn:aws:iam::<account>:role/<app_name>-query-role"
+    github:
+      role: "arn:aws:iam::<account>:role/<app_name>-github-role" # (optional) if using github as remote provider
+    gitlab:
+      role: "arn:aws:iam::<account>:role/<app_name>-gitlab-role" # (optional) if using gitlab as remote provider
+    cloudwatch:
+      role: "arn:aws:iam::<account>:role/<app_name>-cloudwatch-agent-role"
     secrets:
       role: "arn:aws:iam::<account>:role/<app_name>-external-secrets-role"
 
@@ -44,6 +54,7 @@ jackson:
 
 # integrations
 github: # if using the github integration
+  enable: false # set to true if connecting with github
   oauth:
     enabled: false
   config:
@@ -54,6 +65,7 @@ github: # if using the github integration
     appId: ""
     appUrl: ""
     name: ""
+    enterpriseUrl: "https://github.example.com"
 
 gitlab:
   config:

@@ -1,0 +1,242 @@
+{{- if eq .Values.global.cloud "aws" }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cloudwatch-agent-sa
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": "pre-install,pre-upgrade"
+    "helm.sh/hook-weight": "-11"
+    eks.amazonaws.com/role-arn: {{ .Values.aws.irsa.cloudwatch.role }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cloudwatch-agent-role
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "nodes", "endpoints"]
+    verbs: ["list", "watch"]
+  - apiGroups: [""]
+    resources: ["nodes/proxy"]
+    verbs: ["get"]
+  - apiGroups: [""]
+    resources: ["nodes/stats", "configmaps", "events"]
+    verbs: ["create", "get"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["cwagent-clusterleader"]
+    verbs: ["get", "update"]
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "daemonsets", "replicasets", "statefulsets"]
+    verbs: ["list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cloudwatch-agent-role-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cloudwatch-agent-role
+subjects:
+  - kind: ServiceAccount
+    name: cloudwatch-agent-sa
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudwatch-agent-config
+  namespace: {{ .Release.Namespace }}
+data:
+  cwagentconfig.json: |
+    {
+      "agent": {
+          "region": "{{ .Values.global.region }}"
+      },
+      "logs": {
+        "metrics_collected": {
+          "kubernetes": {
+            "cluster_name": "{{ .Release.Name }}",
+            "metrics_collection_interval": 60
+          }
+        },
+        "force_flush_interval": 5,
+        "logs_collected": {
+          "files": {
+            "collect_list": [
+              {
+                "file_path": "/var/log/containers/api-*.log",
+                "log_group_name": "/aws/containerinsights/{{ .Release.Name }}/application",
+                "log_stream_name": "api",
+                "retention_in_days": 731,
+                "timezone": "UTC"
+              },
+              {
+                "file_path": "/var/log/containers/query-*.log",
+                "log_group_name": "/aws/containerinsights/{{ .Release.Name }}/application",
+                "log_stream_name": "query",
+                "retention_in_days": 731,
+                "timezone": "UTC"
+              },
+              {
+                "file_path": "/var/log/containers/indexer-*.log",
+                "log_group_name": "/aws/containerinsights/{{ .Release.Name }}/application",
+                "log_stream_name": "indexer",
+                "retention_in_days": 731,
+                "timezone": "UTC"
+              },
+              {
+                "file_path": "/var/log/containers/web-*.log",
+                "log_group_name": "/aws/containerinsights/{{ .Release.Name }}/application",
+                "log_stream_name": "web",
+                "retention_in_days": 731,
+                "timezone": "UTC"
+              },
+              {
+                "file_path": "/var/log/containers/auth-*.log",
+                "log_group_name": "/aws/containerinsights/{{ .Release.Name }}/application",
+                "log_stream_name": "auth",
+                "retention_in_days": 731,
+                "timezone": "UTC"
+              },
+              {
+                "file_path": "/var/log/containers/caddy-*.log",
+                "log_group_name": "/aws/containerinsights/{{ .Release.Name }}/application",
+                "log_stream_name": "caddy",
+                "retention_in_days": 731,
+                "timezone": "UTC"
+              },
+              {
+                "file_path": "/var/log/containers/gitlab-*.log",
+                "log_group_name": "/aws/containerinsights/{{ .Release.Name }}/application",
+                "log_stream_name": "gitlab",
+                "retention_in_days": 731,
+                "timezone": "UTC"
+              },
+              {
+                "file_path": "/var/log/containers/jackson-*.log",
+                "log_group_name": "/aws/containerinsights/{{ .Release.Name }}/application",
+                "log_stream_name": "jackson",
+                "retention_in_days": 731,
+                "timezone": "UTC"
+              },
+              {
+                "file_path": "/var/log/containers/greptile-db-migration-*.log",
+                "log_group_name": "/aws/containerinsights/{{ .Release.Name }}/application",
+                "log_stream_name": "greptile-db-migration",
+                "retention_in_days": 731,
+                "timezone": "UTC"
+              },
+              {
+                "file_path": "/var/log/containers/greptile-vectordb-migration-*.log",
+                "log_group_name": "/aws/containerinsights/{{ .Release.Name }}/application",
+                "log_stream_name": "greptile-vectordb-migration",
+                "retention_in_days": 731,
+                "timezone": "UTC"
+              },
+              {
+                "file_path": "/var/log/containers/greptile-*-worker-token-*.log",
+                "log_group_name": "/aws/containerinsights/{{ .Release.Name }}/application",
+                "log_stream_name": "greptile-worker-token",
+                "retention_in_days": 731,
+                "timezone": "UTC"
+              }
+            ]
+          }
+        }
+      }
+    }
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: cloudwatch-agent
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      name: cloudwatch-agent
+  template:
+    metadata:
+      labels:
+        name: cloudwatch-agent
+    spec:
+      serviceAccountName: cloudwatch-agent-sa
+      containers:
+      - name: cloudwatch-agent
+        image: public.ecr.aws/cloudwatch-agent/cloudwatch-agent:latest
+        imagePullPolicy: Always
+        env:
+          - name: RUN_WITH_IRSA
+            value: "True"
+          - name: HOST_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.hostIP
+          - name: HOST_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: K8S_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+        volumeMounts:
+          - name: cwagentconfig
+            mountPath: /etc/cwagentconfig
+          - name: rootfs
+            mountPath: /rootfs
+            readOnly: true
+          - name: dockersock
+            mountPath: /var/run/docker.sock
+            readOnly: true
+          - name: varlibdocker
+            mountPath: /var/lib/docker
+            readOnly: true
+          - name: sys
+            mountPath: /sys
+            readOnly: true
+          - name: kmsg
+            mountPath: /dev/kmsg
+          - name: containerlog
+            mountPath: /var/log/containers
+          - name: podlog
+            mountPath: /var/log/pods
+          - name: varlog
+            mountPath: /var/log
+        securityContext:
+          privileged: true
+      volumes:
+        - name: cwagentconfig
+          configMap:
+            name: cloudwatch-agent-config
+        - name: rootfs
+          hostPath:
+            path: /
+        - name: dockersock
+          hostPath:
+            path: /var/run/docker.sock
+        - name: varlibdocker
+          hostPath:
+            path: /var/lib/docker
+        - name: sys
+          hostPath:
+            path: /sys
+        - name: kmsg
+          hostPath:
+            path: /dev/kmsg
+        - name: containerlog
+          hostPath:
+            path: /var/log/containers
+        - name: podlog
+          hostPath:
+            path: /var/log/pods
+        - name: varlog
+          hostPath:
+            path: /var/log
+{{- end }}

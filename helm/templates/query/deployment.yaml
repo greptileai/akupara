@@ -26,6 +26,8 @@ spec:
             - configMapRef:
                 name: query-config
           env:
+            - name: LOG_FORMAT
+              value: json
             - name: VECTOR_DB_USER
               valueFrom:
                 secretKeyRef:
