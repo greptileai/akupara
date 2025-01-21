@@ -16,7 +16,7 @@ database:
   migration:
     image:
       repository: "greptile/db-migration"
-      tag: "latest"
+      tag: "0.1.0"
       pullPolicy: Always
   env:
     host: "" # TODO: set this with your database host in values-override.yaml
@@ -27,7 +27,7 @@ vectordb:
   migration:
     image:
       repository: "greptile/vectordb-migration"
-      tag: "latest"
+      tag: "0.1.0"
       pullPolicy: Always
   config:
     provider: "pgvector"
@@ -45,7 +45,7 @@ api:
   replicaCount: 1
   image:
     repository: "greptile/api"
-    tag: "latest"
+    tag: "0.1.0"
     pullPolicy: Always
   service:
     type: LoadBalancer
@@ -62,7 +62,7 @@ auth:
   replicaCount: 1
   image:
     repository: "greptile/auth"
-    tag: "latest"
+    tag: "0.1.0"
     pullPolicy: Always
   service:
     type: LoadBalancer
@@ -79,7 +79,7 @@ query:
   replicaCount: 3
   image: 
     repository: "greptile/query"
-    tag: "latest"
+    tag: "0.1.0"
     pullPolicy: Always
   service:
     type: ClusterIP
@@ -96,7 +96,7 @@ web:
   replicaCount: 1
   image:
     repository: "greptile/web"
-    tag: "latest"
+    tag: "0.1.0"
     pullPolicy: Always
   service:
     type: LoadBalancer
@@ -120,13 +120,13 @@ indexer:
       port: 3003
       image:
         repository: "greptile/chunker"
-        tag: "latest"
+        tag: "0.1.0"
         pullPolicy: Always
     summarizer:
       port: 3004
       image:
         repository: "greptile/summarizer"
-        tag: "latest"
+        tag: "0.1.0"
         pullPolicy: Always
   resources:
     limits:
@@ -146,7 +146,7 @@ github:
   replicaCount: 1
   image:
     repository: "greptile/github"
-    tag: "latest"
+    tag: "0.1.0"
     pullPolicy: Always
   service:
     type: LoadBalancer
@@ -164,7 +164,7 @@ gitlab:
   replicaCount: 1
   image:
     repository: "greptile/gitlab"
-    tag: "latest"
+    tag: "0.1.0"
     pullPolicy: Always
   service:
     type: LoadBalancer
@@ -182,7 +182,7 @@ jira:
   replicaCount: 1
   image:
     repository: "greptile/jira"
-    tag: "latest"
+    tag: "0.1.0"
     pullPolicy: Always
   service:
     type: LoadBalancer
@@ -200,7 +200,7 @@ linear:
   replicaCount: 1
   image:
     repository: "greptile/linear"
-    tag: "latest"
+    tag: "0.1.0"
     pullPolicy: Always
   service:
     type: LoadBalancer
@@ -218,7 +218,7 @@ slack:
   replicaCount: 1
   image:
     repository: "greptile/slack"
-    tag: "latest"
+    tag: "0.1.0"
     pullPolicy: Always
   service:
     type: LoadBalancer
