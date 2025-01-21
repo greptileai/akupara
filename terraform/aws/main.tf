@@ -279,53 +279,22 @@ resource "aws_iam_role" "node" {
 }
 
 # 3. Attach required EKS policies
-resource "aws_iam_role_policy_attachment" "cluster_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-  role       = aws_iam_role.cluster.name
+# Add inline policy to cluster role from EKSClusterRole.json
+resource "aws_iam_role_policy" "cluster_custom_policy" {
+  name = "${var.app_name}-eks-cluster-custom-policy"
+  role = aws_iam_role.cluster.name
+  policy = file("${path.module}/roles/EKSClusterRole.json")
 }
 
-# Update the cluster role policy attachments
-resource "aws_iam_role_policy_attachment" "cluster_compute_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSComputePolicy"
-  role       = aws_iam_role.cluster.name
+# Add inline policy to node role from EKSWorkerRole.json
+resource "aws_iam_role_policy" "node_custom_policy" {
+  name = "${var.app_name}-eks-node-custom-policy"
+  role = aws_iam_role.node.name
+  policy = file("${path.module}/roles/EKSWorkerRole.json")
 }
 
-resource "aws_iam_role_policy_attachment" "cluster_block_storage_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSBlockStoragePolicy"
-  role       = aws_iam_role.cluster.name
-}
 
-resource "aws_iam_role_policy_attachment" "cluster_load_balancing_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSLoadBalancingPolicy"
-  role       = aws_iam_role.cluster.name
-}
 
-resource "aws_iam_role_policy_attachment" "cluster_networking_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSNetworkingPolicy"
-  role       = aws_iam_role.cluster.name
-}
-
-# Update the node role policy attachments
-resource "aws_iam_role_policy_attachment" "node_minimal_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodeMinimalPolicy"
-  role       = aws_iam_role.node.name
-}
-
-resource "aws_iam_role_policy_attachment" "node_ecr_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPullOnly"
-  role       = aws_iam_role.node.name
-}
-
-resource "aws_iam_role_policy_attachment" "node_cni_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-  role       = aws_iam_role.node.name
-}
-
-# Add EBS CSI Driver policy to node role
-resource "aws_iam_role_policy_attachment" "node_ebs_csi_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
-  role       = aws_iam_role.node.name
-}
 
 # 4. Create EKS Cluster with Auto Mode
 resource "aws_eks_cluster" "main" {
@@ -737,7 +706,7 @@ resource "aws_iam_role_policy_attachment" "gitlab" {
 
 resource "aws_iam_role_policy_attachment" "cloudwatch_agent" {
   role       = aws_iam_role.cloudwatch_agent.name
-  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+  name       = "${var.app_name}-cloudwatch-agent-policy"
+  policy     = file("${path.module}/roles/CloudwatchAgentRole.json")
 }
-
 
