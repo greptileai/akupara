@@ -1,4 +1,5 @@
 global:
+  cloud: "aws" # aws or gcp
   environment: "production"
   region: "us-east-1" # TODO: set this to your region
   ecr:
@@ -17,6 +18,12 @@ aws:
       role: "arn:aws:iam::<account>:role/<app_name>-indexer-role"
     query:
       role: "arn:aws:iam::<account>:role/<app_name>-query-role"
+    github:
+      role: "arn:aws:iam::<account>:role/<app_name>-github-role" # (optional) if using github as remote provider
+    gitlab:
+      role: "arn:aws:iam::<account>:role/<app_name>-gitlab-role" # (optional) if using gitlab as remote provider
+    cloudwatch:
+      role: "arn:aws:iam::<account>:role/<app_name>-cloudwatch-agent-role"
     secrets:
       role: "arn:aws:iam::<account>:role/<app_name>-external-secrets-role"
 
@@ -44,6 +51,7 @@ jackson:
 
 # integrations
 github: # if using the github integration
+  enable: false # set to true if connecting with github
   oauth:
     enabled: false
   config:

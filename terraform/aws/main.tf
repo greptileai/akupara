@@ -645,7 +645,76 @@ resource "aws_iam_role" "indexer" {
   })
 }
 
-# Attach Bedrock policy to query and indexer roles
+# Github IRSA
+resource "aws_iam_role" "github" {
+  name = "${var.app_name}-github-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Effect = "Allow"
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.eks.arn
+        }
+        Condition = {
+          StringEquals = {
+            "${replace(aws_eks_cluster.main.identity[0].oidc[0].issuer, "https://", "")}:sub": "system:serviceaccount:default:github-sa"
+          }
+        }
+      }
+    ]
+  })
+}
+
+# Gitlab IRSA
+resource "aws_iam_role" "gitlab" {
+  name = "${var.app_name}-gitlab-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Effect = "Allow"
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.eks.arn
+        }
+        Condition = {
+          StringEquals = {
+            "${replace(aws_eks_cluster.main.identity[0].oidc[0].issuer, "https://", "")}:sub": "system:serviceaccount:default:gitlab-sa"
+          }
+        }
+      }
+    ]
+  })
+}
+
+# Cloudwatch Agent IRSA
+resource "aws_iam_role" "cloudwatch_agent" {
+  name = "${var.app_name}-cloudwatch-agent-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Effect = "Allow"
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.eks.arn
+        }
+        Condition = {
+          StringEquals = {
+            "${replace(aws_eks_cluster.main.identity[0].oidc[0].issuer, "https://", "")}:sub": "system:serviceaccount:default:cloudwatch-agent-sa"
+          }
+        }
+      }
+    ]
+  })
+}
+
+
 resource "aws_iam_role_policy_attachment" "query_bedrock" {
   policy_arn = aws_iam_policy.bedrock.arn
   role       = aws_iam_role.query.name
@@ -655,4 +724,20 @@ resource "aws_iam_role_policy_attachment" "indexer_bedrock" {
   policy_arn = aws_iam_policy.bedrock.arn
   role       = aws_iam_role.indexer.name
 }
+
+resource "aws_iam_role_policy_attachment" "github" {
+  role       = aws_iam_role.github.name
+  policy_arn = aws_iam_policy.bedrock.arn
+}
+
+resource "aws_iam_role_policy_attachment" "gitlab" {
+  role       = aws_iam_role.gitlab.name
+  policy_arn = aws_iam_policy.bedrock.arn
+}
+
+resource "aws_iam_role_policy_attachment" "cloudwatch_agent" {
+  role       = aws_iam_role.cloudwatch_agent.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
 

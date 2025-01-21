@@ -26,6 +26,8 @@ spec:
             - configMapRef:
                 name: github-config
           env:
+            - name: LOG_FORMAT
+              value: json
             - name: GITHUB_CLIENT_ID
               valueFrom:
                 secretKeyRef:

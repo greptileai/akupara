@@ -48,3 +48,18 @@ output "query_role_arn" {
   value = aws_iam_role.query.arn
   description = "ARN of the query IAM role"
 }
+
+output "gitlab_role_arn" {
+  value = aws_iam_role.gitlab.arn
+  description = "ARN of the gitlab IAM role"
+}
+
+output "github_role_arn" {
+  value = aws_iam_role.github.arn
+  description = "ARN of the github IAM role"
+}
+
+output "cloudwatch_agent_role_arn" {
+  value = aws_iam_role.cloudwatch_agent.arn
+  description = "ARN of the cloudwatch agent IAM role"
+}

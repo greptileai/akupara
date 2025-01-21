@@ -54,6 +54,7 @@ helm repo add hatchet-stack https://hatchet-dev.github.io/hatchet-charts
 helm repo add external-secrets https://charts.external-secrets.io
 helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver
 helm repo add aws-efs-csi-driver https://kubernetes-sigs.github.io/aws-efs-csi-driver
+helm repo add stakater https://stakater.github.io/stakater-charts
 ```
 
 Run the following to update the repository indexes and build the dependencies:
@@ -216,6 +217,7 @@ helm install external-secrets external-secrets/external-secrets \
     --namespace default \
     --set installCRDs=true
 ```
+These changes may take a couple of seconds to get fully up and running.
 
 For aws we need to set up storage classes that Greptile will use, run:
 ```sh
