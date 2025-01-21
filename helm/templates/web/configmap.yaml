@@ -17,8 +17,10 @@ data:
   GITHUB_OAUTH_ENABLED: {{ .Values.github.oauth.enabled | quote }}
   POSTHOG_KEY: "dummy"
   POSTHOG_HOST: "dummy"
+  BILLING_ENABLED: "false"
   {{- if .Values.github.enabled }}
   GITHUB_APP_URL: {{ .Values.github.config.appUrl | quote }}
+  GITHUB_ENTERPRISE_ENABLED: {{ .Values.github.enabled | quote }}
   GITHUB_ENTERPRISE_URL: {{ .Values.github.config.enterpriseUrl | quote }}
   GITHUB_ENTERPRISE_API_URL: {{ .Values.github.config.apiUrl | quote }}
   GITHUB_ENTERPRISE_APP_ID: {{ .Values.github.config.appId | quote }}

@@ -9,7 +9,7 @@ data:
   NOTIFICATIONS: {{ .Values.notifications.enabled | quote }}
   ANALYTICS: {{ .Values.analytics.enabled | quote }}
   DEFAULT_AGENT_MODEL: {{ .Values.query.config.agentModel | quote }}
-  DEFAULT_CHAT_MODEL: {{ .Values.query.config.chatModel | quote }}
+  DEFAULT_CHAT_MODEL: {{ .Values.query.config.agentModel | quote }}
   DEFAULT_EMBEDDING_MODEL: {{ .Values.query.config.embeddingsModel | quote }}
   AGENT_MODEL_PROVIDER: {{ .Values.query.config.agentModelProvider | quote }}
   CHAT_MODEL_PROVIDER: {{ .Values.query.config.chatModelProvider | quote }}

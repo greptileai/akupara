@@ -16,6 +16,7 @@ spec:
       labels:
         app: github
     spec:
+      serviceAccountName: github-sa
       containers:
         - name: github
           image: "{{ .Values.global.ecr.registry }}/{{ .Values.github.image.repository }}:{{ .Values.github.image.tag }}"
