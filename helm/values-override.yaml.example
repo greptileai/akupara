@@ -4,6 +4,9 @@ global:
   region: "us-east-1" # TODO: set this to your region
   ecr:
     registry: "example.dkr.ecr.region.amazonaws.com" # TODO: replace this with the ECR registry provided
+  org:
+    name: "" # Name of the main organization to be created
+    tenant: "" # Usually the domain of your email (e.g. example.com), used for SAML
   secrets:
     store: "greptile-secrets"
     external:
