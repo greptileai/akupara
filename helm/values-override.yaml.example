@@ -65,6 +65,7 @@ github: # if using the github integration
     appId: ""
     appUrl: ""
     name: ""
+    enterpriseUrl: "https://github.example.com"
 
 gitlab:
   config:
