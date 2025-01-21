@@ -15,6 +15,7 @@ data:
   EMBEDDINGS_MODEL_PROVIDER: {{ .Values.github.config.embeddingsModelProvider | quote }}
   EMBEDDINGS_MODEL: {{ .Values.github.config.embeddingsModel | quote }}
   ANALYTICS: {{ .Values.analytics.enabled | quote }}
+  ENTERPRISE_URL: {{ .Values.github.config.enterpriseUrl | quote }}
   NOTIFICATIONS: {{ .Values.notifications.enabled | quote }}
   BILLING: {{ .Values.billing.enabled | quote }}
   {{- range $key, $value := .Values.github.config }}
