@@ -54,10 +54,7 @@ helm repo add hatchet-stack https://hatchet-dev.github.io/hatchet-charts
 helm repo add external-secrets https://charts.external-secrets.io
 helm repo add aws-ebs-csi-driver https://kubernetes-sigs.github.io/aws-ebs-csi-driver
 helm repo add aws-efs-csi-driver https://kubernetes-sigs.github.io/aws-efs-csi-driver
-<<<<<<< HEAD
-=======
 helm repo add stakater https://stakater.github.io/stakater-charts
->>>>>>> temp-split
 ```
 
 Run the following to update the repository indexes and build the dependencies:

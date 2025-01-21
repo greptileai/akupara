@@ -82,11 +82,7 @@ When prompted and ready to deploy, type in `yes`
 
 This should take around 20-30 minutes
 
-<<<<<<< HEAD
-Once completed make note of the output variables from the `apply` command, these will be used as values in the helm chart deployment of the cluster.
-=======
 Once completed make note of the output variables from the `terraform apply` command, these will be used as values in the helm chart deployment of the cluster.
->>>>>>> temp-split
 
 ### Tear Down
 
