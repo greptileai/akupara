@@ -47,8 +47,8 @@ api:
 web:
   config:
     url: "" # set this to the service url or a custom domain (format https://url[:port].com)
-    githubAppUrl: ""
-    githubEnterpriseUrl: ""
+    githubAppUrl: "https://github.example.com/github-apps/greptile-example"
+    githubEnterpriseUrl: "https://github.example.com"
 
 jackson:
   config:

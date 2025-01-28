@@ -41,6 +41,11 @@ spec:
                 secretKeyRef:
                   name: hatchet-client-config
                   key: HATCHET_CLIENT_TOKEN
+            - name: TOKEN_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: tokenEncryptionKey
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
@@ -87,6 +92,11 @@ spec:
                 secretKeyRef:
                   name: hatchet-client-config
                   key: HATCHET_CLIENT_TOKEN
+            - name: TOKEN_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: tokenEncryptionKey
             - name: VECTOR_DB_USER
               valueFrom:
                 secretKeyRef:
