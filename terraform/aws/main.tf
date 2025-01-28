@@ -461,6 +461,11 @@ resource "random_id" "jwt_secret" {
   byte_length = 32
 }
 
+resource "random_password" "token_encryption_key" {
+  length  = 32
+  special = false
+}
+
 resource "random_password" "jackson_admin_password" {
   length  = 16
   special = false
@@ -508,6 +513,7 @@ resource "aws_secretsmanager_secret_version" "app_secrets" {
   secret_string = jsonencode({
     "jwtSecret"                   = random_id.jwt_secret.b64_std
     "boxyhqApiKey"                = random_password.boxyhq_api_key.result
+    "tokenEncryptionKey"          = random_password.token_encryption_key.result
     "boxyhqSamlId"                = "dummy" # This should be ok: https://boxyhq.com/docs/jackson/deploy/env-variables#client_secret_verifier
     "jacksonAdminCredentials"     = "${var.saml_admin_email}:${var.saml_admin_password != "" ? var.saml_admin_password : random_password.jackson_admin_password.result}"
     "jacksonClientSecretVerifier" = random_password.jackson_client_secret_verifier.result

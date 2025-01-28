@@ -7,24 +7,20 @@ data:
   NEXTAUTH_URL: {{ .Values.web.config.url | default (printf "http://web.%s.svc.cluster.local:%v" .Release.Namespace (.Values.web.service.port | int)) | quote }}
   APP_URL: {{ .Values.web.config.url | default (printf "http://web.%s.svc.cluster.local:%v" .Release.Namespace (.Values.web.service.port | int)) | quote }}
   EMAIL_PROVIDER: {{ .Values.web.config.emailProvider | quote }}
-  AUTH_SAML_ONLY: {{ .Values.web.config.authSamlOnly | default true | quote }}
+  AUTH_SAML_ONLY: {{ .Values.web.config.authSamlOnly | default false | quote }}
   AUTH_EMAIL_FROM: {{ .Values.web.config.authEmailFrom | quote }}
   GREPTILE_AUTH_SERVER: {{ printf "http://auth.%s.svc.cluster.local:%v" .Release.Namespace (.Values.auth.service.port | int) | quote }}
   GREPTILE_API_URL: {{ printf "http://api.%s.svc.cluster.local:%v" .Release.Namespace (.Values.api.service.port | int) | quote }}
   AUTH_BOXYHQ_URL:  {{ .Values.jackson.config.url | default (printf "jackson.%s.svc.cluster.local:%v" .Release.Namespace .Values.jackson.service.port) }}
   AUTH_BOXYHQ_SAML_ISSUER:  {{ .Values.jackson.config.url | default (printf "jackson.%s.svc.cluster.local:%v" .Release.Namespace .Values.jackson.service.port) }}
   # TODO: configurable github oauth
+  GITHUB_APP_URL: {{ .Values.web.config.githubAppUrl | quote }}
+  GITHUB_ENTERPRISE_URL: {{ .Values.web.config.githubEnterpriseUrl | quote }}
   GITHUB_OAUTH_ENABLED: {{ .Values.github.oauth.enabled | quote }}
   POSTHOG_KEY: "dummy"
   POSTHOG_HOST: "dummy"
-  BILLING_ENABLED: "false"
-  {{- if .Values.github.enabled }}
-  GITHUB_APP_URL: {{ .Values.github.config.appUrl | quote }}
-  GITHUB_ENTERPRISE_ENABLED: {{ .Values.github.enabled | quote }}
-  GITHUB_ENTERPRISE_URL: {{ .Values.github.config.enterpriseUrl | quote }}
-  GITHUB_ENTERPRISE_API_URL: {{ .Values.github.config.apiUrl | quote }}
-  GITHUB_ENTERPRISE_APP_ID: {{ .Values.github.config.appId | quote }}
   GITHUB_ENABLED: {{ .Values.github.enabled | quote }}
+  {{- if .Values.github.enabled }}
   GITHUB_WEBHOOK_URL: {{ printf "%s/webhook" (.Values.github.config.url) | default (printf "http://github.%s.svc.cluster.local:%v" .Release.Namespace (.Values.github.service.port | int)) | quote }}
   GITHUB_APP_ID: {{ .Values.github.config.appId | quote }}
   {{- end }}
