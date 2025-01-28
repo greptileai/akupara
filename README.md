@@ -16,3 +16,7 @@ Follow the `README.md` guide in the `/terraform` directory.
 
 Once the setup from `/terraform` is complete, continue to deploy the helm chart following the `README.md` in the `/helm` directory.
 
+
+### Architechture Diagram
+This is a simplified diagram of the architecture.
+![architecture](OnPremArchitechture.jpg)
