@@ -19,4 +19,4 @@ Once the setup from `/terraform` is complete, continue to deploy the helm chart 
 
 ### Architecture Diagram
 This is a simplified diagram of the architecture.
-![architecture](OnPremArchitechture.jpg)
+![arch](OnPremArch.jpg)
