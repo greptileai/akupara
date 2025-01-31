@@ -179,7 +179,6 @@ services:
       - VECTOR_DB_PORT=${DB_PORT}
       - BATCH_SIZE=${BATCH_SIZE}
       - PARENT_DIR=/mnt/data/
-      - LLM_TIMEOUT=${LLM_TIMEOUT}
       - PORT=3003
     depends_on:
       hatchet-engine:
@@ -194,7 +193,6 @@ services:
       - LOG_FORMAT=json
       - BATCH_SIZE=${BATCH_SIZE}
       - PARENT_DIR=/mnt/data/
-      - LLM_TIMEOUT=${LLM_TIMEOUT}
       - DATABASE_URL=${DATABASE_URL}
       - HATCHET_CLIENT_TOKEN=${HATCHET_CLIENT_TOKEN}
       - HATCHET_CLIENT_TLS_STRATEGY=${HATCHET_CLIENT_TLS_STRATEGY}
@@ -214,7 +212,6 @@ services:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_REGION=${AWS_REGION}
-      - LLM_TIMEOUT=${LLM_TIMEOUT}
     volumes:
       - shared-mnt:/mnt
 
@@ -229,6 +226,8 @@ services:
       - PORT=8081
       - ONPREM=true
       - AWS_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - NOTIFICATIONS=${NOTIFICATIONS_ENABLED}
       - ANALYTICS=${ANALYTICS_ENABLED}
       - DEFAULT_AGENT_MODEL=${AGENT_MODEL}
@@ -243,7 +242,6 @@ services:
       - VECTOR_DB_NAME=vector
       - VECTOR_DB_HOST=${DB_HOST}
       - VECTOR_DB_PORT=${DB_PORT}
-      - LLM_TIMEOUT=${LLM_TIMEOUT}
     ports:
       - "8081:8081"
 
