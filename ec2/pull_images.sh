@@ -2,8 +2,8 @@
 # Run this from the app root directory
 # Configuration
 AWS_REGION="us-east-1"
-AWS_ACCOUNT_ID="669869549360" # Default account ID
-AWS_PROFILE="greptile-prod" # Default profile
+AWS_ACCOUNT_ID="" # Default account ID
+AWS_PROFILE="" # Default profile
 ECR_REPO="greptile"
 DEFAULT_SERVICES=("api" "auth" "query" "web" "chunker" "summarizer" "github" "gitlab" "db-migration" "vectordb-migration")
 SERVICES=()
