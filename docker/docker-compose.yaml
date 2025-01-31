@@ -140,8 +140,6 @@ services:
       - NODE_ENV=production
       - X_AWS_REGION=${AWS_REGION}
       - PORT=3002
-
-
     depends_on:
       hatchet-api:
         condition: service_started
