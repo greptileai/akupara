@@ -33,7 +33,7 @@ echo "You can access the Hatchet UI at http://localhost:8080"
 # Generate and save Hatchet environment variables
 echo "Generating Hatchet environment variables..."
 cat <<EOF > .env.hatchet
-HATCHET_CLIENT_TOKEN="$(docker compose run --no-deps setup-config /hatchet/hatchet-admin token create --config /hatchet/config --tenant-id 707d0855-80ab-4e1f-a156-f1c4546cbf52 | xargs)"
+HATCHET_CLIENT_TOKEN="$(sudo docker-compose run --no-deps setup-config /hatchet/hatchet-admin token create --config /hatchet/config --tenant-id 707d0855-80ab-4e1f-a156-f1c4546cbf52 | xargs)"
 HATCHET_CLIENT_TLS_STRATEGY=none
 EOF
 
