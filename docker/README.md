@@ -25,10 +25,10 @@ In order to do this, you must first create a new Github App in your Github accou
   - Webhook secret
   - Generate and download a private key.
 
-### Step 2: Create an RDS database on AWS 
+### Step 2: Create an RDS database on AWS (Skip if using terraform)
 Set the endpoint of the RDS database in the `.env` file.
 
-### Step 3: Create an Elasticache Redis instance on AWS
+### Step 3: Create an Elasticache Redis instance on AWS (Skip if using terraform)
 Set the endpoint of the Elasticache Redis instance in the `.env` file.
 
 ### Step 4: Enable bedrock access in the AWS Account you plan to use
