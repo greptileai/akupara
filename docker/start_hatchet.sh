@@ -3,7 +3,7 @@
 echo "Starting Hatchet services..."
 
 # Start only Hatchet-related services
-docker compose up -d \
+sudo docker-compose up -d \
     postgres \
     rabbitmq \
     migration \
@@ -16,13 +16,13 @@ docker compose up -d \
 echo "Waiting for services to be healthy..."
 
 # Wait for PostgreSQL to be healthy
-while ! docker compose ps postgres | grep "healthy" > /dev/null; do
+while ! sudo docker-compose ps postgres | grep "healthy" > /dev/null; do
     echo "Waiting for PostgreSQL..."
     sleep 5
 done
 
 # Wait for RabbitMQ to be healthy
-while ! docker compose ps rabbitmq | grep "healthy" > /dev/null; do
+while ! sudo docker-compose ps rabbitmq | grep "healthy" > /dev/null; do
     echo "Waiting for RabbitMQ..."
     sleep 5
 done
