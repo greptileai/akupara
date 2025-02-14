@@ -85,6 +85,10 @@ Password: Admin123!!
 
 **Note**: you may need to modify the ingress rules of the security group of the EC2 instance to allow HTTP and HTTPS traffic. Our terraform defaults to only allow SSH traffic. 
 
+Once the hatchet services are running, add the contents of the `.env.hatchet` file to the `.env` file. If you every restart the [hatchet-services](https://docs.hatchet.run/self-hosting/docker-compose)
+, the `HATCHET_CLIENT_TOKEN` will change and you will need to add the new token to the `.env` file.
+
+
 Then start the greptile services
 ```bash
 ./start-greptile.sh
