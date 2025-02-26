@@ -35,6 +35,8 @@ Set the endpoint of the Elasticache Redis instance in the `.env` file.
 Request access to bedrock models
 
 ### Step 5: Start the docker services of Hatchet from inside the machine that will run Greptile
+Fill in the `.env` file with the correct values. You can use `.env.example` as a template.
+
 You can use the included script to start the docker services of Hatchet.
 ```sh
 ./start_hatchet.sh
