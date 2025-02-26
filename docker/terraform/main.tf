@@ -3,8 +3,8 @@
 ###################################################
 
 provider "aws" {
-  region  = "us-east-1"
-  profile = "sandbox"
+  region  = "us-gov-west-1"
+  profile = "govcloud"
 }
 
 # VPC and subnet variables
@@ -113,7 +113,7 @@ resource "aws_db_instance" "postgres" {
   identifier               = "greptile-postgres-db"
   engine                   = "postgres"
   engine_version           = "16.3"
-  instance_class           = "db.m7g.large" 
+  instance_class           = "db.m5.large" 
   allocated_storage        = 400
   max_allocated_storage    = 1000            # Maximum storage threshold 1000 GiB
   username                = "postgres"
@@ -127,7 +127,7 @@ resource "aws_db_instance" "postgres" {
   storage_encrypted       = true            # Encryption enabled
   
   # Additional settings
-  deletion_protection     = true            # Deletion protection enabled
+  deletion_protection     = false            # Set to true if needed
   multi_az               = false            # Multi-AZ set to No
   parameter_group_name    = "default.postgres16"
   
