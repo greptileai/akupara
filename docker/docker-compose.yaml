@@ -441,3 +441,5 @@ volumes:
   hatchet_rabbitmq.conf:
   hatchet_config:
   hatchet_certs:
+  caddy_data:
+  caddy_config:
