@@ -3,6 +3,7 @@ version: "3.8"
 services:
   postgres:
     image: postgres:15.6
+    platform: linux/amd64
     command: postgres -c 'max_connections=200'
     restart: always
     hostname: "postgres"
@@ -11,7 +12,7 @@ services:
       - POSTGRES_PASSWORD=hatchet
       - POSTGRES_DB=hatchet
     ports:
-      - "5435:5432"
+      - "5436:5432"
     volumes:
       - hatchet_postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -23,6 +24,7 @@ services:
 
   rabbitmq:
     image: "rabbitmq:3-management"
+    platform: linux/amd64
     hostname: "rabbitmq"
     ports:
       - "5673:5672" # RabbitMQ
@@ -41,6 +43,7 @@ services:
 
   migration:
     image: ghcr.io/hatchet-dev/hatchet/hatchet-migrate:latest
+    platform: linux/amd64
     environment:
       DATABASE_URL: "postgres://hatchet:hatchet@postgres:5432/hatchet"
     depends_on:
@@ -49,6 +52,7 @@ services:
 
   setup-config:
     image: ghcr.io/hatchet-dev/hatchet/hatchet-admin:latest
+    platform: linux/amd64
     command: /hatchet/hatchet-admin quickstart --skip certs --generated-config-dir /hatchet/config --overwrite=false
     environment:
       DATABASE_URL: "postgres://hatchet:hatchet@postgres:5432/hatchet"
@@ -73,6 +77,7 @@ services:
 
   hatchet-engine:
     image: ghcr.io/hatchet-dev/hatchet/hatchet-engine:latest
+    platform: linux/amd64
     command: /hatchet/hatchet-engine --config /hatchet/config
     restart: on-failure
     depends_on:
@@ -92,6 +97,7 @@ services:
 
   hatchet-api:
     image: ghcr.io/hatchet-dev/hatchet/hatchet-api:latest
+    platform: linux/amd64
     command: /hatchet/hatchet-api --config /hatchet/config
     restart: on-failure
     depends_on:
@@ -107,13 +113,19 @@ services:
 
   hatchet-frontend:
     image: ghcr.io/hatchet-dev/hatchet/hatchet-frontend:latest
+    platform: linux/amd64
 
   caddy:
     image: caddy:2.7.6-alpine
+    platform: linux/amd64
     ports:
       - 8080:8080
+      - 443:443
+      - 80:80
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro # Added ':ro' for read-only
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro    # Added ':ro' for read-only
+      - caddy_data:/data  # Persist SSL certificates
+      - caddy_config:/config
     depends_on:
       - hatchet-api
       - hatchet-frontend
@@ -389,6 +401,39 @@ services:
       postgres:
         condition: service_healthy
 
+  greptile_jackson_service:
+    image: boxyhq/jackson
+    hostname: greptile_jackson_service
+    platform: linux/amd64
+    environment:
+      - DB_ENCRYPTION_KEY=${JACKSON_DB_ENCRYPTION_KEY}
+      - HOST_URL=${JACKSON_HOST_URL}
+      - EXTERNAL_URL=${JACKSON_EXTERNAL_URL}
+      - JACKSON_API_KEYS=${BOXYHQ_API_KEY}
+      - SAML_AUDIENCE=${SAML_ID}
+      - CLIENT_SECRET_VERIFIER=${SAML_SECRET}
+      - NEXTAUTH_ADMIN_CREDENTIALS=${JACKSON_ADMIN_CREDENTIALS}
+      - PUBLIC_KEY=${JACKSON_PUBLIC_KEY}
+      - PRIVATE_KEY=${JACKSON_PRIVATE_KEY}
+      - NEXTAUTH_URL=${BOXYHQ_URL}
+      - NEXTAUTH_SECRET=${JWT_SECRET}
+      - IDP_ENABLED=${JACKSON_IDP_ENABLED:-true}
+      - DB_URL=${DATABASE_URL}
+      - DB_ENGINE=sql
+      - DB_TYPE=postgres
+      - DB_SSL_REJECT_UNAUTHORIZED=false
+      - DB_SSL=true
+      - PORT=5225
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - DO_NOT_TRACK=1
+    ports:
+      - "5225:5225"
+    # depends_on:
+    #   greptile_db_migration:
+    #     condition: service_completed_successfully
+
 volumes:
   shared-mnt:
   hatchet_postgres_data:
@@ -396,3 +441,5 @@ volumes:
   hatchet_rabbitmq.conf:
   hatchet_config:
   hatchet_certs:
+  caddy_data:
+  caddy_config:
