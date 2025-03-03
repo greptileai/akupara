@@ -126,6 +126,16 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro    # Added ':ro' for read-only
       - caddy_data:/data  # Persist SSL certificates
       - caddy_config:/config
+
+volumes:
+  shared-mnt:
+  hatchet_postgres_data:
+  hatchet_rabbitmq_data:
+  hatchet_rabbitmq.conf:
+  hatchet_config:
+  hatchet_certs:
+  caddy_data:
+  caddy_config:
     depends_on:
       - hatchet-api
       - hatchet-frontend
