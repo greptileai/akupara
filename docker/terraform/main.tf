@@ -3,8 +3,8 @@
 ###################################################
 
 provider "aws" {
-  region  = "us-gov-west-1"
-  profile = "govcloud"
+  region  = "ap-northeast-2"
+  profile = "sandbox"
 }
 
 # VPC and subnet variables
@@ -63,11 +63,51 @@ module "greptile_ec2" {
 
   # This module is associated_public_ip_address = true in its code
   # so it will have a public IP in that subnet if it's a public subnet
+  iam_instance_profile = aws_iam_instance_profile.ec2_instance_profile.name
+
 }
 
 output "ec2_public_ip" {
   description = "Public IP of the created EC2 instance"
   value       = module.greptile_ec2.public_ip
+}
+
+###################################################
+# IAM Role for EC2 with Bedrock Access
+###################################################
+
+# Create IAM role for EC2
+resource "aws_iam_role" "ec2_bedrock_role" {
+  name = "greptile-ec2-bedrock-role"
+  
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      }
+    ]
+  })
+
+  tags = {
+    Name = "greptile-ec2-bedrock-role"
+  }
+}
+
+# Attach the AWS managed policy for Bedrock full access
+resource "aws_iam_role_policy_attachment" "bedrock_policy_attachment" {
+  role       = aws_iam_role.ec2_bedrock_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonBedrockFullAccess"
+}
+
+# Create an instance profile for the role
+resource "aws_iam_instance_profile" "ec2_instance_profile" {
+  name = "greptile-ec2-instance-profile"
+  role = aws_iam_role.ec2_bedrock_role.name
 }
 
 ###################################################

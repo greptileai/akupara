@@ -33,3 +33,9 @@ variable "name_prefix" {
   default     = "greptile"
   description = "Prefix for naming resources (SG, EC2)."
 }
+
+variable "iam_instance_profile" {
+  description = "IAM Instance Profile to associate with the EC2 instance"
+  type        = string
+  default     = null
+}

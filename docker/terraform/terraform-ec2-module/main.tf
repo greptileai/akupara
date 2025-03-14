@@ -31,6 +31,8 @@ resource "aws_instance" "this" {
   vpc_security_group_ids = [aws_security_group.this.id]
   key_name               = var.key_name
 
+  iam_instance_profile   = var.iam_instance_profile
+
   # Optionally associate a public IP (only works if subnet is in a public subnet)
   associate_public_ip_address = true
 
