@@ -18,7 +18,7 @@ echo "Database migrations completed successfully."
 
 # Start the core services
 echo "Starting core services..."
-sudo docker-compose up -d \
+sudo docker-compose up -d --force-recreate \
     greptile_api_service \
     greptile_auth_service \
     greptile_indexer_chunker \
