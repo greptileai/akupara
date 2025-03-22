@@ -50,7 +50,13 @@ SERVER_GRPC_BROADCAST_ADDRESS: "<ec2-public-ip>:7077"
 Edit the `Caddyfile` to point to the EC2 instance.
 ```bash
 http://<ec2-public-ip>:8080 {
-    reverse_proxy <ec2-public-ip>:8080
+    handle /api/* {
+		reverse_proxy hatchet-api:8080
+	}
+
+	handle /* {
+		reverse_proxy hatchet-frontend:80
+	}
 }
 ```
 
