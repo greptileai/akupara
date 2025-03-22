@@ -16,6 +16,38 @@ resource "aws_security_group" "this" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    description = "HTTP on port 3000 - for the web application"
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Open to the "world" (your vpc)
+  }
+
+  ingress {
+    description = "HTTP on port 3010 - for github webhooks"
+    from_port   = 3010
+    to_port     = 3010
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Open to the "world" (your vpc)
+  }
+
+  ingress {
+    description = "HTTP on port 8080 - for hatchet front end"
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Open to the "world" (your vpc)
+  }
+
+  ingress {
+    description = "HTTP on port 7077 - for hatchet"
+    from_port   = 7077
+    to_port     = 7077
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Open to the "world" (your vpc)
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
