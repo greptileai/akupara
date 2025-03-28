@@ -313,6 +313,8 @@ services:
       - SLACK_ENABLED=${SLACK_ENABLED}
       - LINEAR_ENABLED=${LINEAR_ENABLED}
       - NODE_EXTRA_CA_CERTS=/greptile-certs/${SSL_CERT_NAME}
+      - SUPPORT_EMAIL=${SUPPORT_EMAIL}
+      - HIDE_SOCIALS=${HIDE_SOCIALS}
     ports:
       - "3000:3000"
     volumes:
