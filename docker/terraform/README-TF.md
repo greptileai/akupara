@@ -62,7 +62,48 @@ http://<ec2-public-ip>:8080 {
 
 **Note**: The `Caddyfile` is used to reverse proxy the hatchet frontend to the EC2 instance. You can use this to reverse proxy custom domain names to the EC2 instance as well.
 
-Create a `.env` file and fill it up based on the `.env.example` file.
+Create a `.env` file and fill it up based on the `.env.example` file. For this step - you will need to create a Github App. 
+
+1. Go to your GitHub organization settings > Developer Settings > GitHub Apps > New GitHub App
+2. Set the following:
+    - GitHub App name: `Greptile` (or your preferred name)
+    - Homepage URL: You can just write `https://greptile.com`
+    - Callback URL: `http://<ip_address>:3000/api/auth/callback/github-enterprise` or `http://<ip_address>:3000/api/auth/callback/github` (depending on whether you are using cloud github or self-hosted)
+    - Setup URL: `http://<ip_address>:3000/auth/github` And Select Redirect on Update.
+    - Webhook URL: `http://<ip_address>:3010/webhook`
+    - Webhook secret: Generate a secure random string
+3. Permissions needed:
+    - Repository:
+      - Contents: Read-only
+      - Metadata: Read-only
+      - Issues: Read & Write
+      - Metadata: Read only
+      - Webhooks: Read & Write
+      - Pull requests: Read & Write
+    - Organization:
+      - Events: Read only    
+      - Members: Read-only
+    - Account Permissions
+      - Email Addresses: Read only
+    - Subscribe to Events
+      - Issues
+      - Issue Comment
+      - Pull Request
+      - Pull Request Review
+      - Pull Request Review Comment
+      - Pull Request Review Thread
+     
+**Important Note:** Make sure to Opt-Out of the User-to-server token expiration. This can be found under Optional Features in the github app settings.
+
+4. Create the app and use the values below to populate the relevant fields in the `.env` file:
+  - App ID 
+  - App URL 
+  - App Name 
+  - Client ID
+  - Client secret
+  - Webhook secret
+  - Generate and download a private key.
+
 
 The following variables should be filled using the values we got from the terraform output.
 
