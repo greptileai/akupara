@@ -1,5 +1,9 @@
 ## Setting up Greptile using Docker Compose
 
+The greptile app requires running an EC2 instance , a RDS postgres instance and a Redis elasticache instance. We have a terraform script that spins this up in the `docker/terraform` directory. We suggest following [this](https://github.com/greptileai/akupara/blob/main/docker/terraform/README-TF.md) doc as a guide. 
+
+Once you are done spinning up the infrastructure, you can create a Github App with the following permissions 
+
 ### Step 1: Fill up a `.env` file based on the `.env.example` file. 
 In order to do this, you must first create a new Github App in your Github account. 
 
@@ -20,7 +24,6 @@ In order to do this, you must first create a new Github App in your Github accou
       - Webhooks: Read & Write
       - Pull requests: Read & Write
     - Organization:
-      - Administration: Read & Write
       - Events: Read only    
       - Members: Read-only
     - Account Permissions
