@@ -60,7 +60,7 @@ http://<ec2-public-ip>:8080 {
 }
 ```
 
-**Note**: The `Caddyfile` is used to reverse proxy the hatchet frontend to the EC2 instance. You can use this to reverse proxy custom domain names to the EC2 instance as well.
+**Note**: The `Caddyfile` is used to reverse proxy the hatchet frontend to the EC2 instance. You can use this to reverse proxy custom domain names to the EC2 instance as well. See `/docker/docs/CustomDomains.md` for more details. 
 
 Create a `.env` file and fill it up based on the `.env.example` file. For this step - you will need to create a Github App. 
 
@@ -115,7 +115,7 @@ WEB_URL
 
 The `DB_PASSWORD` should be the password we set for the RDS database in the `terraform.tfvars` file.
 
-The rest of the variables should be filled based on the `.env.variables` file.
+The rest of the variables should be filled based on the `.env.variables` file. You will notice fields for BOXYHQ/SAML that do not need to be changed if you do not want to set up SSO. If you do want to set up SSO, refer to `docker/docs/SSO.md` for more information. 
 
 ### Step 3. Start the services
 
