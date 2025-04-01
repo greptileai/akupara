@@ -35,7 +35,7 @@ This will correctly route your requests to the greptile web service.
 
 
 ## Custom Domain for SSO set up page
-We support SSO sign in via [BOXYHQ](https://boxyhq.com/docs/jackson/overview) running in the `greptile_jackson_service`. Signing into the Jackson admin console requires a `HTTPS` connection so we will need to set up a custom domain simmilar to above. Add the following block to your `Caddyfile`
+We support SSO sign in via [BOXYHQ](https://boxyhq.com/docs/jackson/overview) running in the `greptile_jackson_service`. Signing into the Jackson admin console requires a `HTTPS` connection so we will need to set up a custom domain similar to above. Add the following block to your `Caddyfile`
 
 ```
 https://customJacksonDomain.com {
