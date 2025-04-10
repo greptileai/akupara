@@ -107,72 +107,83 @@ Install [latest AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/gettin
 **Note**: The `Caddyfile` is used to reverse proxy the hatchet frontend to the EC2 instance. You can use this to reverse proxy custom domain names to the EC2 instance as well. See `/docker/docs/CustomDomains.md` for more details. 
 
 * **Create and Configure `.env` File:**
+    * **GitHub App Configuration Notes:**
+        * You'll need to create a GitHub App to enable GitHub integration.
+        * Follow these steps on GitHub:
+            1.  Go to your GitHub organization settings > Developer Settings > GitHub Apps > New GitHub App
+            2.  Set the following:
+                * GitHub App name: `Greptile` (or a name of your choice)
+                * Homepage URL: `https://greptile.com` (or your actual homepage)
+                * Callback URL:
+                    * For GitHub Enterprise Server: `http://<ec2-public-ip>:3000/api/auth/callback/github-enterprise`
+                    * For GitHub.com: `http://<ec2-public-ip>:3000/api/auth/callback/github`
+                    * Replace `<ec2-public-ip>` with the EC2 instance's public IP address.
+                * Setup URL: `http://<ec2-public-ip>:3000/auth/github` (Replace `<ec2-public-ip>`)
+                * Select "Redirect on update"
+                * Webhook URL: `http://<ec2-public-ip>:3010/webhook` (Replace `<ec2-public-ip>`)
+                * Webhook secret: Generate a strong, random string and store it securely.
 
-    * Create a `.env` file within the EC2 and configure based off `.env.example`:
+            3.  Permissions: Set the following permissions for your GitHub App:
+                * Repository:
+                    * Contents: Read-only
+                    * Metadata: Read-only
+                    * Issues: Read & Write
+                    * Pull requests: Read & Write
+                    * Webhooks: Read & Write
+                * Organization:
+                    * Members: Read-only
+                    * Events: Read-only
+                * Account Permissions:
+                    * Email Addresses: Read-only
+            4.  Subscribe to Events:
+                * Issues
+                * Issue Comment
+                * Pull Request
+                * Pull Request Review
+                * Pull Request Review Comment
+                * Pull Request Review Thread
+
+            5.  **Important:** In the GitHub App settings, under "Optional Features," make sure to **Opt-Out** of "User-to-server token expiration."
+
+            6.  After creating the GitHub App, make sure to copy down these values from Github for the next step:
+                * `GITHUB_APP_ID`
+                * `GITHUB_APP_URL`
+                * `GITHUB_APP_NAME`
+                * `GITHUB_CLIENT_ID`
+                * `GITHUB_CLIENT_SECRET`
+                * `GITHUB_WEBHOOK_SECRET`
+                * Download the generated Github App private key and save it securely.
+    * Within the EC2 instance, run the `installer.sh` script and follow the configuration prompts:
+        ```bash
+        ./installer.sh
+        ```
+    * The script should populate the `.env` file with the required environment variables, but please make sure to check for accuracy and make any necessary additional modifications for your use case.
+
+    * **Other Variables:**
+        * Depending on your use case, there may be some additional values you need to override/configure in the generated `.env` file inside your EC2.
+        * **SSO (Optional):** The `.env.example` file may contain variables related to BoxyHQ/SAML for Single Sign-On (SSO). If you do not need SSO, you can leave these at their default values. If you want to configure SSO, refer to the documentation in `/docker/docs/SSO.md`.
+    
+    * **Troubleshooting Notes:**
+        
+        You may need to remove these sections from the `docker-compose.yaml`    
+        ```bash
+        volumes:
+        - ssl-certs:/greptile-certs:ro
+
+        volumes:
+          ssl-certs:
+            driver_opts:
+            type: none
+            o: bind
+            device: ${SSL_CERTS_PATH:-/opt/greptile/certs}
+       ```
+
+       You will need to change the configuration for Github specific environment variables if you're not using Github Enterprise, look for the phrase `# or set to` within the docker-compose.yaml. We're working on improving this.
 
         ```bash
-        sudo cp .env.example .env
-        sudo nano .env
+        environment:
+        - GITHUB_APP_ID=${GITHUB_ENTERPRISE_APP_ID} # or set to GITHUB_APP_ID
         ```
-
-    * Populate the `.env` file with the required environment variables.
-
-        * **GitHub App Configuration:**
-            * You'll need to create a GitHub App to enable GitHub integration.
-            * Follow these steps on GitHub:
-                1.  Go to your GitHub organization settings > Developer Settings > GitHub Apps > New GitHub App
-                2.  Set the following:
-                    * GitHub App name: `Greptile` (or a name of your choice)
-                    * Homepage URL: `https://greptile.com` (or your actual homepage)
-                    * Callback URL:
-                        * For GitHub Enterprise Server: `http://<ec2-public-ip>:3000/api/auth/callback/github-enterprise`
-                        * For GitHub.com: `http://<ec2-public-ip>:3000/api/auth/callback/github`
-                        * Replace `<ec2-public-ip>` with the EC2 instance's public IP address.
-                    * Setup URL: `http://<ec2-public-ip>:3000/auth/github` (Replace `<ec2-public-ip>`)
-                    * Select "Redirect on update"
-                    * Webhook URL: `http://<ec2-public-ip>:3010/webhook` (Replace `<ec2-public-ip>`)
-                    * Webhook secret: Generate a strong, random string and store it securely.
-
-                3.  Permissions: Set the following permissions for your GitHub App:
-                    * Repository:
-                        * Contents: Read-only
-                        * Metadata: Read-only
-                        * Issues: Read & Write
-                        * Pull requests: Read & Write
-                        * Webhooks: Read & Write
-                    * Organization:
-                        * Members: Read-only
-                        * Events: Read-only
-                    * Account Permissions:
-                        * Email Addresses: Read-only
-                4.  Subscribe to Events:
-                    * Issues
-                    * Issue Comment
-                    * Pull Request
-                    * Pull Request Review
-                    * Pull Request Review Comment
-                    * Pull Request Review Thread
-
-                5.  **Important:** In the GitHub App settings, under "Optional Features," make sure to **Opt-Out** of "User-to-server token expiration."
-
-                6.  After creating the GitHub App, use the provided values to fill in the corresponding fields in your `.env` file:
-                    * `GITHUB_APP_ID`
-                    * `GITHUB_APP_URL`
-                    * `GITHUB_APP_NAME`
-                    * `GITHUB_CLIENT_ID`
-                    * `GITHUB_CLIENT_SECRET`
-                    * `GITHUB_WEBHOOK_SECRET`
-                    * Download the generated private key and save it securely. You'll need to add its content to the `.env` file as well.
-
-        * **Terraform Output Variables:**
-            * Use the values from your Terraform output to fill in these variables in the `.env` file:
-                * `DB_HOST`
-                * `REDIS_HOST`
-        * **RDS Password:**
-            * Set the `DB_PASSWORD` variable to the password you configured in your `terraform.tfvars` file.
-        * **Other Variables:**
-            * Fill in the remaining variables based on the `.env.example` file.
-            * **SSO (Optional):** The `.env.example` file may contain variables related to BoxyHQ/SAML for Single Sign-On (SSO). If you do not need SSO, you can leave these at their default values. If you want to configure SSO, refer to the documentation in `/docker/docs/SSO.md`.
 
 ### 3.3. Start the Services
 
