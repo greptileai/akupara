@@ -3,8 +3,8 @@
 ###################################################
 
 provider "aws" {
-  region  = "ap-northeast-2"
-  profile = "sandbox"
+  region  = var.aws_region
+  profile = var.aws_profile
 }
 
 # VPC and subnet variables
@@ -44,7 +44,7 @@ variable "key_name" {
 
 variable "instance_type" {
   type        = string
-  default     = "t3.large"
+  default     = "t3.2xlarge"
   description = "Instance type for EC2"
 }
 
@@ -64,7 +64,6 @@ module "greptile_ec2" {
   # This module is associated_public_ip_address = true in its code
   # so it will have a public IP in that subnet if it's a public subnet
   iam_instance_profile = aws_iam_instance_profile.ec2_instance_profile.name
-
 }
 
 output "ec2_public_ip" {

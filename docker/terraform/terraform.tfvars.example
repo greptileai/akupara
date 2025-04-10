@@ -5,3 +5,5 @@ db_password       = "xxx"
 ami_id            = "ami-<greptile-version>"
 key_name          = "ami-key" #to be created in AWS and private key should be stored in your local machine to ssh
 instance_type     = "t3.2xlarge" #we recommend 8vCPUs and 32 GB memory
+aws_region        = "<ami-region>" #same region as Greptile AMI
+aws_profile       = "<aws-profile>" # AWS credentials profile
