@@ -158,6 +158,11 @@ Install [latest AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/gettin
         ./installer.sh
         ```
     * The script should populate the `.env` file with the required environment variables, but please make sure to check for accuracy and make any necessary additional modifications for your use case.
+    * You'll need to manually fill out the GITHUB_APP_URL, GITHUB_WEBHOOK_URL, GITHUB_APP_PRIVATE_KEY within the generated .env file. We're working on improving this.
+    You can convert your Github app private key into one string by running this in a separate terminal: 
+        ```bash
+        awk '{printf \"%s\\n\", \\$0}' <GITHUB_APP_PRIVATE_KEY>.pem
+        ```
 
     * **Other Variables:**
         * Depending on your use case, there may be some additional values you need to override/configure in the generated `.env` file inside your EC2.

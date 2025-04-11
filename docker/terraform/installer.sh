@@ -1,14 +1,22 @@
 #!/bin/bash
 
 # --- Configuration ---
-ENV_FILE="../.envs.example" # the pre-built env template
-NEW_ENV_FILE="new.env" # the file configuration needed in the EC2
+ENV_FILE=".env.example" # the pre-built env template
+NEW_ENV_FILE=".env" # the file configuration needed in the EC2
 
 # Function to safely double-quote environment variable values
 quote_value() {
   local input="$1"
   printf '"%s"\n' "${input//\"/\\\"}"
 }
+
+# Prompt the user for the tag version of Greptile
+read -p "Enter the tag version of Greptile: " TAG_RAW
+TAG=$(quote_value "$TAG_RAW")
+
+# Prompt the user for Greptile's ECR registry
+read -p "Enter the Greptile ECR Registry: " ECR_REGISTRY_RAW
+ECR_REGISTRY=$(quote_value "$ECR_REGISTRY_RAW")
 
 # Prompt the user for their EC2 instance IP
 read -p "Enter EC2 instance IP address (exclude http://): " EC2_INSTANCE_IP_RAW
@@ -54,9 +62,6 @@ while true; do
       GITHUB_ENABLED="true"
       GITHUB_ENTERPRISE_ENABLED="false"
       echo "You selected GitHub."
-      # Prompt user for their GITHUB_APP_URL
-      read -p "Please enter your Github app url: " GITHUB_APP_URL_RAW
-      GITHUB_APP_URL=$(quote_value "$GITHUB_APP_URL_RAW")
       # Prompt user for their GITHUB_APP_ID
       read -p "Please enter your Github app id: " GITHUB_APP_ID_RAW
       GITHUB_APP_ID=$(quote_value "$GITHUB_APP_ID_RAW")
@@ -66,10 +71,6 @@ while true; do
       # Prompt user for their GITHUB_CLIENT_SECRET
       read -p "Please enter your Github client secret: " GITHUB_CLIENT_SECRET_RAW
       GITHUB_CLIENT_SECRET=$(quote_value "$GITHUB_CLIENT_SECRET_RAW")
-      # Prompt user for their GITHUB_PRIVATE_KEY
-      echo "You can convert your Github app private key into one string by running this in a separate terminal: awk '{printf \"%s\\n\", \\$0}' <GITHUB_PRIVATE_KEY>.pem"
-      read -p "Please enter your Github app private key as one string : " GITHUB_PRIVATE_KEY_RAW
-      GITHUB_PRIVATE_KEY=$(quote_value "$GITHUB_PRIVATE_KEY_RAW")
 
       # Set Enterprise-specific variables to empty string
       GITHUB_ENTERPRISE_URL="\"\""
@@ -99,27 +100,19 @@ while true; do
       # Prompt user for their GITHUB_ENTERPRISE_CLIENT_SECRET
       read -p "Please enter your Github Enterprise client secret: " GITHUB_ENTERPRISE_CLIENT_SECRET_RAW
       GITHUB_ENTERPRISE_CLIENT_SECRET=$(quote_value "$GITHUB_ENTERPRISE_CLIENT_SECRET_RAW")
-      # Prompt user for their GITHUB_ENTERPRISE_APP_PRIVATE_KEY
-      echo "You can convert your Github Enterprise app private key into one string by running this in a separate terminal: awk '{printf \"%s\\n\", \\$0}' <GITHUB_PRIVATE_KEY>.pem"
-      read -p "Please enter your Github Enterprise app private key as one string : " GITHUB_ENTERPRISE_APP_PRIVATE_KEY_RAW
-      GITHUB_ENTERPRISE_APP_PRIVATE_KEY=$(quote_value "$GITHUB_ENTERPRISE_APP_PRIVATE_KEY_RAW")
 
       # Set regular GitHub-specific variables to empty string
       GITHUB_APP_URL="\"\""
       GITHUB_APP_ID="\"\""
       GITHUB_CLIENT_ID="\"\""
       GITHUB_CLIENT_SECRET="\"\""
-      GITHUB_PRIVATE_KEY="\"\""
+      GITHUB_APP_PRIVATE_KEY="\"\""
       break ;;
     *)
       echo "Invalid choice. Please enter either 1 or 2."
       ;;
   esac
 done
-
-# Prompt user for their GITHUB_WEBHOOK_URL
-read -p "Please enter your Github webhook url: " GITHUB_WEBHOOK_URL_RAW
-GITHUB_WEBHOOK_URL=$(quote_value "$GITHUB_WEBHOOK_URL_RAW")
 
 # Prompt user for their GITHUB_WEBHOOK_SECRET
 read -p "Please enter your Github webhook secret: " GITHUB_WEBHOOK_SECRET_RAW
@@ -128,34 +121,32 @@ GITHUB_WEBHOOK_SECRET=$(quote_value "$GITHUB_WEBHOOK_SECRET_RAW")
 # --- Overwrite .env configuration ---
 if [ -f "$ENV_FILE" ]; then
   echo "Overwriting environment variables in $ENV_FILE"
-  sed -i "" "s/^EC2_INSTANCE_IP=.*$/EC2_INSTANCE_IP=$EC2_INSTANCE_IP/" "$ENV_FILE"
-  sed -i "" "s/^AWS_REGION=.*$/AWS_REGION=$AWS_REGION/" "$ENV_FILE"
+  sed -i "s/^TAG=.*$/TAG=$TAG/" "$ENV_FILE"
+  sed -i "s/^ECR_REGISTRY=.*$/ECR_REGISTRY=$ECR_REGISTRY/" "$ENV_FILE"
+  sed -i "s/^EC2_INSTANCE_IP=.*$/EC2_INSTANCE_IP=$EC2_INSTANCE_IP/" "$ENV_FILE"
+  sed -i "s/^AWS_REGION=.*$/AWS_REGION=$AWS_REGION/" "$ENV_FILE"
 
-  sed -i "" "s/^DB_HOST=.*$/DB_HOST=$DB_HOST/" "$ENV_FILE"
-  sed -i "" "s/^DB_PASSWORD=.*$/DB_PASSWORD=$DB_PASSWORD/" "$ENV_FILE"
+  sed -i "s/^DB_HOST=.*$/DB_HOST=$DB_HOST/" "$ENV_FILE"
+  sed -i "s/^DB_PASSWORD=.*$/DB_PASSWORD=$DB_PASSWORD/" "$ENV_FILE"
 
-  sed -i "" "s/^REDIS_HOST=.*$/REDIS_HOST=$REDIS_HOST/" "$ENV_FILE"
-  sed -i "" "s/^JWT_SECRET=.*$/JWT_SECRET=$JWT_SECRET/" "$ENV_FILE"
-  sed -i "" "s/^TOKEN_ENCRYPTION_KEY=.*$/TOKEN_ENCRYPTION_KEY=$TOKEN_ENCRYPTION_KEY/" "$ENV_FILE"
+  sed -i "s/^REDIS_HOST=.*$/REDIS_HOST=$REDIS_HOST/" "$ENV_FILE"
+  sed -i "s/^JWT_SECRET=.*$/JWT_SECRET=$JWT_SECRET/" "$ENV_FILE"
+  sed -i "s/^TOKEN_ENCRYPTION_KEY=.*$/TOKEN_ENCRYPTION_KEY=$TOKEN_ENCRYPTION_KEY/" "$ENV_FILE"
 
-  sed -i "" "s/^GITHUB_ENABLED=.*$/GITHUB_ENABLED=$GITHUB_ENABLED/" "$ENV_FILE"
-  sed -i "" "s/^GITHUB_ENTERPRISE_ENABLED=.*$/GITHUB_ENTERPRISE_ENABLED=$GITHUB_ENTERPRISE_ENABLED/" "$ENV_FILE"
+  sed -i "s/^GITHUB_ENABLED=.*$/GITHUB_ENABLED=$GITHUB_ENABLED/" "$ENV_FILE"
+  sed -i "s/^GITHUB_ENTERPRISE_ENABLED=.*$/GITHUB_ENTERPRISE_ENABLED=$GITHUB_ENTERPRISE_ENABLED/" "$ENV_FILE"
 
-  sed -i "" "s/^GITHUB_APP_URL=.*$/GITHUB_APP_URL=$GITHUB_APP_URL/" "$ENV_FILE"
-  sed -i "" "s/^GITHUB_APP_ID=.*$/GITHUB_APP_ID=$GITHUB_APP_ID/" "$ENV_FILE"
-  sed -i "" "s/^GITHUB_PRIVATE_KEY=.*$/GITHUB_PRIVATE_KEY=$GITHUB_PRIVATE_KEY/" "$ENV_FILE"
-  sed -i "" "s/^GITHUB_CLIENT_ID=.*$/GITHUB_CLIENT_ID=$GITHUB_CLIENT_ID/" "$ENV_FILE"
-  sed -i "" "s/^GITHUB_CLIENT_SECRET=.*$/GITHUB_CLIENT_SECRET=$GITHUB_CLIENT_SECRET/" "$ENV_FILE"
+  sed -i "s/^GITHUB_APP_ID=.*$/GITHUB_APP_ID=$GITHUB_APP_ID/" "$ENV_FILE"
+  sed -i "s/^GITHUB_CLIENT_ID=.*$/GITHUB_CLIENT_ID=$GITHUB_CLIENT_ID/" "$ENV_FILE"
+  sed -i "s/^GITHUB_CLIENT_SECRET=.*$/GITHUB_CLIENT_SECRET=$GITHUB_CLIENT_SECRET/" "$ENV_FILE"
 
-  sed -i "" "s/^GITHUB_ENTERPRISE_API_URL=.*$/GITHUB_ENTERPRISE_URL=$GITHUB_ENTERPRISE_URL/" "$ENV_FILE"
-  sed -i "" "s/^GITHUB_ENTERPRISE_API_URL=.*$/GITHUB_ENTERPRISE_API_URL=$GITHUB_ENTERPRISE_API_URL/" "$ENV_FILE"
-  sed -i "" "s/^GITHUB_ENTERPRISE_APP_ID=.*$/GITHUB_ENTERPRISE_APP_ID=$GITHUB_ENTERPRISE_APP_ID/" "$ENV_FILE"
-  sed -i "" "s/^GITHUB_ENTERPRISE_APP_PRIVATE_KEY=.*$/GITHUB_ENTERPRISE_APP_PRIVATE_KEY=$GITHUB_ENTERPRISE_APP_PRIVATE_KEY/" "$ENV_FILE"
-  sed -i "" "s/^GITHUB_ENTERPRISE_CLIENT_ID=.*$/GITHUB_ENTERPRISE_CLIENT_ID=$GITHUB_ENTERPRISE_CLIENT_ID/" "$ENV_FILE"
-  sed -i "" "s/^GITHUB_ENTERPRISE_CLIENT_SECRET=.*$/GITHUB_ENTERPRISE_CLIENT_SECRET=$GITHUB_ENTERPRISE_CLIENT_SECRET/" "$ENV_FILE"
+  sed -i "s/^GITHUB_ENTERPRISE_API_URL=.*$/GITHUB_ENTERPRISE_URL=$GITHUB_ENTERPRISE_URL/" "$ENV_FILE"
+  sed -i "s/^GITHUB_ENTERPRISE_API_URL=.*$/GITHUB_ENTERPRISE_API_URL=$GITHUB_ENTERPRISE_API_URL/" "$ENV_FILE"
+  sed -i "s/^GITHUB_ENTERPRISE_APP_ID=.*$/GITHUB_ENTERPRISE_APP_ID=$GITHUB_ENTERPRISE_APP_ID/" "$ENV_FILE"
+  sed -i "s/^GITHUB_ENTERPRISE_CLIENT_ID=.*$/GITHUB_ENTERPRISE_CLIENT_ID=$GITHUB_ENTERPRISE_CLIENT_ID/" "$ENV_FILE"
+  sed -i "s/^GITHUB_ENTERPRISE_CLIENT_SECRET=.*$/GITHUB_ENTERPRISE_CLIENT_SECRET=$GITHUB_ENTERPRISE_CLIENT_SECRET/" "$ENV_FILE"
 
-  sed -i "" "s/^GITHUB_WEBHOOK_URL=.*$/GITHUB_WEBHOOK_URL=$GITHUB_WEBHOOK_URL/" "$ENV_FILE"
-  sed -i "" "s/^GITHUB_WEBHOOK_SECRET=.*$/GITHUB_WEBHOOK_SECRET=$GITHUB_WEBHOOK_SECRET/" "$ENV_FILE"
+  sed -i "s/^GITHUB_WEBHOOK_SECRET=.*$/GITHUB_WEBHOOK_SECRET=$GITHUB_WEBHOOK_SECRET/" "$ENV_FILE"
 else
   echo "Error: $ENV_FILE not found."
 fi
