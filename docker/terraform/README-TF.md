@@ -3,9 +3,8 @@
 
 The deployment process involves two main phases:
 
-1.
-2.  **Infrastructure Provisioning (Terraform):** Use Terraform to create the necessary AWS resources.
-3.  **EC2 Environment Configuration and Deployment:** SSH connect into the EC2 instance to create the .env file & run the sh scripts
+1.  **Infrastructure Provisioning (Terraform):** Use Terraform to create the necessary AWS resources.
+2.  **EC2 Environment Configuration and Deployment:** SSH connect into the EC2 instance to create the .env file & run the sh scripts
 
 ## 1. AWS CLI
 Install [latest AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) and [configure credentials profile](https://docs.aws.amazon.com/cli/v1/userguide/cli-configure-files.html)
@@ -152,14 +151,18 @@ Install [latest AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/gettin
                 * `GITHUB_CLIENT_ID`
                 * `GITHUB_CLIENT_SECRET`
                 * `GITHUB_WEBHOOK_SECRET`
-                * Download the generated Github App private key and save it securely.
+                * Download the generated Github App private key and file transfer it to the EC2 instance
+                    ```bash
+                    chmod 400 /path-to/<downloaded-github-app-private-key>
+                    scp -i /path-to/<downloaded-github-app-private-key>.pem ec2-user@<ec2_ip_address>:/path-to/<downloaded-github-app-private-key>.pem /opt/akupara/docker/github_app_private_key.pem
+                    ```
     * Within the EC2 instance, run the `installer.sh` script and follow the configuration prompts:
         ```bash
         ./installer.sh
         ```
     * The script should populate the `.env` file with the required environment variables, but please make sure to check for accuracy and make any necessary additional modifications for your use case.
-    * You'll need to manually fill out the GITHUB_APP_URL, GITHUB_WEBHOOK_URL, GITHUB_APP_PRIVATE_KEY within the generated .env file. We're working on improving this.
-    You can convert your Github app private key into one string by running this in a separate terminal: 
+    * You'll need to manually fill out the GITHUB_APP_PRIVATE_KEY/GITHUB_ENTERPRISE_APP_PRIVATE_KEY within the generated .env file. We're working on improving this.
+    You can convert your Github app private key into one string by running this in within the EC2 terminal. Copy pasting its output to the ENV variable and wrapping it as a single-line string: 
         ```bash
         awk '{printf \"%s\\n\", \\$0}' <GITHUB_APP_PRIVATE_KEY>.pem
         ```
