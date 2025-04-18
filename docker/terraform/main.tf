@@ -2,9 +2,21 @@
 # PROVIDER CONFIG + VARIABLES
 ###################################################
 
+variable "aws_region" {
+  type        = string
+  description = "AWS region to deploy resources"
+  default     = "us-east-1"
+}
+
+variable "aws_profile" {
+  type        = string
+  description = "AWS profile to use for deployment"
+  default     = "greptile-prod"
+}
+
 provider "aws" {
-  region  = "ap-northeast-2"
-  profile = "sandbox"
+  region  = var.aws_region
+  profile = var.aws_profile
 }
 
 # VPC and subnet variables
