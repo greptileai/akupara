@@ -80,7 +80,6 @@ Create a `.env` file and fill it up based on the `.env.example` file. For this s
       - Contents: `Read-only`
       - Metadata: `Read-only`
       - Issues: `Read & Write`
-      - Metadata: `Read-only`
       - Webhooks: `Read & Write`
       - Pull requests: `Read & Write`
     - Organization permissions:
@@ -95,7 +94,7 @@ Create a `.env` file and fill it up based on the `.env.example` file. For this s
       - Ensure to make a copy of this client secret and store it for later
     - Scroll down to "Private keys" and click on "Generate a private key".
       - This will download a file containing a private key required further below.
-6. Click on "Permissions & events" in the left menu bar.
+7. Click on "Permissions & events" in the left menu bar.
     - Select the following events:
       - Issues
       - Issue Comment
@@ -103,9 +102,9 @@ Create a `.env` file and fill it up based on the `.env.example` file. For this s
       - Pull Request Review
       - Pull Request Review Comment
       - Pull Request Review Thread
-7. Click on "Optional features" in the left menu bar.
+8. Click on "Optional features" in the left menu bar.
     - Ensure to `Opt-out` of "User-to-server token expiration"
-8. Gather the following values below to populate the relevant fields in the `.env` file:
+9. Gather the following values below to populate the relevant fields in the `.env` file:
     - App ID
     - App URL 
     - App Name 
