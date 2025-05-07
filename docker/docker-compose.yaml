@@ -155,7 +155,6 @@ services:
       - NODE_ENV=production
       - X_AWS_REGION=${AWS_REGION}
       - PORT=3002
-      - NODE_EXTRA_CA_CERTS=/greptile-certs/${SSL_CERT_NAME}
     depends_on:
       hatchet-api:
         condition: service_started
@@ -172,7 +171,6 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - DATABASE_URL=${DATABASE_URL}
       - EMAIL_FROM=${AUTH_EMAIL_FROM}
-      - NODE_EXTRA_CA_CERTS=/greptile-certs/${SSL_CERT_NAME}
     ports:
       - "3001:3001"
 
@@ -198,7 +196,6 @@ services:
       - BATCH_SIZE=${BATCH_SIZE}
       - PARENT_DIR=/mnt/data/
       - PORT=3003
-      - NODE_EXTRA_CA_CERTS=/greptile-certs/${SSL_CERT_NAME}
     depends_on:
       hatchet-engine:
         condition: service_started
@@ -234,7 +231,6 @@ services:
       - AZURE_OPENAI_URL=${AZURE_OPENAI_URL}
       - AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT_NAME=${AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT_NAME}
       - AZURE_OPENAI_EMBEDDINGS_API_VERSION=${AZURE_OPENAI_EMBEDDINGS_API_VERSION}
-      - NODE_EXTRA_CA_CERTS=/greptile-certs/${SSL_CERT_NAME}
     volumes:
       - shared-mnt:/mnt
 
@@ -268,7 +264,6 @@ services:
       - AZURE_OPENAI_URL=${AZURE_OPENAI_URL}
       - AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT_NAME=${AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT_NAME}
       - AZURE_OPENAI_EMBEDDINGS_API_VERSION=${AZURE_OPENAI_EMBEDDINGS_API_VERSION}
-      - NODE_EXTRA_CA_CERTS=/greptile-certs/${SSL_CERT_NAME}
     ports:
       - "8081:8081"
 
@@ -313,7 +308,6 @@ services:
       - GITLAB_ENABLED=${GITLAB_ENABLED}
       - SLACK_ENABLED=${SLACK_ENABLED}
       - LINEAR_ENABLED=${LINEAR_ENABLED}
-      - NODE_EXTRA_CA_CERTS=/greptile-certs/${SSL_CERT_NAME}
       - SUPPORT_EMAIL=${SUPPORT_EMAIL}
       - HIDE_SOCIALS=${HIDE_SOCIALS}
     ports:
@@ -349,7 +343,6 @@ services:
       - AZURE_OPENAI_URL=${AZURE_OPENAI_URL}
       - AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT_NAME=${AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT_NAME}
       - AZURE_OPENAI_EMBEDDINGS_API_VERSION=${AZURE_OPENAI_EMBEDDINGS_API_VERSION}
-      - NODE_EXTRA_CA_CERTS=/greptile-certs/${SSL_CERT_NAME}
     ports:
       - "3010:3010"
 
@@ -438,7 +431,6 @@ services:
       - PORT=5225
       - AWS_REGION=${AWS_REGION}
       - DO_NOT_TRACK=1
-      - NODE_EXTRA_CA_CERTS=/greptile-certs/${SSL_CERT_NAME}
     ports:
       - "5225:5225"
     # depends_on:
