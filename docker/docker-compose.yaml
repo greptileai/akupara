@@ -161,8 +161,6 @@ services:
         condition: service_started
     ports:
       - "3002:3002"
-    volumes:
-      - ssl-certs:/greptile-certs:ro
 
   greptile_auth_service:
     image: ${ECR_REGISTRY}/greptile/auth:${TAG}
@@ -177,8 +175,6 @@ services:
       - NODE_EXTRA_CA_CERTS=/greptile-certs/${SSL_CERT_NAME}
     ports:
       - "3001:3001"
-    volumes:
-      - ssl-certs:/greptile-certs:ro
 
   greptile_indexer_chunker:
     image: ${ECR_REGISTRY}/greptile/chunker:${TAG}
@@ -208,7 +204,6 @@ services:
         condition: service_started
     volumes:
       - shared-mnt:/mnt
-      - ssl-certs:/greptile-certs:ro
 
   greptile_indexer_summarizer:
     image: ${ECR_REGISTRY}/greptile/summarizer:${TAG}
@@ -242,7 +237,6 @@ services:
       - NODE_EXTRA_CA_CERTS=/greptile-certs/${SSL_CERT_NAME}
     volumes:
       - shared-mnt:/mnt
-      - ssl-certs:/greptile-certs:ro
 
   greptile_query_service:
     image: ${ECR_REGISTRY}/greptile/query:${TAG}
@@ -277,8 +271,6 @@ services:
       - NODE_EXTRA_CA_CERTS=/greptile-certs/${SSL_CERT_NAME}
     ports:
       - "8081:8081"
-    volumes:
-      - ssl-certs:/greptile-certs:ro
 
   greptile_web_service:
     image: ${ECR_REGISTRY}/greptile/web:${TAG}
@@ -326,8 +318,6 @@ services:
       - HIDE_SOCIALS=${HIDE_SOCIALS}
     ports:
       - "3000:3000"
-    volumes:
-      - ssl-certs:/greptile-certs:ro
 
   greptile_github_service:
     image: ${ECR_REGISTRY}/greptile/github:${TAG}
@@ -362,8 +352,6 @@ services:
       - NODE_EXTRA_CA_CERTS=/greptile-certs/${SSL_CERT_NAME}
     ports:
       - "3010:3010"
-    volumes:
-      - ssl-certs:/greptile-certs:ro
 
   greptile_vector_db_migration:
     image: ${ECR_REGISTRY}/greptile/vectordb-migration:${TAG}
@@ -453,8 +441,6 @@ services:
       - NODE_EXTRA_CA_CERTS=/greptile-certs/${SSL_CERT_NAME}
     ports:
       - "5225:5225"
-    volumes:
-      - ssl-certs:/greptile-certs:ro
     # depends_on:
     #   greptile_db_migration:
     #     condition: service_completed_successfully
@@ -468,8 +454,3 @@ volumes:
   hatchet_certs:
   caddy_data:
   caddy_config:
-  ssl-certs:
-    driver_opts:
-      type: none
-      o: bind
-      device: ${SSL_CERTS_PATH:-/opt/greptile/certs}
