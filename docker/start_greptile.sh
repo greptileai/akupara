@@ -18,7 +18,8 @@ docker-compose up greptile_vector_db_migration --wait
 docker-compose up greptile_db_migration --wait
 
 # Check if migrations were successful
-if [ $? -ne 0 ]; then
+docker-compose up greptile_vector_db_migration --wait || { echo "Vector DB migration failed"; exit 1; }
+docker-compose up greptile_db_migration --wait || { echo "DB migration failed"; exit 1; }
     echo "Database migrations failed. Exiting..."
     exit 1
 fi
