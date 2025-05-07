@@ -14,8 +14,6 @@ echo "Starting Greptile services..."
 # Start database migrations first
 echo "Running database migrations..."
 docker-compose up -d postgres
-docker-compose up greptile_vector_db_migration --wait
-docker-compose up greptile_db_migration --wait
 
 # Check if migrations were successful
 docker-compose up greptile_vector_db_migration --wait || { echo "Vector DB migration failed"; exit 1; }
