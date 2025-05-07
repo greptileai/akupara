@@ -114,10 +114,12 @@ services:
   hatchet-frontend:
     image: ghcr.io/hatchet-dev/hatchet/hatchet-frontend:latest
     platform: linux/amd64
+    restart: on-failure
 
   caddy:
     image: caddy:2.7.6-alpine
     platform: linux/amd64
+    restart: on-failure
     ports:
       - 8080:8080
       - 443:443
@@ -133,6 +135,7 @@ services:
   greptile_api_service:
     image: ${ECR_REGISTRY}/greptile/api:${TAG}
     platform: linux/amd64
+    restart: on-failure
     environment:
       - LOG_FORMAT=json
       - URL=${API_URL}
@@ -164,6 +167,7 @@ services:
   greptile_auth_service:
     image: ${ECR_REGISTRY}/greptile/auth:${TAG}
     platform: linux/amd64
+    restart: on-failure
     environment:
       - LOG_FORMAT=json
       - APP_URL=${AUTH_URL}
@@ -179,6 +183,7 @@ services:
   greptile_indexer_chunker:
     image: ${ECR_REGISTRY}/greptile/chunker:${TAG}
     platform: linux/amd64
+    restart: on-failure
     environment:
       - LOG_FORMAT=json
       - HATCHET_CLIENT_TOKEN=${HATCHET_CLIENT_TOKEN}
@@ -208,6 +213,7 @@ services:
   greptile_indexer_summarizer:
     image: ${ECR_REGISTRY}/greptile/summarizer:${TAG}
     platform: linux/amd64
+    restart: on-failure
     environment:
       - LOG_FORMAT=json
       - BATCH_SIZE=${BATCH_SIZE}
@@ -241,6 +247,7 @@ services:
   greptile_query_service:
     image: ${ECR_REGISTRY}/greptile/query:${TAG}
     platform: linux/amd64
+    restart: on-failure
     environment:
       - LOG_FORMAT=json
       - VECTOR_DB_USER=${DB_USER}
@@ -276,6 +283,7 @@ services:
   greptile_web_service:
     image: ${ECR_REGISTRY}/greptile/web:${TAG}
     platform: linux/amd64
+    restart: on-failure
     environment:
       - AUTH_SECRET=${JWT_SECRET}
       - DATABASE_URL=${DATABASE_URL}
@@ -323,6 +331,7 @@ services:
   greptile_github_service:
     image: ${ECR_REGISTRY}/greptile/github:${TAG}
     platform: linux/amd64
+    restart: on-failure
     environment:
       - LOG_FORMAT=json
       - PORT=3010
@@ -418,6 +427,7 @@ services:
     image: boxyhq/jackson
     hostname: greptile_jackson_service
     platform: linux/amd64
+    restart: on-failure
     environment:
       - DB_ENCRYPTION_KEY=${JACKSON_DB_ENCRYPTION_KEY}
       - HOST_URL=${JACKSON_HOST_URL}
