@@ -438,11 +438,11 @@ services:
     #     condition: service_completed_successfully
 
 volumes:
-  shared-mnt:
-  hatchet_postgres_data:
-  hatchet_rabbitmq_data:
-  hatchet_rabbitmq.conf:
-  hatchet_config:
-  hatchet_certs:
-  caddy_data:
-  caddy_config:
+  shared-mnt: {}
+  hatchet_postgres_data: {}
+  hatchet_rabbitmq_data: {}
+  hatchet_rabbitmq.conf: {}
+  hatchet_config: {}
+  hatchet_certs: {}
+  caddy_data: {}
+  caddy_config: {}
