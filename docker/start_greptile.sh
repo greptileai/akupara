@@ -74,8 +74,8 @@ echo "Database migrations completed successfully."
 echo "Starting core services..."
 docker-compose up -d --force-recreate "${GREPTILE_SERVICES[@]}"
 
-# Copy SSL certificates to all services if SSL_CERTS_PATH is set
-if [ -n "$SSL_CERTS_PATH" ]; then
+# Copy SSL certificates to all services if CUSTOM_FILE_PATH is set
+if [ -n "$CUSTOM_FILE_PATH" ]; then
     echo "Copying SSL certificates to services..."
     for service in "${GREPTILE_SERVICES[@]}"
     do
@@ -83,8 +83,8 @@ if [ -n "$SSL_CERTS_PATH" ]; then
         container_id=$(docker-compose ps -q $service 2>/dev/null)
         if [ -n "$container_id" ]; then
             echo "Copying to $service (container: $container_id)..."
-            docker exec $container_id mkdir -p /app/ssl_certs
-            docker cp $SSL_CERTS_PATH $container_id:/app/ssl_certs
+            docker exec $container_id mkdir -p /app/custom_data
+            docker cp $CUSTOM_FILE_PATH $container_id:/app/custom_data/
         else
             echo "Warning: Could not find container for service $service"
         fi
