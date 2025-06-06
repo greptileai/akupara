@@ -80,13 +80,13 @@ Create a `.env` file and fill it up based on the `.env.example` file. For this s
       - Contents: `Read-only`
       - Metadata: `Read-only`
       - Issues: `Read & Write`
-      - Webhooks: `Read & Write`
+      - Checks: `Read & Write`
       - Pull requests: `Read & Write`
-    - Organization permissions:
-      - Events: `Read-only`   
+      - Commit statuses: `Read & Write`
+    - Organization permissions:  
       - Members: `Read-only`
     - Account permissions
-      - Email Addresses: `Read-only`
+      - Email Addresses: `Read-only` (Only required if using this GitHub App to sign in to Greptile (sign in with GitHub))
 4. Under "Where can this GitHub App be installed?" make sure to select `Any account`
 5. Click "Create GitHub App"
 6. After having created the GitHub App, click on "General" in the left menu bar.
