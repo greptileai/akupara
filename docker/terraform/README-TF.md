@@ -81,7 +81,6 @@ Create a `.env` file and fill it up based on the `.env.example` file. For this s
       - Metadata: `Read-only`
       - Issues: `Read & Write`
       - Checks: `Read & Write`
-      - Webhooks: `Read & Write`
       - Pull requests: `Read & Write`
       - Commit statuses: `Read & Write`
     - Organization permissions:  
