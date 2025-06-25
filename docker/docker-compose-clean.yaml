@@ -1,0 +1,19 @@
+services:
+  greptile_web:
+    image: web-greptile-local:latest
+    platform: linux/amd64
+    env_file:
+      - .env.v2
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - DIRECT_URL=${DIRECT_URL}
+      - APP_URL=${APP_URL}
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
+      - GREPTILE_AUTH_SERVER=${GREPTILE_AUTH_SERVER}
+      - GREPTILE_API_URL=${GREPTILE_API_URL}
+      - AUTH_SECRET=${AUTH_SECRET}
+      - GITHUB_ENABLED=${GITHUB_ENABLED}
+      - EMAIL_PROVIDER=${EMAIL_PROVIDER}
+      - AUTH_EMAIL_FROM=${AUTH_EMAIL_FROM}
+    ports:
+      - "3000:3000"
