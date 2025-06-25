@@ -62,3 +62,24 @@ services:
       - PORT=3002
     ports:
       - "3002:3002"
+
+  greptile_indexer_chunker:
+    image: indexer/chunker-greptile-local
+    platform: linux/amd64
+    restart: on-failure
+    environment:
+      - LOG_FORMAT=json
+      - HATCHET_CLIENT_TOKEN=${HATCHET_CLIENT_TOKEN}
+      - HATCHET_CLIENT_TLS_STRATEGY=${HATCHET_CLIENT_TLS_STRATEGY}
+      - TOKEN_ENCRYPTION_KEY=${TOKEN_ENCRYPTION_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+
+  greptile_indexer_summarizer:
+    image: web-greptile-local:latest
+    platform: linux/amd64
+    restart: on-failure
+    environment:
+      - LOG_FORMAT=json
+      - BATCH_SIZE=${BATCH_SIZE}
+      - HATCHET_CLIENT_TOKEN=${HATCHET_CLIENT_TOKEN}
+      - HATCHET_CLIENT_TLS_STRATEGY=${HATCHET_CLIENT_TLS_STRATEGY}
