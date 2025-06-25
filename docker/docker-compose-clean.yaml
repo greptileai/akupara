@@ -1,9 +1,7 @@
 services:
-  greptile_web:
+  greptile_web_service:
     image: web-greptile-local:latest
     platform: linux/amd64
-    env_file:
-      - .env.v2
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - DIRECT_URL=${DIRECT_URL}
@@ -11,9 +9,56 @@ services:
       - NEXTAUTH_URL=${NEXTAUTH_URL}
       - GREPTILE_AUTH_SERVER=${GREPTILE_AUTH_SERVER}
       - GREPTILE_API_URL=${GREPTILE_API_URL}
-      - AUTH_SECRET=${AUTH_SECRET}
+      - AUTH_SECRET=${JWT_SECRET}
       - GITHUB_ENABLED=${GITHUB_ENABLED}
       - EMAIL_PROVIDER=${EMAIL_PROVIDER}
       - AUTH_EMAIL_FROM=${AUTH_EMAIL_FROM}
     ports:
       - "3000:3000"
+
+  greptile_auth_service:
+    image: auth-greptile-local:latest
+    platform: linux/amd64
+    environment:
+      - LOG_FORMAT=json
+      - APP_URL=${APP_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - DATABASE_URL=${DATABASE_URL}
+      - EMAIL_FROM=${AUTH_EMAIL_FROM}
+    ports:
+      - "3001:3001"
+
+  greptile_api_service:
+    image: api-greptile-local
+    platform: linux/amd64
+    restart: on-failure
+    environment:
+      - LOG_FORMAT=json
+      - URL=${API_URL}
+      - APP_URL=${APP_URL}
+      - QUERY_URL=${QUERY_URL}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - JWT_SECRET=${JWT_SECRET}
+      - TOKEN_ENCRYPTION_KEY=${TOKEN_ENCRYPTION_KEY}
+      # - DATABASE_USERNAME=${DB_USER}
+      # - DATABASE_PASSWORD=${DB_PASSWORD}
+      - DATABASE_URL=${DATABASE_URL}
+      - HATCHET_CLIENT_TOKEN=${HATCHET_CLIENT_TOKEN}
+      - HATCHET_CLIENT_TLS_STRATEGY=${HATCHET_CLIENT_TLS_STRATEGY}
+      - EMBEDDINGS_MODEL=${EMBEDDINGS_MODEL}
+      - EMBEDDINGS_MODEL_PROVIDER=${EMBEDDINGS_MODEL_PROVIDER}
+      - VECTOR_DB_PROVIDER=${VECTOR_DB_PROVIDER}
+      - VECTOR_DB_NAME=${VECTOR_DB_NAME}
+      - VECTOR_DB_HOST=${VECTOR_DB_HOST}
+      - VECTOR_DB_PORT=${VECTOR_DB_PORT}
+      - VECTOR_DB_USER=${VECTOR_DB_USER}
+      - VECTOR_DB_PASSWORD=${VECTOR_DB_PASSWORD}
+      - BILLING=false
+      - ANALYTICS=false
+      - NOTIFICATIONS=false
+      - NODE_ENV=production
+      - X_AWS_REGION=${AWS_REGION}
+      - PORT=3002
+    ports:
+      - "3002:3002"
