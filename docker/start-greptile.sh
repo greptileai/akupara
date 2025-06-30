@@ -24,14 +24,14 @@ fi
 echo "Starting Greptile services..."
 
 # Start database migrations first
-# echo "Running database migrations..."
-# docker-compose up -d postgres
+echo "Running database migrations..."
+docker-compose up -d postgres
 
-# # Check if migrations were successful
-# docker-compose up greptile_vector_db_migration --wait || { echo "Vector DB migration failed"; exit 1; }
-# docker-compose up greptile_db_migration --wait || { echo "DB migration failed"; exit 1; }
+# Check if migrations were successful
+docker-compose up greptile_vector_db_migration --wait || { echo "Vector DB migration failed"; exit 1; }
+docker-compose up greptile_db_migration --wait || { echo "DB migration failed"; exit 1; }
 
-# echo "Database migrations completed successfully."
+echo "Database migrations completed successfully."
 
 # Start the core services
 echo "Starting core services..."
