@@ -25,17 +25,17 @@ echo "Starting Greptile services..."
 
 # Start database migrations first
 echo "Running database migrations..."
-docker-compose up -d postgres
+docker-compose up --env-file common.env -d postgres
 
 # Check if migrations were successful
-docker-compose up greptile_vector_db_migration --wait || { echo "Vector DB migration failed"; exit 1; }
-docker-compose up greptile_db_migration --wait || { echo "DB migration failed"; exit 1; }
+docker-compose up --env-file common.env greptile_vector_db_migration --wait || { echo "Vector DB migration failed"; exit 1; }
+docker-compose up --env-file common.env greptile_db_migration --wait || { echo "DB migration failed"; exit 1; }
 
 echo "Database migrations completed successfully."
 
 # Start the core services
 echo "Starting core services..."
-docker-compose up -d --force-recreate "${GREPTILE_SERVICES[@]}"
+docker-compose up --env-file common.env -d --force-recreate "${GREPTILE_SERVICES[@]}"
 
 # Copy SSL certificates to all services if CUSTOM_FILE_PATH is set
 if [ -n "$CUSTOM_FILE_PATH" ]; then
