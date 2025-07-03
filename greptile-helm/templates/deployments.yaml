@@ -1,0 +1,624 @@
+{{- if .Values.web.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "greptile.fullname" . }}-web
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web
+spec:
+  replicas: {{ .Values.web.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "greptile.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: web
+  template:
+    metadata:
+      labels:
+        {{- include "greptile.labels" . | nindent 8 }}
+        app.kubernetes.io/component: web
+    spec:
+      containers:
+        - name: web
+          image: {{ include "greptile.image" (dict "Values" .Values "repository" .Values.web.image.repository "tag" .Values.web.image.tag) }}
+          imagePullPolicy: {{ .Values.web.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.web.service.port }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "greptile.fullname" . }}-common-env
+            - configMapRef:
+                name: {{ include "greptile.fullname" . }}-web-config
+          env:
+            - name: BILLING_ENABLED
+              value: {{ .Values.web.config.billingEnabled | quote }}
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: JWT_SECRET
+            - name: AUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: AUTH_SECRET
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: DATABASE_URL
+            - name: DIRECT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: DATABASE_URL
+            - name: GITHUB_ENTERPRISE_APP_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: GITHUB_PRIVATE_KEY
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: REDIS_HOST
+          resources:
+            {{- toYaml .Values.web.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+{{- end }}
+
+{{- if .Values.auth.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "greptile.fullname" . }}-auth
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: auth
+spec:
+  replicas: {{ .Values.auth.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "greptile.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: auth
+  template:
+    metadata:
+      labels:
+        {{- include "greptile.labels" . | nindent 8 }}
+        app.kubernetes.io/component: auth
+    spec:
+      containers:
+        - name: auth
+          image: {{ include "greptile.image" (dict "Values" .Values "repository" .Values.auth.image.repository "tag" .Values.auth.image.tag) }}
+          imagePullPolicy: {{ .Values.auth.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.auth.service.port }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "greptile.fullname" . }}-common-env
+          env:
+            - name: EMAIL_FROM
+              value: {{ .Values.web.config.authEmailFrom | default "noreply@greptile.com" | quote }}
+            - name: APP_URL
+              value: {{ .Values.web.config.externalUrl | default (printf "http://%s-web:%s" (include "greptile.fullname" .) (.Values.web.service.port | toString)) | quote }}
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: JWT_SECRET
+            - name: AUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: AUTH_SECRET
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: DATABASE_URL
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: REDIS_HOST
+          resources:
+            {{- toYaml .Values.auth.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+{{- end }}
+
+{{- if .Values.api.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "greptile.fullname" . }}-api
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  replicas: {{ .Values.api.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "greptile.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: api
+  template:
+    metadata:
+      labels:
+        {{- include "greptile.labels" . | nindent 8 }}
+        app.kubernetes.io/component: api
+    spec:
+      containers:
+        - name: api
+          image: {{ include "greptile.image" (dict "Values" .Values "repository" .Values.api.image.repository "tag" .Values.api.image.tag) }}
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.api.service.port }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "greptile.fullname" . }}-common-env
+          env:
+            - name: URL
+              value: {{ printf "http://%s-api:%s" (include "greptile.fullname" .) (.Values.api.service.port | toString) | quote }}
+            - name: APP_URL
+              value: {{ printf "http://%s-web:%s" (include "greptile.fullname" .) (.Values.web.service.port | toString) | quote }}
+            - name: PORT
+              value: {{ .Values.api.service.port | quote }}
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: JWT_SECRET
+            - name: TOKEN_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: TOKEN_ENCRYPTION_KEY
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: DATABASE_URL
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: REDIS_HOST
+            - name: HATCHET_CLIENT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: HATCHET_CLIENT_TOKEN
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+{{- end }}
+
+{{- if .Values.query.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "greptile.fullname" . }}-query
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: query
+spec:
+  replicas: {{ .Values.query.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "greptile.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: query
+  template:
+    metadata:
+      labels:
+        {{- include "greptile.labels" . | nindent 8 }}
+        app.kubernetes.io/component: query
+    spec:
+      containers:
+        - name: query
+          image: {{ include "greptile.image" (dict "Values" .Values "repository" .Values.query.image.repository "tag" .Values.query.image.tag) }}
+          imagePullPolicy: {{ .Values.query.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.query.service.port }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "greptile.fullname" . }}-common-env
+          env:
+            - name: PORT
+              value: {{ .Values.query.service.port | quote }}
+            - name: ONPREM
+              value: {{ .Values.query.config.onprem | quote }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: DATABASE_URL
+            - name: VECTOR_DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: VECTOR_DB_URL
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: REDIS_HOST
+          resources:
+            {{- toYaml .Values.query.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+{{- end }}
+
+{{- if .Values.indexer.chunker.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "greptile.fullname" . }}-chunker
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: chunker
+spec:
+  replicas: {{ .Values.indexer.chunker.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "greptile.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: chunker
+  template:
+    metadata:
+      labels:
+        {{- include "greptile.labels" . | nindent 8 }}
+        app.kubernetes.io/component: chunker
+    spec:
+      containers:
+        - name: chunker
+          image: {{ include "greptile.image" (dict "Values" .Values "repository" .Values.indexer.chunker.image.repository "tag" .Values.indexer.chunker.image.tag) }}
+          imagePullPolicy: {{ .Values.indexer.chunker.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.indexer.chunker.service.port }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "greptile.fullname" . }}-common-env
+          env:
+            - name: LOG_FORMAT
+              value: "json"
+            - name: PARENT_DIR
+              value: {{ .Values.indexer.chunker.config.parentDir | quote }}
+            - name: NODE_ENV
+              value: {{ .Values.indexer.chunker.config.nodeEnv | quote }}
+            - name: PORT
+              value: {{ .Values.indexer.chunker.service.port | quote }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: DATABASE_URL
+            - name: TOKEN_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: TOKEN_ENCRYPTION_KEY
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: REDIS_HOST
+          resources:
+            {{- toYaml .Values.indexer.chunker.resources | nindent 12 }}
+          volumeMounts:
+            - name: shared-mnt
+              mountPath: /mnt
+      volumes:
+        - name: shared-mnt
+          persistentVolumeClaim:
+            claimName: {{ include "greptile.fullname" . }}-shared-mnt
+{{- end }}
+
+{{- if .Values.indexer.summarizer.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "greptile.fullname" . }}-summarizer
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: summarizer
+spec:
+  replicas: {{ .Values.indexer.summarizer.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "greptile.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: summarizer
+  template:
+    metadata:
+      labels:
+        {{- include "greptile.labels" . | nindent 8 }}
+        app.kubernetes.io/component: summarizer
+    spec:
+      containers:
+        - name: summarizer
+          image: {{ include "greptile.image" (dict "Values" .Values "repository" .Values.indexer.summarizer.image.repository "tag" .Values.indexer.summarizer.image.tag) }}
+          imagePullPolicy: {{ .Values.indexer.summarizer.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.indexer.summarizer.service.port }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "greptile.fullname" . }}-common-env
+          env:
+            - name: LOG_FORMAT
+              value: "json"
+            - name: PARENT_DIR
+              value: {{ .Values.indexer.summarizer.config.parentDir | quote }}
+            - name: PORT
+              value: {{ .Values.indexer.summarizer.service.port | quote }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: DATABASE_URL
+            - name: TOKEN_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: TOKEN_ENCRYPTION_KEY
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: REDIS_HOST
+          resources:
+            {{- toYaml .Values.indexer.summarizer.resources | nindent 12 }}
+          volumeMounts:
+            - name: shared-mnt
+              mountPath: /mnt
+      volumes:
+        - name: shared-mnt
+          persistentVolumeClaim:
+            claimName: {{ include "greptile.fullname" . }}-shared-mnt
+{{- end }}
+
+{{- if .Values.webhook.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "greptile.fullname" . }}-webhook
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: webhook
+spec:
+  replicas: {{ .Values.webhook.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "greptile.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: webhook
+  template:
+    metadata:
+      labels:
+        {{- include "greptile.labels" . | nindent 8 }}
+        app.kubernetes.io/component: webhook
+    spec:
+      containers:
+        - name: webhook
+          image: {{ include "greptile.image" (dict "Values" .Values "repository" .Values.webhook.image.repository "tag" .Values.webhook.image.tag) }}
+          imagePullPolicy: {{ .Values.webhook.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.webhook.service.port }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "greptile.fullname" . }}-common-env
+          env:
+            - name: PORT
+              value: {{ .Values.webhook.service.port | quote }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: DATABASE_URL
+            - name: WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: WEBHOOK_SECRET
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: REDIS_HOST
+          resources:
+            {{- toYaml .Values.webhook.resources | nindent 12 }}
+{{- end }}
+
+{{- if .Values.reviews.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "greptile.fullname" . }}-reviews
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: reviews
+spec:
+  replicas: {{ .Values.reviews.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "greptile.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: reviews
+  template:
+    metadata:
+      labels:
+        {{- include "greptile.labels" . | nindent 8 }}
+        app.kubernetes.io/component: reviews
+    spec:
+      containers:
+        - name: reviews
+          image: {{ include "greptile.image" (dict "Values" .Values "repository" .Values.reviews.image.repository "tag" .Values.reviews.image.tag) }}
+          imagePullPolicy: {{ .Values.reviews.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.reviews.service.port }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "greptile.fullname" . }}-common-env
+          env:
+            - name: ANALYTICS
+              value: {{ .Values.reviews.config.analytics | quote }}
+            - name: BILLING
+              value: {{ .Values.reviews.config.billing | quote }}
+            - name: WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: WEBHOOK_SECRET
+            - name: PORT
+              value: {{ .Values.reviews.service.port | quote }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: DATABASE_URL
+            - name: TOKEN_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: TOKEN_ENCRYPTION_KEY
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: REDIS_HOST
+          resources:
+            {{- toYaml .Values.reviews.resources | nindent 12 }}
+{{- end }}
+
+{{- if .Values.jobs.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "greptile.fullname" . }}-jobs
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: jobs
+spec:
+  replicas: {{ .Values.jobs.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "greptile.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: jobs
+  template:
+    metadata:
+      labels:
+        {{- include "greptile.labels" . | nindent 8 }}
+        app.kubernetes.io/component: jobs
+    spec:
+      containers:
+        - name: jobs
+          image: {{ include "greptile.image" (dict "Values" .Values "repository" .Values.jobs.image.repository "tag" .Values.jobs.image.tag) }}
+          imagePullPolicy: {{ .Values.jobs.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.jobs.service.port }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "greptile.fullname" . }}-common-env
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PORT
+              value: {{ .Values.jobs.service.port | quote }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: DATABASE_URL
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: REDIS_HOST
+          resources:
+            {{- toYaml .Values.jobs.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+{{- end }} 

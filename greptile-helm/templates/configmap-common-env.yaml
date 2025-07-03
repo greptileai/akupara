@@ -1,0 +1,138 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "greptile.fullname" . }}-common-env
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-2"
+data:
+  # Container selection
+  TAG: {{ .Values.global.imageTag | default "latest" }}
+  ECR_REGISTRY: {{ .Values.global.ecr.registry }}
+  
+  # Database Configuration
+  DB_HOST: {{ if .Values.postgresql.enabled }}{{ printf "%s-postgresql" (include "greptile.fullname" .) }}{{ else }}{{ .Values.database.host }}{{ end }}
+  DB_PORT: "{{ if .Values.postgresql.enabled }}{{ .Values.postgresql.primary.service.port }}{{ else }}{{ .Values.database.port }}{{ end }}"
+  DB_USER: {{ if .Values.postgresql.enabled }}postgres{{ else }}{{ .Values.database.user }}{{ end }}
+  DB_PASSWORD: {{ if .Values.postgresql.enabled }}{{ .Values.postgresql.auth.postgresPassword }}{{ else }}{{ .Values.database.password }}{{ end }}
+  
+  # Vector Database Configuration
+  VECTOR_DB_HOST: {{ if .Values.postgresql.enabled }}{{ printf "%s-postgresql" (include "greptile.fullname" .) }}{{ else }}{{ .Values.vectordb.host | default .Values.database.host }}{{ end }}
+  VECTOR_DB_NAME: vector
+  VECTOR_DB_PASSWORD: {{ if .Values.postgresql.enabled }}{{ .Values.postgresql.auth.postgresPassword }}{{ else }}{{ .Values.vectordb.password | default .Values.database.password }}{{ end }}
+  VECTOR_DB_PORT: "{{ if .Values.postgresql.enabled }}{{ .Values.postgresql.primary.service.port }}{{ else }}{{ .Values.vectordb.port | default .Values.database.port }}{{ end }}"
+  VECTOR_DB_PROVIDER: pgvector
+  VECTOR_DB_USER: {{ if .Values.postgresql.enabled }}postgres{{ else }}{{ .Values.vectordb.user | default .Values.database.user }}{{ end }}
+  VECTOR_EMBEDDINGS_TABLE_NAME: embeddings
+  
+  # Redis Configuration
+  REDIS_PORT: "{{ if .Values.redis.enabled }}{{ .Values.redis.master.service.port }}{{ else }}{{ .Values.redis.port }}{{ end }}"
+  
+  # Service URLs
+  GREPTILE_AUTH_SERVER: http://{{ include "greptile.fullname" . }}-auth:{{ .Values.auth.service.port | toString }}
+  GREPTILE_API_URL: http://{{ include "greptile.fullname" . }}-api:{{ .Values.api.service.port | toString }}/v2
+  API_URL: http://{{ include "greptile.fullname" . }}-api:{{ .Values.api.service.port | toString }}
+  GITHUB_WEBHOOK_URL: http://{{ include "greptile.fullname" . }}-webhook:{{ .Values.webhook.service.port | toString }}/webhook
+  GITLAB_WEBHOOK_URL: http://{{ include "greptile.fullname" . }}-webhook:{{ .Values.webhook.service.port | toString }}/webhook
+  QUERY_URL: http://{{ include "greptile.fullname" . }}-query:{{ .Values.query.service.port | toString }}/query
+  
+  # Authentication Configuration
+  AUTH_BOXYHQ_SAML_ID: "dummy"
+  AUTH_BOXYHQ_SAML_SECRET: "dummy"
+  AUTH_BOXYHQ_SAML_ISSUER: "http://localhost:5225"
+  AUTH_BOXYHQ_URL: "http://localhost:5225"
+  AUTH_BOXYHQ_API_KEY: ""
+  
+  # GitHub Configuration
+  GITHUB_ENABLED: "false"
+  GITHUB_ENTERPRISE_ENABLED: "true"
+  GITHUB_APP_ID: "29" #dummy
+  GITHUB_APP_URL: "https://github.github-greplica.com/github-apps/greptile-on-premise"
+  GITHUB_CLIENT_ID: "Iv1.dummyb1c6c38481c"
+  GITHUB_CLIENT_SECRET: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  GITHUB_BOT_USERNAME: "greptile-bot-username"
+  GITHUB_BOT_LOGIN: "greptile-apps-login"
+  
+  # GitHub Enterprise Configuration
+  GITHUB_ENTERPRISE_APP_URL: "https://github.github-greplica.com/github-apps/greptile-on-premise"
+  GITHUB_ENTERPRISE_APP_ID: "29"
+  GITHUB_ENTERPRISE_API_URL: "https://github.github-greplica.com/api/v3/"
+  GITHUB_ENTERPRISE_URL: "https://github.github-greplica.com"
+  GITHUB_ENTERPRISE_CLIENT_ID: {{ .Values.global.authGithubId | default "dummyGithubId" }}
+  GITHUB_ENTERPRISE_CLIENT_SECRET: {{ .Values.global.authGithubSecret | default "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }}
+  AUTH_GITHUB_ID: "Iv1.dummyb1c6c38481c"
+  AUTH_GITHUB_SECRET: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  
+  # GitLab Configuration
+  GITLAB_ENABLED: "true"
+  
+  # Email Configuration
+  EMAIL_PROVIDER: "SES"
+  
+  # Hatchet Configuration
+  HATCHET_CLIENT_TLS_STRATEGY: "none"
+  AWS_REGION: "us-east-1"
+  
+  # LLM Configuration
+  ANTHROPIC_BASE_URL: "https://anthropic.helicone.ai"
+  REFINER_MODEL_PROVIDER: "anthropic"
+  AGENT_MODEL_PROVIDER: "openai"
+  CHAT_MODEL_PROVIDER: "anthropic"
+  MEMORY_CHAT_MODEL_PROVIDER: "anthropic"
+  SUMMARIZER_MODEL_PROVIDER: "azure"
+  SUMMARIZER_MODEL: "gpt-4o-mini"
+  EMBEDDINGS_MODEL: "text-embedding-3-small"
+  EMBEDDINGS_MODEL_PROVIDER: "azure"
+  OPENAI_API_BASE_URL: "https://oai.hconeai.com/v1"
+  AZURE_OPENAI_URL: "https://onboardai.openai.azure.com/"
+  AZURE_OPENAI_SUMMARIZER_DEPLOYMENT_NAME: "greptile-35-turbo"
+  AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT_NAME: "text-embedding-ada-002"
+  AZURE_OPENAI_SUMMARIZER_API_VERSION: "2024-03-01-preview"
+  AZURE_OPENAI_EMBEDDINGS_API_VERSION: "2023-05-15"
+  AGENT_MODEL: "us.anthropic.claude-3-5-sonnet-20241022-v2:0"
+  CHAT_MODEL: "us.anthropic.claude-3-5-sonnet-20241022-v2:0"
+  
+  # Application Configuration
+  BATCH_SIZE: "99"
+  WORKER_HASH: "on-prem-test"
+  HATCHET_REVIEWER_SLOTS: "2"
+  HATCHET_REVIEWER_DURABLE_SLOTS: "10000"
+  
+  # Integrations
+  SLACK_WEBHOOK_URL: "test"
+  SLACK_ENABLED: "false"
+  
+  # Misc Configuration
+  LOG_FORMAT: "json"
+  ANALYTICS: "false"
+  POSTHOG_KEY: "dummy"
+  BILLING: "false"
+  NOTIFICATIONS: "false"
+  HIDE_SOCIALS: "true"
+  NODE_ENV: "production"
+  LINEAR_ENABLED: "false"
+  POSTHOG_HOST: "dummyposthoghost"
+  BENCHMARK: "true"
+  
+  # Application URLs
+  IP_ADDRESS: "127.0.0.1"
+  NEXTAUTH_URL: {{ .Values.global.externalUrl | default (printf "http://%s-web:%s" (include "greptile.fullname" .) (.Values.web.service.port | toString)) | quote }}
+  
+  # Email Configuration
+  AUTH_EMAIL_FROM: {{ .Values.web.config.authEmailFrom | default "noreply@greptile.com" | quote }}
+  
+  # Additional LLM Configuration
+  ANTHROPIC_KEY: {{ .Values.secrets.anthropicKey | quote }}
+  OPENAI_KEY: {{ .Values.secrets.openaiKey | quote }}
+  AZURE_OPENAI_KEY: {{ .Values.secrets.azureOpenaiKey | quote }}
+  
+  # Hatchet Configuration
+  HATCHET_CLIENT_TOKEN: {{ .Values.secrets.hatchetClientToken | quote }}
+  
+  # GitHub Private Key
+  GITHUB_PRIVATE_KEY: {{ .Values.secrets.githubPrivateKey | quote }}
+  
+  # Additional Configuration
+  GITHUB_ENTERPRISE_APP_PRIVATE_KEY: {{ .Values.secrets.githubPrivateKey | quote }} 

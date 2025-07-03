@@ -1,0 +1,23 @@
+{{- if .Values.storage.sharedMount.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "greptile.fullname" . }}-shared-mnt
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-4"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  {{- if .Values.storage.sharedMount.storageClass }}
+  storageClassName: {{ .Values.storage.sharedMount.storageClass }}
+  {{- else if .Values.storage.createStorageClass }}
+  storageClassName: {{ include "greptile.fullname" . }}-storage
+  {{- end }}
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.storage.sharedMount.size }}
+{{- end }} 

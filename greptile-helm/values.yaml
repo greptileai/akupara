@@ -1,0 +1,297 @@
+# Global configuration
+global:
+  environment: "production"
+  ecr:
+    registry: "greptile-ecr-registry"
+  org:
+    name: "greptile"
+    tenant: "default"
+
+# Database configuration
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "postgres"
+    database: "postgres"
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+    service:
+      type: ClusterIP
+      port: 5432
+  pgvector:
+    enabled: true
+
+# Redis configuration
+redis:
+  enabled: true
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      size: 5Gi
+    service:
+      type: ClusterIP
+      port: 6379
+
+# Database migration jobs
+migrations:
+  db:
+    enabled: true
+    image:
+      repository: "greptile/db-migration"
+      tag: "greptile-version-x.x.x"
+      pullPolicy: Always
+    resources:
+      limits:
+        cpu: "200m"
+        memory: "256Mi"
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+  
+  vectordb:
+    enabled: true
+    image:
+      repository: "greptile/vectordb-migration"
+      tag: "greptile-version-x.x.x"
+      pullPolicy: Always
+    resources:
+      limits:
+        cpu: "200m"
+        memory: "256Mi"
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+
+# Web service
+web:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: "greptile/web"
+    tag: "greptile-version-x.x.x"
+    pullPolicy: Always
+  service:
+    type: LoadBalancer
+    port: 3000
+    annotations: {}
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+  config:
+    billingEnabled: false
+
+# Auth service
+auth:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: "greptile/auth"
+    tag: "greptile-version-x.x.x"
+    pullPolicy: Always
+  service:
+    type: LoadBalancer
+    port: 3001
+    annotations: {}
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+
+# API service
+api:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: "greptile/api"
+    tag: "greptile-version-x.x.x"
+    pullPolicy: Always
+  service:
+    type: LoadBalancer
+    port: 3002
+    annotations: {}
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+
+# Query service
+query:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: "greptile/query"
+    tag: "greptile-version-x.x.x"
+    pullPolicy: Always
+  service:
+    type: LoadBalancer
+    port: 8081
+    annotations: {}
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+  config:
+    onprem: true
+
+# Indexer services
+indexer:
+  chunker:
+    enabled: true
+    replicaCount: 1
+    image:
+      repository: "greptile/chunker"
+      tag: "greptile-version-x.x.x"
+      pullPolicy: Always
+    service:
+      type: ClusterIP
+      port: 3003
+    resources:
+      limits:
+        cpu: "2"
+        memory: "8Gi"
+      requests:
+        cpu: "1"
+        memory: "4Gi"
+    config:
+      parentDir: "/mnt/data/"
+      nodeEnv: ""
+  
+  summarizer:
+    enabled: true
+    replicaCount: 1
+    image:
+      repository: "greptile/summarizer"
+      tag: "greptile-version-x.x.x"
+      pullPolicy: Always
+    service:
+      type: ClusterIP
+      port: 3004
+    resources:
+      limits:
+        cpu: "2"
+        memory: "8Gi"
+      requests:
+        cpu: "1"
+        memory: "4Gi"
+    config:
+      parentDir: "/mnt/data/"
+
+# Webhook service
+webhook:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: "greptile/webhook"
+    tag: "greptile-version-x.x.x"
+    pullPolicy: Always
+  service:
+    type: LoadBalancer
+    port: 3007
+    annotations: {}
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+
+# Reviews service
+reviews:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: "greptile/reviews"
+    tag: "greptile-version-x.x.x"
+    pullPolicy: Always
+  service:
+    type: LoadBalancer
+    port: 3005
+    annotations: {}
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+  config:
+    analytics: false
+    billing: false
+
+# Jobs service
+jobs:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: "greptile/jobs"
+    tag: "greptile-version-x.x.x"
+    pullPolicy: Always
+  service:
+    type: LoadBalancer
+    port: 8080
+    annotations: {}
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+
+# Shared storage
+storage:
+  createStorageClass: false
+  sharedMount:
+    enabled: true
+    size: 10Gi
+    storageClass: ""
+
+# Ingress configuration
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: greptile.local
+      paths:
+        - path: /
+          pathType: Prefix
+          service: web
+        - path: /api
+          pathType: Prefix
+          service: api
+        - path: /auth
+          pathType: Prefix
+          service: auth
+  tls: []
+
+# Secrets configuration (these should be overridden in values-override.yaml)
+secrets:
+  jwtSecret: "dummy-jwt-secret"
+  tokenEncryptionKey: "dummy-token-encryption-key"
+  authSecret: "dummy-auth-secret"
+  githubWebhookSecret: "dummy-github-webhook-secret"
+  webhookSecret: "dummy-webhook-secret"
+  hatchetClientToken: "dummy-hatchet-client-token"
+  anthropicKey: "dummy-anthropic-key"
+  openaiKey: "dummy-openai-key"
+  azureOpenaiKey: "dummy-azure-openai-key"
+  githubPrivateKey: "dummy-github-private-key"
