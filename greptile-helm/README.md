@@ -32,11 +32,14 @@ Alternatively, you can run the script `greptile-helm/load-images-to-minikube.sh`
 3. Prepare your `values-minikube.yaml`
 You can use values-minikube.example to start
 
-4. Run helm install
+4. Add helm dependencies
+`helm dependency update`
+
+5. Run helm install
 `helm install greptile . -f values-minikube.yaml`
 
-5. After it completes you can inspect it via `minikube dashboard`
+6. After it completes you can inspect it via `minikube dashboard`
 
-6. Access the web frontend here `minikube service greptile-web --url`
+7. Access the web frontend here `minikube service greptile-web --url`
 
 
