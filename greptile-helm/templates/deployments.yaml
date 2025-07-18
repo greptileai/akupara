@@ -20,6 +20,16 @@ spec:
         {{- include "greptile.labels" . | nindent 8 }}
         app.kubernetes.io/component: web
     spec:
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+      {{- if .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml .Values.global.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.global.nodeSelector | nindent 8 }}
+      {{- end }}
       containers:
         - name: web
           image: {{ include "greptile.image" (dict "Values" .Values "repository" .Values.web.image.repository "tag" .Values.web.image.tag) }}
@@ -35,7 +45,7 @@ spec:
                 name: {{ include "greptile.fullname" . }}-web-config
           env:
             - name: BILLING_ENABLED
-              value: {{ .Values.web.config.billingEnabled | quote }}
+              value: "false"
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
@@ -68,18 +78,18 @@ spec:
                   key: REDIS_HOST
           resources:
             {{- toYaml .Values.web.resources | nindent 12 }}
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-            initialDelaySeconds: 30
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
-            initialDelaySeconds: 5
-            periodSeconds: 5
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          #   initialDelaySeconds: 30
+          #   periodSeconds: 10
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          #   initialDelaySeconds: 5
+          #   periodSeconds: 5
 {{- end }}
 
 {{- if .Values.auth.enabled }}
@@ -104,6 +114,16 @@ spec:
         {{- include "greptile.labels" . | nindent 8 }}
         app.kubernetes.io/component: auth
     spec:
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+      {{- if .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml .Values.global.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.global.nodeSelector | nindent 8 }}
+      {{- end }}
       containers:
         - name: auth
           image: {{ include "greptile.image" (dict "Values" .Values "repository" .Values.auth.image.repository "tag" .Values.auth.image.tag) }}
@@ -142,18 +162,18 @@ spec:
                   key: REDIS_HOST
           resources:
             {{- toYaml .Values.auth.resources | nindent 12 }}
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: http
-            initialDelaySeconds: 30
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: http
-            initialDelaySeconds: 5
-            periodSeconds: 5
+          # livenessProbe:
+          #   httpGet:
+          #     path: /health
+          #     port: http
+          #   initialDelaySeconds: 30
+          #   periodSeconds: 10
+          # readinessProbe:
+          #   httpGet:
+          #     path: /health
+          #     port: http
+          #   initialDelaySeconds: 5
+          #   periodSeconds: 5
 {{- end }}
 
 {{- if .Values.api.enabled }}
@@ -178,6 +198,16 @@ spec:
         {{- include "greptile.labels" . | nindent 8 }}
         app.kubernetes.io/component: api
     spec:
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+      {{- if .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml .Values.global.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.global.nodeSelector | nindent 8 }}
+      {{- end }}
       containers:
         - name: api
           image: {{ include "greptile.image" (dict "Values" .Values "repository" .Values.api.image.repository "tag" .Values.api.image.tag) }}
@@ -196,6 +226,9 @@ spec:
               value: {{ printf "http://%s-web:%s" (include "greptile.fullname" .) (.Values.web.service.port | toString) | quote }}
             - name: PORT
               value: {{ .Values.api.service.port | quote }}
+            # TODO remove AGENT_MODE_CHAT once query service is officially deprecated
+            - name: AGENT_MODE_CHAT
+              value: "true"
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
@@ -223,87 +256,18 @@ spec:
                   key: HATCHET_CLIENT_TOKEN
           resources:
             {{- toYaml .Values.api.resources | nindent 12 }}
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: http
-            initialDelaySeconds: 30
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: http
-            initialDelaySeconds: 5
-            periodSeconds: 5
-{{- end }}
-
-{{- if .Values.query.enabled }}
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: {{ include "greptile.fullname" . }}-query
-  labels:
-    {{- include "greptile.labels" . | nindent 4 }}
-    app.kubernetes.io/component: query
-spec:
-  replicas: {{ .Values.query.replicaCount }}
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: {{ include "greptile.name" . }}
-      app.kubernetes.io/instance: {{ .Release.Name }}
-      app.kubernetes.io/component: query
-  template:
-    metadata:
-      labels:
-        {{- include "greptile.labels" . | nindent 8 }}
-        app.kubernetes.io/component: query
-    spec:
-      containers:
-        - name: query
-          image: {{ include "greptile.image" (dict "Values" .Values "repository" .Values.query.image.repository "tag" .Values.query.image.tag) }}
-          imagePullPolicy: {{ .Values.query.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: {{ .Values.query.service.port }}
-              protocol: TCP
-          envFrom:
-            - configMapRef:
-                name: {{ include "greptile.fullname" . }}-common-env
-          env:
-            - name: PORT
-              value: {{ .Values.query.service.port | quote }}
-            - name: ONPREM
-              value: {{ .Values.query.config.onprem | quote }}
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "greptile.fullname" . }}-secrets
-                  key: DATABASE_URL
-            - name: VECTOR_DB_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "greptile.fullname" . }}-secrets
-                  key: VECTOR_DB_URL
-            - name: REDIS_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "greptile.fullname" . }}-secrets
-                  key: REDIS_HOST
-          resources:
-            {{- toYaml .Values.query.resources | nindent 12 }}
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: http
-            initialDelaySeconds: 30
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: http
-            initialDelaySeconds: 5
-            periodSeconds: 5
+          # livenessProbe:
+          #   httpGet:
+          #     path: /health
+          #     port: http
+          #   initialDelaySeconds: 30
+          #   periodSeconds: 10
+          # readinessProbe:
+          #   httpGet:
+          #     path: /health
+          #     port: http
+          #   initialDelaySeconds: 5
+          #   periodSeconds: 5
 {{- end }}
 
 {{- if .Values.indexer.chunker.enabled }}
@@ -328,6 +292,16 @@ spec:
         {{- include "greptile.labels" . | nindent 8 }}
         app.kubernetes.io/component: chunker
     spec:
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+      {{- if .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml .Values.global.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.global.nodeSelector | nindent 8 }}
+      {{- end }}
       containers:
         - name: chunker
           image: {{ include "greptile.image" (dict "Values" .Values "repository" .Values.indexer.chunker.image.repository "tag" .Values.indexer.chunker.image.tag) }}
@@ -396,6 +370,16 @@ spec:
         {{- include "greptile.labels" . | nindent 8 }}
         app.kubernetes.io/component: summarizer
     spec:
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+      {{- if .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml .Values.global.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.global.nodeSelector | nindent 8 }}
+      {{- end }}
       containers:
         - name: summarizer
           image: {{ include "greptile.image" (dict "Values" .Values "repository" .Values.indexer.summarizer.image.repository "tag" .Values.indexer.summarizer.image.tag) }}
@@ -462,6 +446,16 @@ spec:
         {{- include "greptile.labels" . | nindent 8 }}
         app.kubernetes.io/component: webhook
     spec:
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+      {{- if .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml .Values.global.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.global.nodeSelector | nindent 8 }}
+      {{- end }}
       containers:
         - name: webhook
           image: {{ include "greptile.image" (dict "Values" .Values "repository" .Values.webhook.image.repository "tag" .Values.webhook.image.tag) }}
@@ -517,6 +511,16 @@ spec:
         {{- include "greptile.labels" . | nindent 8 }}
         app.kubernetes.io/component: reviews
     spec:
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+      {{- if .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml .Values.global.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.global.nodeSelector | nindent 8 }}
+      {{- end }}
       containers:
         - name: reviews
           image: {{ include "greptile.image" (dict "Values" .Values "repository" .Values.reviews.image.repository "tag" .Values.reviews.image.tag) }}
@@ -581,6 +585,16 @@ spec:
         {{- include "greptile.labels" . | nindent 8 }}
         app.kubernetes.io/component: jobs
     spec:
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+      {{- if .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml .Values.global.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.global.nodeSelector | nindent 8 }}
+      {{- end }}
       containers:
         - name: jobs
           image: {{ include "greptile.image" (dict "Values" .Values "repository" .Values.jobs.image.repository "tag" .Values.jobs.image.tag) }}
@@ -593,8 +607,12 @@ spec:
             - configMapRef:
                 name: {{ include "greptile.fullname" . }}-common-env
           env:
+            # TODO NODE_ENV=prod might fail due to cloudwatch logger
             - name: NODE_ENV
-              value: "production"
+              value: "development"
+            # TODO for OPENAI_API_VERSION workaround to get runner working
+            - name: OPENAI_API_VERSION
+              value: {{ .Values.jobs.config.openaiApiVersion | quote }}
             - name: PORT
               value: {{ .Values.jobs.service.port | quote }}
             - name: DATABASE_URL
@@ -609,16 +627,16 @@ spec:
                   key: REDIS_HOST
           resources:
             {{- toYaml .Values.jobs.resources | nindent 12 }}
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: http
-            initialDelaySeconds: 30
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: http
-            initialDelaySeconds: 5
-            periodSeconds: 5
+          # livenessProbe:
+          #   httpGet:
+          #     path: /health
+          #     port: http
+          #   initialDelaySeconds: 30
+          #   periodSeconds: 10
+          # readinessProbe:
+          #   httpGet:
+          #     path: /health
+          #     port: http
+          #   initialDelaySeconds: 5
+          #   periodSeconds: 5
 {{- end }} 

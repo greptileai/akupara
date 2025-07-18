@@ -19,6 +19,16 @@ spec:
         {{- include "greptile.labels" . | nindent 8 }}
     spec:
       restartPolicy: Never
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+      {{- if .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml .Values.global.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.global.nodeSelector | nindent 8 }}
+      {{- end }}
       containers:
         - name: db-migration
           image: {{ include "greptile.image" (dict "Values" .Values "repository" .Values.migrations.db.image.repository "tag" .Values.migrations.db.image.tag) }}
@@ -43,7 +53,7 @@ spec:
               if pnpm prisma migrate deploy --schema=./prisma/schema.prisma; then
                 echo "Migration completed successfully"
                 API_KEY=$(openssl rand -hex 16)
-                sed "s@\$ORG_NAME@$ORG_NAME@g; s@\$TENANT_ID@$TENANT_ID@g; s@\$API_KEY@$API_KEY@g" ./scripts/root_org.sql > /tmp/processed.sql
+                sed "s@\\\$ORG_NAME@$ORG_NAME@g; s@\\\$TENANT_ID@$TENANT_ID@g; s@\\\$API_KEY@$API_KEY@g" ./scripts/root_org.sql > /tmp/processed.sql
                 cat /tmp/processed.sql | pnpm prisma db execute --stdin --url "$DATABASE_URL" || {
                   echo "Failed to execute root_org.sql"
                   cat /tmp/processed.sql
@@ -97,6 +107,16 @@ spec:
         {{- include "greptile.labels" . | nindent 8 }}
     spec:
       restartPolicy: Never
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+      {{- if .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml .Values.global.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.global.nodeSelector | nindent 8 }}
+      {{- end }}
       containers:
         - name: vectordb-migration
           image: {{ include "greptile.image" (dict "Values" .Values "repository" .Values.migrations.vectordb.image.repository "tag" .Values.migrations.vectordb.image.tag) }}

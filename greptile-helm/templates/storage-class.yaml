@@ -8,7 +8,6 @@ metadata:
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-weight": "-4"
-    "helm.sh/hook-delete-policy": before-hook-creation
 provisioner: k8s.io/minikube-hostpath
 volumeBindingMode: Immediate
 allowVolumeExpansion: true

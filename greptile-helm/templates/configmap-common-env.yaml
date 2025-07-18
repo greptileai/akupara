@@ -28,6 +28,7 @@ data:
   VECTOR_EMBEDDINGS_TABLE_NAME: embeddings
   
   # Redis Configuration
+  # TODO Add REDIS_HOST
   REDIS_PORT: "{{ if .Values.redis.enabled }}{{ .Values.redis.master.service.port }}{{ else }}{{ .Values.redis.port }}{{ end }}"
   
   # Service URLs
@@ -45,25 +46,25 @@ data:
   AUTH_BOXYHQ_URL: "http://localhost:5225"
   AUTH_BOXYHQ_API_KEY: ""
   
-  # GitHub Configuration
+  # GitHub Configuration - Leave dummy values if unused
   GITHUB_ENABLED: "false"
   GITHUB_ENTERPRISE_ENABLED: "true"
-  GITHUB_APP_ID: "29" #dummy
-  GITHUB_APP_URL: "https://github.github-greplica.com/github-apps/greptile-on-premise"
+  GITHUB_APP_ID: "1"
+  GITHUB_APP_URL: "https://github.com/github-apps/dummy-app"
   GITHUB_CLIENT_ID: "Iv1.dummyb1c6c38481c"
   GITHUB_CLIENT_SECRET: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
   GITHUB_BOT_USERNAME: "greptile-bot-username"
   GITHUB_BOT_LOGIN: "greptile-apps-login"
   
-  # GitHub Enterprise Configuration
-  GITHUB_ENTERPRISE_APP_URL: "https://github.github-greplica.com/github-apps/greptile-on-premise"
-  GITHUB_ENTERPRISE_APP_ID: "29"
+  # GitHub Enterprise Configuration - Leave dummy values if unused
+  GITHUB_ENTERPRISE_APP_URL: "https://github.github-greplica.com/github-apps/greptile-kubernetes"
+  GITHUB_ENTERPRISE_APP_ID: "30"
   GITHUB_ENTERPRISE_API_URL: "https://github.github-greplica.com/api/v3/"
   GITHUB_ENTERPRISE_URL: "https://github.github-greplica.com"
-  GITHUB_ENTERPRISE_CLIENT_ID: {{ .Values.global.authGithubId | default "dummyGithubId" }}
-  GITHUB_ENTERPRISE_CLIENT_SECRET: {{ .Values.global.authGithubSecret | default "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }}
-  AUTH_GITHUB_ID: "Iv1.dummyb1c6c38481c"
-  AUTH_GITHUB_SECRET: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  GITHUB_ENTERPRISE_CLIENT_ID: {{ .Values.global.authGithubId | default "Iv1.dummy" }}
+  GITHUB_ENTERPRISE_CLIENT_SECRET: {{ .Values.global.authGithubSecret | default "client_Secret" }}
+  AUTH_GITHUB_ID: "Iv1.dummy2b368a16"
+  AUTH_GITHUB_SECRET: "dummygithub_auth_secret"
   
   # GitLab Configuration
   GITLAB_ENABLED: "true"
@@ -71,32 +72,32 @@ data:
   # Email Configuration
   EMAIL_PROVIDER: "SES"
   
-  # Hatchet Configuration
   HATCHET_CLIENT_TLS_STRATEGY: "none"
-  AWS_REGION: "us-east-1"
   
   # LLM Configuration
   ANTHROPIC_BASE_URL: "https://anthropic.helicone.ai"
   REFINER_MODEL_PROVIDER: "anthropic"
-  AGENT_MODEL_PROVIDER: "openai"
+  REFINER_MODEL: "claude-sonnet-4-20250514"
   CHAT_MODEL_PROVIDER: "anthropic"
   MEMORY_CHAT_MODEL_PROVIDER: "anthropic"
+  MEMORY_CHAT_MODEL: "claude-sonnet-4-20250514"
   SUMMARIZER_MODEL_PROVIDER: "azure"
   SUMMARIZER_MODEL: "gpt-4o-mini"
   EMBEDDINGS_MODEL: "text-embedding-3-small"
   EMBEDDINGS_MODEL_PROVIDER: "azure"
   OPENAI_API_BASE_URL: "https://oai.hconeai.com/v1"
   AZURE_OPENAI_URL: "https://onboardai.openai.azure.com/"
-  AZURE_OPENAI_SUMMARIZER_DEPLOYMENT_NAME: "greptile-35-turbo"
-  AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT_NAME: "text-embedding-ada-002"
-  AZURE_OPENAI_SUMMARIZER_API_VERSION: "2024-03-01-preview"
+  AZURE_OPENAI_SUMMARIZER_DEPLOYMENT_NAME: "gpt-4o-mini"
+  AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT_NAME: "embedding"
+  AZURE_OPENAI_SUMMARIZER_API_VERSION: "2024-08-01-preview"
   AZURE_OPENAI_EMBEDDINGS_API_VERSION: "2023-05-15"
-  AGENT_MODEL: "us.anthropic.claude-3-5-sonnet-20241022-v2:0"
-  CHAT_MODEL: "us.anthropic.claude-3-5-sonnet-20241022-v2:0"
+  AGENT_MODEL_PROVIDER: "openai"
+  AGENT_MODEL: "gpt-4o-mini"
+  CHAT_MODEL: "claude-sonnet-4-20250514"
   
   # Application Configuration
   BATCH_SIZE: "99"
-  WORKER_HASH: "on-prem-test"
+  WORKER_HASH: "on-prem"
   HATCHET_REVIEWER_SLOTS: "2"
   HATCHET_REVIEWER_DURABLE_SLOTS: "10000"
   
@@ -111,13 +112,13 @@ data:
   BILLING: "false"
   NOTIFICATIONS: "false"
   HIDE_SOCIALS: "true"
-  NODE_ENV: "production"
+  NODE_ENV: {{ .Values.global.environment | default "development" | quote }}
   LINEAR_ENABLED: "false"
   POSTHOG_HOST: "dummyposthoghost"
   BENCHMARK: "true"
-  
+  AWS_REGION: "us-east-1"
+
   # Application URLs
-  IP_ADDRESS: "127.0.0.1"
   NEXTAUTH_URL: {{ .Values.global.externalUrl | default (printf "http://%s-web:%s" (include "greptile.fullname" .) (.Values.web.service.port | toString)) | quote }}
   
   # Email Configuration
