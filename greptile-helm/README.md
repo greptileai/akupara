@@ -71,7 +71,7 @@ kubectl create secret docker-registry regcred \
   * for `jwtSecret`, `authSecret` and `tokenEncryptionKey` any random alphanumeric string is fine. `jwtSecret` and `authSecret` have to be identical.
   * `hatchetClientToken` Use the API key generated further above
   * For the LLM keys, fill only those out that you are planning to use.
-  * If you are using GitHub as a Code Provider, provide the `githubWebhookSecret` and the `githubPrivateKey` of your GitHub App.
+  * If you are using GitHub as a Code Provider, provide the `githubWebhookSecret` and the `githubPrivateKey` of your GitHub App. If not, leave it at a dummy value.
 * [Optional] `tolerations` and `nodeSelector`
 * [Optional] Depending on your node resources, you might want to allocate more or less resources. As a reference this is what a Greptile hosted on production system should use:
 

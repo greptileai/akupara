@@ -37,7 +37,8 @@ data:
   API_URL: http://{{ include "greptile.fullname" . }}-api:{{ .Values.api.service.port | toString }}
   GITHUB_WEBHOOK_URL: http://{{ include "greptile.fullname" . }}-webhook:{{ .Values.webhook.service.port | toString }}/webhook
   GITLAB_WEBHOOK_URL: http://{{ include "greptile.fullname" . }}-webhook:{{ .Values.webhook.service.port | toString }}/webhook
-  QUERY_URL: http://{{ include "greptile.fullname" . }}-query:{{ .Values.query.service.port | toString }}/query
+  # TODO Remove QUERY_URL once query service is deprecated
+  QUERY_URL: http://{{ include "greptile.fullname" . }}-query:8080/query
   
   # Authentication Configuration
   AUTH_BOXYHQ_SAML_ID: "dummy"

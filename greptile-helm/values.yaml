@@ -236,6 +236,7 @@ reviews:
       memory: "128Mi"
   config:
     analytics: false
+    billing: false
 
 jobs:
   enabled: true

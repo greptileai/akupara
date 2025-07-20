@@ -73,31 +73,6 @@ spec:
     app.kubernetes.io/component: api
 {{- end }}
 
-{{- if .Values.query.enabled }}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ include "greptile.fullname" . }}-query
-  labels:
-    {{- include "greptile.labels" . | nindent 4 }}
-    app.kubernetes.io/component: query
-  {{- with .Values.query.service.annotations }}
-  {{- toYaml . | nindent 2 }}
-  {{- end }}
-spec:
-  type: {{ .Values.query.service.type }}
-  ports:
-    - port: {{ .Values.query.service.port }}
-      targetPort: {{ .Values.query.service.port }}
-      protocol: TCP
-      name: http
-  selector:
-    app.kubernetes.io/name: {{ include "greptile.name" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/component: query
-{{- end }}
-
 {{- if .Values.indexer.chunker.enabled }}
 ---
 apiVersion: v1
