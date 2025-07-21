@@ -115,6 +115,10 @@ web:
       memory: "1Gi"
   config:
     externalUrl: "http://127.0.0.1:3000"  # This has to be set to the public IP:port that the Web service will use
+    authSamlOnly: "false" # set to true if you want to only authenticate via SAML
+    globalGitlabBaseUrl: ""  # This will be your gitlab base url http://your_gitlab.your_company.com
+    skipCompanyOnboarding: "true"  # Skips the company onboarding questions for new users
+    defaultCodeProvider: "gitlab"
 
 auth:
   enabled: true
@@ -292,6 +296,7 @@ secrets:
   anthropicKey: "dummy-anthropic-key"
   openaiKey: "dummy-openai-key"
   azureOpenaiKey: "dummy-azure-openai-key"
+  globalGitlabToken: "dummy-gitlab-key"  # This will be a service account token / group access token
 
 # Required for pulling images from Docker Hub
 imagePullSecrets:

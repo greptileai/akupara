@@ -76,6 +76,11 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: REDIS_HOST
+            - name: GLOBAL_GITLAB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: GLOBAL_GITLAB_TOKEN
           resources:
             {{- toYaml .Values.web.resources | nindent 12 }}
           # livenessProbe:
