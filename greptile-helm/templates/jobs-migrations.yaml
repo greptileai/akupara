@@ -48,13 +48,13 @@ spec:
               echo "PostgreSQL is ready!"
               
               # Try to create database, but don't fail if it already exists
-              pnpm prisma db execute --file ./scripts/create.sql --url "$DATABASE_URL" || echo "Database may already exist, continuing..."
-              pnpm prisma db execute --file ./scripts/hatchet.sql --url "$DATABASE_URL"
-              if pnpm prisma migrate deploy --schema=./prisma/schema.prisma; then
+              bun prisma db execute --file ./scripts/create.sql --url "$DATABASE_URL" || echo "Database may already exist, continuing..."
+              bun prisma db execute --file ./scripts/hatchet.sql --url "$DATABASE_URL"
+              if bun prisma migrate deploy --schema=./prisma/schema.prisma; then
                 echo "Migration completed successfully"
                 API_KEY=$(openssl rand -hex 16)
                 sed "s@\\\$ORG_NAME@$ORG_NAME@g; s@\\\$TENANT_ID@$TENANT_ID@g; s@\\\$API_KEY@$API_KEY@g" ./scripts/root_org.sql > /tmp/processed.sql
-                cat /tmp/processed.sql | pnpm prisma db execute --stdin --url "$DATABASE_URL" || {
+                cat /tmp/processed.sql | bun prisma db execute --stdin --url "$DATABASE_URL" || {
                   echo "Failed to execute root_org.sql"
                   cat /tmp/processed.sql
                   exit 1
@@ -136,11 +136,11 @@ spec:
               echo "PostgreSQL is ready!"
               
               # Try to create database, but don't fail if it already exists
-              pnpm prisma db execute --file ./scripts/create.sql --url "$DATABASE_URL" || echo "Database may already exist, continuing..."
+              bun prisma db execute --file ./scripts/create.sql --url "$DATABASE_URL" || echo "Database may already exist, continuing..."
               export DATABASE_URL=$VECTOR_DB_URL
               export DIRECT_URL=$VECTOR_DB_URL
-              pnpm prisma db execute --file ./scripts/pgvector.sql
-              pnpm prisma migrate deploy --schema=./prisma/schema.prisma
+              bun prisma db execute --file ./scripts/pgvector.sql
+              bun prisma migrate deploy --schema=./prisma/schema.prisma
               echo "Vector migration completed."
           resources:
             {{- toYaml .Values.migrations.vectordb.resources | nindent 12 }}
