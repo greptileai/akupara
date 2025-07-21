@@ -116,7 +116,7 @@ data:
   NODE_ENV: {{ .Values.global.environment | default "development" | quote }}
   LINEAR_ENABLED: "false"
   POSTHOG_HOST: "dummyposthoghost"
-  BENCHMARK: "true"
+  BENCHMARK: "false"
   AWS_REGION: "us-east-1"
 
   # Application URLs
