@@ -124,7 +124,8 @@ data:
   
   # Email Configuration
   AUTH_EMAIL_FROM: {{ .Values.web.config.authEmailFrom | default "noreply@greptile.com" | quote }}
-  
+  EMAIL_FROM: {{ .Values.web.config.authEmailFrom | default "noreply@greptile.com" | quote }}
+
   # Additional LLM Configuration
   ANTHROPIC_KEY: {{ .Values.secrets.anthropicKey | quote }}
   OPENAI_KEY: {{ .Values.secrets.openaiKey | quote }}

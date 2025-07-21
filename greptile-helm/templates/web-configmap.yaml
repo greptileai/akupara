@@ -10,3 +10,4 @@ data:
   APP_URL: {{ .Values.web.config.externalUrl | default (printf "http://%s-web:%s" (include "greptile.fullname" .) (.Values.web.service.port | toString)) | quote }}
   AUTH_EMAIL_FROM: {{ .Values.web.config.authEmailFrom | default "noreply@greptile.com" | quote }}
   BILLING_ENABLED: "false"
+  EMAIL_FROM: {{ .Values.web.config.authEmailFrom | default "noreply@greptile.com" | quote }}
