@@ -103,7 +103,7 @@ kubectl create secret docker-registry regcred \
   | Jobs                      | 63m         | 250m      | 256Mi          | 512Mi        | 1        | -       |
   | Postgres                  | 4000m       | 4000m     | 8Gi            | 8Gi          | 1        | 64Gi    |
   | Hatchet                   | 4000m       | 4000m     | 8Gi            | 8Gi          | 1        | -       |
-  | Redis                     | 1000m        | 2000m     | 2Gi            | 2Gi          | 1        | -       |
+  | Redis                     | 1000m       | 2000m     | 2Gi            | 2Gi          | 1        | -       |
             
 
 6. Also take a look at `templates/configmap-common-env.yaml`. This file contains environment variables that are shared across Greptile's services. In most cases, none of these env vars should be modified and hardcoded env vars should keep their value to support Greptile as an on premise solution.
