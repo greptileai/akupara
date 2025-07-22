@@ -76,25 +76,25 @@ data:
   HATCHET_CLIENT_TLS_STRATEGY: "none"
   
   # LLM Configuration
-  ANTHROPIC_BASE_URL: "https://anthropic.helicone.ai"
-  REFINER_MODEL_PROVIDER: "anthropic"
-  REFINER_MODEL: "claude-sonnet-4-20250514"
-  CHAT_MODEL_PROVIDER: "anthropic"
-  MEMORY_CHAT_MODEL_PROVIDER: "anthropic"
-  MEMORY_CHAT_MODEL: "claude-sonnet-4-20250514"
-  SUMMARIZER_MODEL_PROVIDER: "azure"
-  SUMMARIZER_MODEL: "gpt-4o-mini"
-  EMBEDDINGS_MODEL: "text-embedding-3-small"
-  EMBEDDINGS_MODEL_PROVIDER: "azure"
-  OPENAI_API_BASE_URL: "https://oai.hconeai.com/v1"
-  AZURE_OPENAI_URL: "https://onboardai.openai.azure.com/"
-  AZURE_OPENAI_SUMMARIZER_DEPLOYMENT_NAME: "gpt-4o-mini"
-  AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT_NAME: "embedding"
-  AZURE_OPENAI_SUMMARIZER_API_VERSION: "2024-08-01-preview"
-  AZURE_OPENAI_EMBEDDINGS_API_VERSION: "2023-05-15"
-  AGENT_MODEL_PROVIDER: "openai"
-  AGENT_MODEL: "gpt-4o-mini"
-  CHAT_MODEL: "claude-sonnet-4-20250514"
+  ANTHROPIC_BASE_URL: {{ .Values.global.ai.anthropic.baseUrl | quote }}
+  REFINER_MODEL_PROVIDER: {{ .Values.global.ai.refiner.modelProvider | quote }}
+  REFINER_MODEL: {{ .Values.global.ai.refiner.model | quote }}
+  CHAT_MODEL_PROVIDER: {{ .Values.global.ai.chat.modelProvider | quote }}
+  MEMORY_CHAT_MODEL_PROVIDER: {{ .Values.global.ai.memory.chatModelProvider | quote }}
+  MEMORY_CHAT_MODEL: {{ .Values.global.ai.memory.chatModel | quote }}
+  SUMMARIZER_MODEL_PROVIDER: {{ .Values.global.ai.summarizer.modelProvider | quote }}
+  SUMMARIZER_MODEL: {{ .Values.global.ai.summarizer.model | quote }}
+  EMBEDDINGS_MODEL: {{ .Values.global.ai.embeddings.model | quote }}
+  EMBEDDINGS_MODEL_PROVIDER: {{ .Values.global.ai.embeddings.modelProvider | quote }}
+  OPENAI_API_BASE_URL: {{ .Values.global.ai.openai.apiBaseUrl | quote }}
+  AZURE_OPENAI_URL: {{ .Values.global.ai.azure.openaiUrl | quote }}
+  AZURE_OPENAI_SUMMARIZER_DEPLOYMENT_NAME: {{ .Values.global.ai.azure.openaiSummarizerDeploymentName | quote }}
+  AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT_NAME: {{ .Values.global.ai.azure.openaiEmbeddingsDeploymentName | quote }}
+  AZURE_OPENAI_SUMMARIZER_API_VERSION: {{ .Values.global.ai.azure.openaiSummarizerApiVersion | quote }}
+  AZURE_OPENAI_EMBEDDINGS_API_VERSION: {{ .Values.global.ai.azure.openaiEmbeddingsApiVersion | quote }}
+  AGENT_MODEL_PROVIDER: {{ .Values.global.ai.agent.modelProvider | quote }}
+  AGENT_MODEL: {{ .Values.global.ai.agent.model | quote }}
+  CHAT_MODEL: {{ .Values.global.ai.chat.model | quote }}
   
   # Application Configuration
   BATCH_SIZE: "99"

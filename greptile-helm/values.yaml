@@ -15,6 +15,39 @@ global:
   # Uncomment below to enable nodeSelector
   # nodeSelector:
   #   nodeSelectorKey: "greptile"
+  
+  # AI Model Configuration
+  ai:
+    anthropic:
+      baseUrl: "https://anthropic.helicone.ai"
+    openai:
+      apiBaseUrl: "https://oai.hconeai.com/v1"
+    azure:
+      openaiUrl: "https://onboardai.openai.azure.com/"
+      openaiSummarizerDeploymentName: "gpt-4o-mini"
+      openaiEmbeddingsDeploymentName: "embedding"
+      openaiSummarizerApiVersion: "2024-08-01-preview"
+      openaiEmbeddingsApiVersion: "2023-05-15"
+    
+    # Model Provider Configuration
+    refiner:
+      modelProvider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+    chat:
+      modelProvider: "anthropic"
+      model: "claude-sonnet-4-20250514"
+    memory:
+      chatModelProvider: "anthropic"
+      chatModel: "claude-sonnet-4-20250514"
+    summarizer:
+      modelProvider: "azure"
+      model: "gpt-4o-mini"
+    embeddings:
+      model: "text-embedding-3-small"
+      modelProvider: "azure"
+    agent:
+      modelProvider: "openai"
+      model: "gpt-4o-mini"
 
 # Database configuration
 postgresql:
@@ -296,7 +329,7 @@ secrets:
   anthropicKey: "dummy-anthropic-key"
   openaiKey: "dummy-openai-key"
   azureOpenaiKey: "dummy-azure-openai-key"
-  globalGitlabToken: "dummy-gitlab-key"  # This will be a service account token / group access token
+  globalGitlabToken: ""  # Set to a service account token / group access token if GitLab integration is needed
 
 # Required for pulling images from Docker Hub
 imagePullSecrets:
