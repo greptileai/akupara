@@ -28,7 +28,6 @@ data:
   VECTOR_EMBEDDINGS_TABLE_NAME: embeddings
   
   # Redis Configuration
-  # TODO Add REDIS_HOST
   REDIS_PORT: "{{ if .Values.redis.enabled }}{{ .Values.redis.master.service.port }}{{ else }}{{ .Values.redis.port }}{{ end }}"
   
   # Service URLs
