@@ -52,7 +52,7 @@ global:
       # OPTIONAL only required if using an OAuth server to generate a token
       endpoint: "" # "http://endpoint/oauth/api/v1/"
       scope: "" # "awsanthropic-readwrite azureopenai-readwrite"
-      clientId: "" #"your_client_id"
+      clientId: "" # "your_client_id"
 
 # Database configuration
 postgresql:
@@ -300,6 +300,31 @@ jobs:
   config:
     openaiApiVersion: "2024-08-01-preview"
 
+jackson:
+  enabled: false
+  replicaCount: 1
+  image:
+    repository: "boxyhq/jackson"
+    tag: "1.29.0"
+    pullPolicy: IfNotPresent
+  service:
+    type: LoadBalancer
+    port: 5225
+    nodePort: 5225
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  config:
+      dbEngine: "sql"
+      dbType: "postgres"
+      dbUrl: "postgres://postgres:postgres@postgres:5432/postgres"
+      nextauthUrl: "http://localhost:5225"
+      externalUrl: "http://localhost:5225"
+
 # Shared storage
 storage:
   createStorageClass: true
@@ -335,7 +360,10 @@ secrets:
   openaiKey: "dummy-openai-key"
   azureOpenaiKey: "dummy-azure-openai-key"
   globalGitlabToken: ""  # Set to a service account token / group access token if GitLab integration is needed
-  oauthGatewayClientSecret: "" # Only required if using an oauthGateway for generating LLM keys 
+  oauthGatewayClientSecret: "" # Only required if using an oauthGateway for generating LLM keys
+  # [OPTIONAL] Jackson secrets
+  jacksonApiKeys: "secret"
+  nextauthAdminCredentials: "admin@company.com:secretpassword" 
 
 # Required for pulling images from Docker Hub
 imagePullSecrets:

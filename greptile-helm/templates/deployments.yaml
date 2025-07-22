@@ -81,6 +81,10 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: GLOBAL_GITLAB_TOKEN
+            # [OPTIONAL] to use Jackson with greptile web, ensure these env vars are set for web: 
+            #  AUTH_BOXYHQ_API_KEY= JACKSON_API_KEYS
+            #  AUTH_BOXYHQ_URL == NEXTAUTH_URL
+            #  AUTH_BOXYHQ_SAML_ISSUER == NEXTAUTH_URL
           resources:
             {{- toYaml .Values.web.resources | nindent 12 }}
 {{- end }}
@@ -621,4 +625,74 @@ spec:
                   key: LLM_GATEWAY_CLIENT_SECRET
           resources:
             {{- toYaml .Values.jobs.resources | nindent 12 }}
+{{- end }}
+
+{{- if .Values.jackson.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "greptile.fullname" . }}-jackson
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: jackson
+spec:
+  replicas: {{ .Values.jackson.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "greptile.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: jackson
+  template:
+    metadata:
+      labels:
+        {{- include "greptile.labels" . | nindent 8 }}
+        app.kubernetes.io/component: jackson
+    spec:
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+      {{- if .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml .Values.global.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.global.nodeSelector | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: jackson
+          image: {{ .Values.jackson.image.repository }}:{{ .Values.jackson.image.tag }}
+          imagePullPolicy: {{ .Values.jackson.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.jackson.service.port }}
+              protocol: TCP
+          env:
+            - name: DB_ENGINE
+              value: {{ .Values.jackson.config.dbEngine | quote }}
+            - name: DB_TYPE
+              value: {{ .Values.jackson.config.dbType | quote }}
+            - name: DB_URL
+              value: {{ .Values.jackson.config.dbUrl | quote }}
+            - name: JACKSON_API_KEYS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: JACKSON_API_KEYS
+            - name: NEXTAUTH_URL
+              value: {{ .Values.jackson.config.nextauthUrl | quote }}
+            - name: EXTERNAL_URL
+              value: {{ .Values.jackson.config.externalUrl | quote }}
+            - name: NEXTAUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: JWT_SECRET
+            - name: NEXTAUTH_ADMIN_CREDENTIALS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: NEXTAUTH_ADMIN_CREDENTIALS
+          resources:
+            {{- toYaml .Values.jackson.resources | nindent 12 }}
 {{- end }} 

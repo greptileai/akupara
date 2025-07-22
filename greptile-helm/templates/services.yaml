@@ -196,4 +196,32 @@ spec:
     app.kubernetes.io/name: {{ include "greptile.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/component: jobs
+{{- end }}
+
+{{- if .Values.jackson.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "greptile.fullname" . }}-jackson
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: jackson
+  {{- with .Values.jackson.service.annotations }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+spec:
+  type: {{ .Values.jackson.service.type }}
+  ports:
+    - port: {{ .Values.jackson.service.port }}
+      targetPort: {{ .Values.jackson.service.port }}
+      protocol: TCP
+      name: http
+      {{- if and (eq .Values.jackson.service.type "NodePort") .Values.jackson.service.nodePort }}
+      nodePort: {{ .Values.jackson.service.nodePort }}
+      {{- end }}
+  selector:
+    app.kubernetes.io/name: {{ include "greptile.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: jackson
 {{- end }} 
