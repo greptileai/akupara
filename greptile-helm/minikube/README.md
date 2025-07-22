@@ -1,3 +1,5 @@
+======= This README is only intended for development purposes when testing Greptile on Minikube =======
+
 ## Deploying greptile locally with minikube
 
 ### Prerequisites
