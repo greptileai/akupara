@@ -83,18 +83,6 @@ spec:
                   key: GLOBAL_GITLAB_TOKEN
           resources:
             {{- toYaml .Values.web.resources | nindent 12 }}
-          # livenessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
-          #   initialDelaySeconds: 30
-          #   periodSeconds: 10
-          # readinessProbe:
-          #   httpGet:
-          #     path: /
-          #     port: http
-          #   initialDelaySeconds: 5
-          #   periodSeconds: 5
 {{- end }}
 
 {{- if .Values.auth.enabled }}
@@ -167,18 +155,6 @@ spec:
                   key: REDIS_HOST
           resources:
             {{- toYaml .Values.auth.resources | nindent 12 }}
-          # livenessProbe:
-          #   httpGet:
-          #     path: /health
-          #     port: http
-          #   initialDelaySeconds: 30
-          #   periodSeconds: 10
-          # readinessProbe:
-          #   httpGet:
-          #     path: /health
-          #     port: http
-          #   initialDelaySeconds: 5
-          #   periodSeconds: 5
 {{- end }}
 
 {{- if .Values.api.enabled }}
@@ -259,20 +235,13 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: HATCHET_CLIENT_TOKEN
+            - name: LLM_GATEWAY_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: LLM_GATEWAY_CLIENT_SECRET
           resources:
             {{- toYaml .Values.api.resources | nindent 12 }}
-          # livenessProbe:
-          #   httpGet:
-          #     path: /health
-          #     port: http
-          #   initialDelaySeconds: 30
-          #   periodSeconds: 10
-          # readinessProbe:
-          #   httpGet:
-          #     path: /health
-          #     port: http
-          #   initialDelaySeconds: 5
-          #   periodSeconds: 5
 {{- end }}
 
 {{- if .Values.indexer.chunker.enabled }}
@@ -342,6 +311,11 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: REDIS_HOST
+            - name: LLM_GATEWAY_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: LLM_GATEWAY_CLIENT_SECRET
           resources:
             {{- toYaml .Values.indexer.chunker.resources | nindent 12 }}
           volumeMounts:
@@ -418,6 +392,11 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: REDIS_HOST
+            - name: LLM_GATEWAY_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: LLM_GATEWAY_CLIENT_SECRET
           resources:
             {{- toYaml .Values.indexer.summarizer.resources | nindent 12 }}
           volumeMounts:
@@ -564,6 +543,11 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: REDIS_HOST
+            - name: LLM_GATEWAY_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: LLM_GATEWAY_CLIENT_SECRET
           resources:
             {{- toYaml .Values.reviews.resources | nindent 12 }}
 {{- end }}
@@ -630,18 +614,11 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: REDIS_HOST
+            - name: LLM_GATEWAY_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: LLM_GATEWAY_CLIENT_SECRET
           resources:
             {{- toYaml .Values.jobs.resources | nindent 12 }}
-          # livenessProbe:
-          #   httpGet:
-          #     path: /health
-          #     port: http
-          #   initialDelaySeconds: 30
-          #   periodSeconds: 10
-          # readinessProbe:
-          #   httpGet:
-          #     path: /health
-          #     port: http
-          #   initialDelaySeconds: 5
-          #   periodSeconds: 5
 {{- end }} 

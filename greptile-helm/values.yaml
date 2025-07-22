@@ -48,6 +48,11 @@ global:
     agent:
       modelProvider: "openai"
       model: "gpt-4o-mini"
+    oauthGateway:
+      # OPTIONAL only required if using an OAuth server to generate a token
+      endpoint: "" # "http://endpoint/oauth/api/v1/"
+      scope: "" # "awsanthropic-readwrite azureopenai-readwrite"
+      clientId: "" #"your_client_id"
 
 # Database configuration
 postgresql:
@@ -330,6 +335,7 @@ secrets:
   openaiKey: "dummy-openai-key"
   azureOpenaiKey: "dummy-azure-openai-key"
   globalGitlabToken: ""  # Set to a service account token / group access token if GitLab integration is needed
+  oauthGatewayClientSecret: "" # Only required if using an oauthGateway for generating LLM keys 
 
 # Required for pulling images from Docker Hub
 imagePullSecrets:

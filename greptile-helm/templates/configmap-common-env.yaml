@@ -93,6 +93,17 @@ data:
   AGENT_MODEL: {{ .Values.global.ai.agent.model | quote }}
   CHAT_MODEL: {{ .Values.global.ai.chat.model | quote }}
   
+  # OAuth Gateway Configuration (optional)
+  {{- if .Values.global.ai.oauthGateway.endpoint }}
+  LLM_OAUTH_ENDPOINT: {{ .Values.global.ai.oauthGateway.endpoint | quote }}
+  {{- end }}
+  {{- if .Values.global.ai.oauthGateway.scope }}
+  LLM_OAUTH_SCOPES: {{ .Values.global.ai.oauthGateway.scope | quote }}
+  {{- end }}
+  {{- if .Values.global.ai.oauthGateway.clientId }}
+  LLM_GATEWAY_CLIENT_ID: {{ .Values.global.ai.oauthGateway.clientId | quote }}
+  {{- end }}
+  
   # Application Configuration
   BATCH_SIZE: "99"
   WORKER_HASH: "on-prem"
