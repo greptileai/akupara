@@ -57,13 +57,13 @@ data:
   GITHUB_BOT_LOGIN: "greptile-apps-login"
   
   # GitHub Enterprise Configuration - Leave dummy values if unused
-  GITHUB_ENTERPRISE_APP_URL: "https://github.github-greplica.com/github-apps/greptile-kubernetes"
+  GITHUB_ENTERPRISE_APP_URL: "https://github.your_org.com/github-apps/your_app"
   GITHUB_ENTERPRISE_APP_ID: "30"
-  GITHUB_ENTERPRISE_API_URL: "https://github.github-greplica.com/api/v3/"
-  GITHUB_ENTERPRISE_URL: "https://github.github-greplica.com"
+  GITHUB_ENTERPRISE_API_URL: "https://github.your_org.com/api/v3/"
+  GITHUB_ENTERPRISE_URL: "https://github.your_org.com"
   GITHUB_ENTERPRISE_CLIENT_ID: {{ .Values.global.authGithubId | default "Iv1.dummy" }}
   GITHUB_ENTERPRISE_CLIENT_SECRET: {{ .Values.global.authGithubSecret | default "client_Secret" }}
-  AUTH_GITHUB_ID: "Iv1.dummy2b368a16"
+  AUTH_GITHUB_ID: "Iv1.dummyvalue"
   AUTH_GITHUB_SECRET: "dummygithub_auth_secret"
   
   # GitLab Configuration
@@ -71,8 +71,6 @@ data:
   
   # Email Configuration
   EMAIL_PROVIDER: "SES"
-  
-  HATCHET_CLIENT_TLS_STRATEGY: "none"
   
   # LLM Configuration
   ANTHROPIC_BASE_URL: {{ .Values.global.ai.anthropic.baseUrl | quote }}
@@ -132,6 +130,7 @@ data:
   
   # Hatchet Configuration
   HATCHET_CLIENT_TOKEN: {{ .Values.secrets.hatchetClientToken | quote }}
+  HATCHET_CLIENT_TLS_STRATEGY: "none"
   
   # GitHub Private Key
   GITHUB_PRIVATE_KEY: {{ .Values.secrets.githubPrivateKey | quote }}

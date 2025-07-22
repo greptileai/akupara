@@ -318,7 +318,7 @@ ingress:
 
 # Development secrets (use proper secrets in production)
 secrets:
-  # IMPORTANT: jwtSecret and authSecret needs to be the same value
+  # IMPORTANT: jwtSecret and authSecret needs to be the same value (randomly generated string)
   jwtSecret: "dummy-secret-key"
   authSecret: "dummy-secret-key"
   tokenEncryptionKey: "dummy-token-encryption-key"
