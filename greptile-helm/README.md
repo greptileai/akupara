@@ -49,7 +49,7 @@ helm install hatchet-stack hatchet/hatchet-stack -f hatchet-values.yaml
 kubectl port-forward svc/caddy 8080:8080
 ```
 
-4. In order to download Greptile's Docker images, your need to create a Kubernetes secret with the provided token (If you do not have a token, reach out to your representative at Greptile):
+4. In order to download Greptile's Docker images, you need to create a Kubernetes secret with the provided token (If you do not have a token, reach out to your representative at Greptile):
 ```
 kubectl create secret docker-registry regcred \
   --docker-server=https://index.docker.io/v1/ \
