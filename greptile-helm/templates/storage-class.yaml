@@ -1,0 +1,14 @@
+{{- if .Values.storage.createStorageClass }}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ include "greptile.fullname" . }}-storage
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-4"
+provisioner: k8s.io/minikube-hostpath
+volumeBindingMode: Immediate
+allowVolumeExpansion: true
+{{- end }} 

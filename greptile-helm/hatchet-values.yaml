@@ -1,0 +1,14 @@
+caddy:
+  enabled: true # required to be true
+
+sharedConfig:
+  enabled: true
+  serverUrl: "http://hatchet-stack-api.default.svc.cluster.local:8080"
+  serverAuthCookieDomain: "localhost:8080"
+  serverAuthCookieInsecure: "t"
+  serverAuthSetEmailVerified: "t"
+  serverAuthBasicAuthEnabled: "t"
+  grpcBroadcastAddress: "hatchet-stack-engine.default.svc.cluster.local:7070"
+  grpcInsecure: "true"
+  defaultAdminEmail: "admin@example.com"
+  defaultAdminPassword: "Admin123!!"

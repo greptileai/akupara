@@ -1,0 +1,227 @@
+{{- if .Values.web.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "greptile.fullname" . }}-web
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web
+  {{- with .Values.web.service.annotations }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+spec:
+  type: {{ .Values.web.service.type }}
+  ports:
+    - port: {{ .Values.web.service.port }}
+      targetPort: {{ .Values.web.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ include "greptile.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: web
+{{- end }}
+
+{{- if .Values.auth.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "greptile.fullname" . }}-auth
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: auth
+  {{- with .Values.auth.service.annotations }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+spec:
+  type: {{ .Values.auth.service.type }}
+  ports:
+    - port: {{ .Values.auth.service.port }}
+      targetPort: {{ .Values.auth.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ include "greptile.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: auth
+{{- end }}
+
+{{- if .Values.api.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "greptile.fullname" . }}-api
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+  {{- with .Values.api.service.annotations }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+spec:
+  type: {{ .Values.api.service.type }}
+  ports:
+    - port: {{ .Values.api.service.port }}
+      targetPort: {{ .Values.api.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ include "greptile.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: api
+{{- end }}
+
+{{- if .Values.indexer.chunker.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "greptile.fullname" . }}-chunker
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: chunker
+  {{- with .Values.indexer.chunker.service.annotations }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+spec:
+  type: {{ .Values.indexer.chunker.service.type }}
+  ports:
+    - port: {{ .Values.indexer.chunker.service.port }}
+      targetPort: {{ .Values.indexer.chunker.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ include "greptile.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: chunker
+{{- end }}
+
+{{- if .Values.indexer.summarizer.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "greptile.fullname" . }}-summarizer
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: summarizer
+  {{- with .Values.indexer.summarizer.service.annotations }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+spec:
+  type: {{ .Values.indexer.summarizer.service.type }}
+  ports:
+    - port: {{ .Values.indexer.summarizer.service.port }}
+      targetPort: {{ .Values.indexer.summarizer.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ include "greptile.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: summarizer
+{{- end }}
+
+{{- if .Values.webhook.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "greptile.fullname" . }}-webhook
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: webhook
+  {{- with .Values.webhook.service.annotations }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+spec:
+  type: {{ .Values.webhook.service.type }}
+  ports:
+    - port: {{ .Values.webhook.service.port }}
+      targetPort: {{ .Values.webhook.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ include "greptile.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: webhook
+{{- end }}
+
+{{- if .Values.reviews.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "greptile.fullname" . }}-reviews
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: reviews
+  {{- with .Values.reviews.service.annotations }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+spec:
+  type: {{ .Values.reviews.service.type }}
+  ports:
+    - port: {{ .Values.reviews.service.port }}
+      targetPort: {{ .Values.reviews.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ include "greptile.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: reviews
+{{- end }}
+
+{{- if .Values.jobs.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "greptile.fullname" . }}-jobs
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: jobs
+  {{- with .Values.jobs.service.annotations }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+spec:
+  type: {{ .Values.jobs.service.type }}
+  ports:
+    - port: {{ .Values.jobs.service.port }}
+      targetPort: {{ .Values.jobs.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ include "greptile.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: jobs
+{{- end }}
+
+{{- if .Values.jackson.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "greptile.fullname" . }}-jackson
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: jackson
+  {{- with .Values.jackson.service.annotations }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+spec:
+  type: {{ .Values.jackson.service.type }}
+  ports:
+    - port: {{ .Values.jackson.service.port }}
+      targetPort: {{ .Values.jackson.service.port }}
+      protocol: TCP
+      name: http
+      {{- if and (eq .Values.jackson.service.type "NodePort") .Values.jackson.service.nodePort }}
+      nodePort: {{ .Values.jackson.service.nodePort }}
+      {{- end }}
+  selector:
+    app.kubernetes.io/name: {{ include "greptile.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: jackson
+{{- end }} 

@@ -1,0 +1,273 @@
+# Minikube-specific values for local development
+global:
+  environment: "development"
+  ecr:
+    registry: "600000000000.dkr.ecr.us-east-1.amazonaws.com" # REPLACE WITH YOUR ECR REGISTRY
+  org:
+    name: "greptile"
+    tenant: "default"
+  externalUrl: "http://ip.add.re.ss:30732"  # Minikube IP with web service NodePort. Obtain with `minikube ip`
+
+# Database configuration for Minikube
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "postgres"
+    database: "postgres"
+  primary:
+    persistence:
+      enabled: true
+      size: 5Gi
+      storageClass: "standard"
+    service:
+      type: ClusterIP
+      port: 5432
+  pgvector:
+    enabled: true
+
+# Redis configuration for Minikube
+redis:
+  enabled: true
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      size: 2Gi
+      storageClass: "standard"
+    service:
+      type: ClusterIP
+      port: 6379
+
+# Migration jobs
+migrations:
+  db:
+    enabled: true
+    image:
+      tag: "grep-tag-x.x.x" # REPLACE WITH YOUR TAG
+      pullPolicy: Never
+    resources:
+      limits:
+        cpu: "500m"
+        memory: "1Gi"
+      requests:
+        cpu: "200m"
+        memory: "512Mi"
+  vectordb:
+    enabled: true
+    image:
+      tag: "grep-tag-x.x.x" # REPLACE WITH YOUR TAG
+      pullPolicy: Never
+    resources:
+      limits:
+        cpu: "500m"
+        memory: "1Gi"
+      requests:
+        cpu: "200m"
+        memory: "512Mi"
+
+# Services with reduced resources for Minikube
+web:
+  enabled: true
+  replicaCount: 1
+  image:
+    tag: "grep-tag-x.x.x" # REPLACE WITH YOUR TAG
+    pullPolicy: Never
+  service:
+    type: NodePort  # Use NodePort for local development
+    port: 3000
+    nodePort: 30000
+  resources:
+    limits:
+      cpu: "1000m"
+      memory: "2Gi"
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+  config:
+    billingEnabled: "false"
+    externalUrl: "http://ip.add.re.ss:30732"  # Minikube IP with web service NodePort. Obtain with `minikube ip`
+
+auth:
+  enabled: true
+  replicaCount: 1
+  image:
+    tag: "grep-tag-x.x.x" # REPLACE WITH YOUR TAG
+    pullPolicy: Never
+  service:
+    type: NodePort
+    port: 3001
+    nodePort: 30001
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+
+api:
+  enabled: true
+  replicaCount: 1
+  image:
+    tag: "grep-tag-x.x.x" # REPLACE WITH YOUR TAG
+    pullPolicy: Never
+  service:
+    type: NodePort
+    port: 3002
+    nodePort: 30002
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+
+query:
+  enabled: true
+  replicaCount: 1
+  image:
+    tag: "grep-tag-x.x.x" # REPLACE WITH YOUR TAG
+    pullPolicy: Never
+  service:
+    type: NodePort
+    port: 8081
+    nodePort: 30081
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+
+# Indexer services with reduced resources
+indexer:
+  chunker:
+    enabled: true
+    replicaCount: 1
+    image:
+      tag: "grep-tag-x.x.x" # REPLACE WITH YOUR TAG
+      pullPolicy: Never
+    service:
+      type: ClusterIP
+      port: 3003
+    resources:
+      limits:
+        cpu: "1"
+        memory: "2Gi"
+      requests:
+        cpu: "500m"
+        memory: "1Gi"
+    config:
+      parentDir: "/mnt/data/"
+      nodeEnv: ""
+  
+  summarizer:
+    enabled: true
+    replicaCount: 1
+    image:
+      tag: "grep-tag-x.x.x" # REPLACE WITH YOUR TAG
+      pullPolicy: Never
+    service:
+      type: ClusterIP
+      port: 3004
+    resources:
+      limits:
+        cpu: "1"
+        memory: "2Gi"
+      requests:
+        cpu: "500m"
+        memory: "1Gi"
+    config:
+      parentDir: "/mnt/data/"
+
+# Other services
+webhook:
+  enabled: true
+  replicaCount: 1
+  image:
+    tag: "grep-tag-x.x.x" # REPLACE WITH YOUR TAG
+    pullPolicy: Never
+  service:
+    type: NodePort
+    port: 3007
+    nodePort: 30007
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+
+reviews:
+  enabled: true
+  replicaCount: 1
+  image:
+    tag: "grep-tag-x.x.x" # REPLACE WITH YOUR TAG
+    pullPolicy: Never
+  service:
+    type: NodePort
+    port: 3005
+    nodePort: 30005
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+
+jobs:
+  enabled: true
+  replicaCount: 1
+  image:
+    tag: "grep-tag-x.x.x" # REPLACE WITH YOUR TAG
+    pullPolicy: Never
+  service:
+    type: NodePort
+    port: 8080
+    nodePort: 30080
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+
+# Storage configuration for Minikube
+storage:
+  createStorageClass: true
+  sharedMount:
+    enabled: true
+    size: 5Gi
+    storageClass: ""
+
+# Ingress configuration for generic access
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: greptile.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# Development secrets (use proper secrets in production)
+secrets:
+  jwtSecret: "dev-jwt-secret-change-in-production"
+  tokenEncryptionKey: "dev-token-key-change-in-production"
+  authSecret: "dev-auth-secret-change-in-production"
+  githubWebhookSecret: "dev-webhook-secret"
+  webhookSecret: "dev-webhook-secret"
+  hatchetClientToken: "CHANGE_ME"
+  anthropicKey: "CHANGE_ME"
+  openaiKey: "CHANGE_ME"
+  azureOpenaiKey: "CHANGE_ME"
+  githubPrivateKey: "CHANGE_ME"
