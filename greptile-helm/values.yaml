@@ -2,6 +2,7 @@
 global:
   environment: "development"
   ecr:
+    # Leave at greptileai if pulling images from private Docker Hub
     registry: "greptileai"
   org:
     name: "greptile"
@@ -109,7 +110,7 @@ migrations:
     enabled: true
     image:
       repository: "db-migration"
-      tag: "latest"
+      tag: "0.3.0-dev-build"
       pullPolicy: IfNotPresent
     resources:
       limits:
@@ -122,7 +123,7 @@ migrations:
     enabled: true
     image:
       repository: "vectordb-migration"
-      tag: "latest"
+      tag: "0.3.0-dev-build"
       pullPolicy: IfNotPresent
     resources:
       limits:
@@ -138,7 +139,7 @@ web:
   replicaCount: 1
   image:
     repository: "web"
-    tag: "latest"
+    tag: "0.3.0-dev-build"
     pullPolicy: IfNotPresent
   service:
     type: NodePort  # Change according to your environment
@@ -155,15 +156,15 @@ web:
     externalUrl: "http://127.0.0.1:3000"  # This has to be set to the public IP:port that the Web service will use
     authSamlOnly: "false" # set to true if you want to only authenticate via SAML
     globalGitlabBaseUrl: ""  # This will be your gitlab base url http://your_gitlab.your_company.com
-    skipCompanyOnboarding: "true"  # Skips the company onboarding questions for new users
-    defaultCodeProvider: "gitlab"
+    skipCompanyOnboarding: "" #"true"  # Skips the company onboarding questions for new users
+    defaultCodeProvider: "" # "gitlab"
 
 auth:
   enabled: true
   replicaCount: 1
   image:
     repository: "auth"
-    tag: "latest"
+    tag: "0.3.0-dev-build"
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
@@ -181,7 +182,7 @@ api:
   replicaCount: 1
   image:
     repository: "api"
-    tag: "latest"
+    tag: "0.3.0-dev-build"
     pullPolicy: IfNotPresent
   service:
     type: NodePort
@@ -203,7 +204,7 @@ indexer:
     replicaCount: 1
     image:
       repository: "chunker"
-      tag: "latest"
+      tag: "0.3.0-dev-build"
       pullPolicy: IfNotPresent
     service:
       type: ClusterIP
@@ -224,7 +225,7 @@ indexer:
     replicaCount: 1
     image:
       repository: "summarizer"
-      tag: "latestv3"
+      tag: "0.3.0-dev-build"
       pullPolicy: IfNotPresent
     service:
       type: ClusterIP
@@ -244,7 +245,7 @@ webhook:
   replicaCount: 1
   image:
     repository: "webhook"
-    tag: "latest"
+    tag: "0.3.0-dev-build"
     pullPolicy: IfNotPresent
   service:
     # Has to be exposed for github/gitlab webhooks to be received
@@ -264,7 +265,7 @@ reviews:
   replicaCount: 1
   image:
     repository: "reviews"
-    tag: "latest"
+    tag: "0.3.0-dev-build"
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
@@ -285,7 +286,7 @@ jobs:
   replicaCount: 1
   image:
     repository: "jobs"
-    tag: "latest"
+    tag: "0.3.0-dev-build"
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP

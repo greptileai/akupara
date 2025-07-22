@@ -66,14 +66,30 @@ kubectl create secret docker-registry regcred \
 * A secrets section at the bottom of the file.
 
 6. Before you can continue with the deployment, you will have to update the following values in `values.yaml`
-* web.config.externalUrl to the IP address or URL that you plan to deploy it on.
+* Under `global.ai`, configure which LLM providers you want to use:
+  * baseUrl: either use the public baseUrl or a custom one if self-hosted LLMs are used.
+  * modelProvider is either:
+    * `anthropic` for self hosted and cloud anthropic LLMs
+    * `openai` for cloud OpenAI models
+    * `azure` for Azure hosted OpenAI models
+  * `globbal.ai.oauthGateway`: If you use an OAuth endpoint to generate your secret LLM key fill out the fields under this section.
+* Under `web.config` 
+  * Set `web.config.externalUrl` to the IP address or URL that you plan to deploy Greptile on.
+  * [OPTIONAL] `web.config` values:
+    * web.config.authSamlOnly has to be set to `true` for SAML auth. This will disable Greptile's internal auth and rely on jackson service for SAML auth.
+    * web.config.globalGitlabBaseUrl: Set to baseURl of GitLab host if entire orgs uses the same GitLab repo.
+    * web.config.skipCompanyOnboarding: set to `true` if Greptile onboarding process should be skipped for new users. (Most useful if just one company uses Greptile)
+    * web.config.defaultCodeProvider: set to `gitlab` or `github` depending on your main internal code provider host.
 * In the secrets section:
   * for `jwtSecret`, `authSecret` and `tokenEncryptionKey` any random alphanumeric string is fine. `jwtSecret` and `authSecret` have to be identical.
-  * `hatchetClientToken` Use the API key generated further above
+  * `hatchetClientToken` Use the API key generated further above.
   * For the LLM keys, fill only those out that you are planning to use.
   * If you are using GitHub as a Code Provider, provide the `githubWebhookSecret` and the `githubPrivateKey` of your GitHub App. If not, leave it at a dummy value.
-* [Optional] `tolerations` and `nodeSelector`
-* [Optional] Depending on your node resources, you might want to allocate more or less resources. As a reference this is what a Greptile hosted on production system should use:
+  * [OPTIONAL] If you are using a global GitLab instance across your organization, enter the group key here.
+  * [OPTIONAL] If you are using an Oauth endpoint for LLM token generation, enter the `oauthGatewayClientSecret` here
+  * [OPTIONAL] If you are using jackson for SAML auth, fill out the secrets `jacksonApiKeys` and `nextauthAdminCredentials`
+* [OPTIONAL] `tolerations` and `nodeSelector` can be commented out in values.yaml
+* [OPTIONAL] Depending on your node resources, you might want to allocate more or less resources. As a reference this is what a Greptile hosted on production system should use:
 
 | Service Name              | CPU Request | CPU Limit | Memory Request | Memory Limit | Replicas | Disk    |
   |---------------------------|-------------|-----------|----------------|--------------|----------|---------|
@@ -90,7 +106,7 @@ kubectl create secret docker-registry regcred \
   | Redis                     | 1000m        | 2000m     | 2Gi            | 2Gi          | 1        | -       |
             
 
-6. Also take a look at `templates/configmap-common-env.yaml`. This file contains more environment variables. Most of them don't have to be or should not be changed except for the variables listed under `LLM Configuration`. Adjust them according to the models you would like to use.
+6. Also take a look at `templates/configmap-common-env.yaml`. This file contains environment variables that are shared across Greptile's services. In most cases, none of these env vars should be modified and hardcoded env vars should keep their value to support Greptile as an on premise solution.
 
 
 7. Deploy the greptile service by running
