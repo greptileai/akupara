@@ -6,7 +6,7 @@ Networking items to verify once the EC2 is set up
 
 - The following ports are open to inbound traffic
     - `3000` - this is to allow access to the greptile front-end
-    - `3010` - this is to allow github webhooks to hit our github service
+    - `3007` - this is to allow github webhooks to hit our github service
     - `8080` - this is for hatchet front end (useful for debugging the repository indexing process)
     - `7077` - required for hatchet communication
     - `80` and `443` - required for HTTP and HTTPS traffic
@@ -21,12 +21,12 @@ Here are some things that can cause failed PR reviews
    - `greptile_auth_service`
    - `greptile_indexer_chunker`
    - `greptile_indexer_summarizer`
-   - `greptile_query_service`
    - `greptile_web_service`
-   - `greptile_github_service`
+   - `greptile_webhook_service`
+   - `greptile_reviews_service`
    - Note: if a service is down you can spin it back up using `docker-compose up -d --force-recreate <service_name>`
 - The Github token that is in the DB is expired/invalid. You can see the github token on file by entering the postgres db and running `select * from "Integration";`. This token can be updated in-place if invalid.
-- Amazon Bedrock quota is too low, causing llm errors in the `greptile_query_service` logs. Here is what you can use to check quotas. We recommend at least 100 requests per minute and 800,000 tokens per minute.
+- Amazon Bedrock quota is too low, causing llm errors in the `greptile_api_service` logs. Here is what you can use to check quotas. We recommend at least 100 requests per minute and 800,000 tokens per minute.
 
 ```
 For Sonnet V2:

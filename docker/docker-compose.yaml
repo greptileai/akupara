@@ -1,7 +1,6 @@
-version: "3.8"
-
 services:
-  postgres:
+  # ===== DATABASE SECTION =====
+  greptile-postgres:
     image: pgvector/pgvector:pg15
     container_name: greptile-postgres-db
     ports:
@@ -22,7 +21,7 @@ services:
     image: ${ECR_REGISTRY}/greptile/vectordb-migration:${TAG}
     platform: linux/amd64
     depends_on:
-      postgres:
+      greptile-postgres:
         condition: service_healthy
     environment:
       - DATABASE_URL=${DATABASE_URL}
@@ -32,18 +31,18 @@ services:
       /bin/sh -c '
       cd /app/packages/vector &&
       echo "Starting vector migration..." &&
-      pnpm prisma db execute --file ./scripts/create.sql --url "$DATABASE_URL" &&
+      bunx prisma db execute --file ./scripts/create.sql --url "$DATABASE_URL" &&
       export DATABASE_URL=$VECTOR_DB_URL &&
       export DIRECT_URL=$VECTOR_DB_URL &&
-      pnpm prisma db execute --file ./scripts/pgvector.sql &&
-      pnpm prisma migrate deploy --schema=./prisma/schema.prisma &&
+      bunx prisma db execute --file ./scripts/pgvector.sql &&
+      bunx prisma migrate deploy --schema=./prisma/schema.prisma &&
       echo "Vector migration completed."'
 
   greptile_db_migration:
     image: ${ECR_REGISTRY}/greptile/db-migration:${TAG}
     platform: linux/amd64
     depends_on:
-      postgres:
+      greptile-postgres:
         condition: service_healthy
     environment:
       - DATABASE_URL=${DATABASE_URL}
@@ -54,13 +53,13 @@ services:
       /bin/sh -c '
       cd /app/packages/db &&
       echo "Starting migration..." &&
-      pnpm prisma db execute --file ./scripts/create.sql --url "$DATABASE_URL" &&
-      pnpm prisma db execute --file ./scripts/hatchet.sql --url "$DATABASE_URL" &&
-      if pnpm prisma migrate deploy ; then
+      bunx prisma db execute --file ./scripts/create.sql --url "$DATABASE_URL" &&
+      bunx prisma db execute --file ./scripts/hatchet.sql --url "$DATABASE_URL" &&
+      if bunx prisma migrate deploy ; then
         echo "Migration completed successfully" &&
         API_KEY=$(openssl rand -hex 16) &&
         sed "s@\$ORG_NAME@$ORG_NAME@g; s@\$TENANT_ID@$TENANT_ID@g; s@\$API_KEY@$API_KEY@g" ./scripts/root_org.sql > /tmp/processed.sql &&
-        cat /tmp/processed.sql | pnpm prisma db execute --stdin --url "$DATABASE_URL" || {
+        cat /tmp/processed.sql | bunx prisma db execute --stdin --url "$DATABASE_URL" || {
           echo "Failed to execute root_org.sql" &&
           cat /tmp/processed.sql &&
           exit 1
@@ -70,6 +69,153 @@ services:
         echo "Migration failed" &&
         exit 1
       fi'
+  
+  # [OPTIONAL] Comment out redis if used
+  # redis:
+  #   image: redis
+  #   container_name: redis-cache
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 5s
+  #     timeout: 3s
+  #     retries: 5
+  #   ports:
+  #     - "6379:6379"
+  
+  # ===== HATCHET SECTION ======
+
+  postgres-hatchet:
+    image: postgres:15.6
+    platform: linux/amd64
+    command: postgres -c 'max_connections=200'
+    restart: always
+    hostname: "postgres-hatchet"
+    environment:
+      - POSTGRES_USER=hatchet
+      - POSTGRES_PASSWORD=hatchet
+      - POSTGRES_DB=hatchet
+    ports:
+      - "5436:5432"
+    volumes:
+      - hatchet_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d hatchet -U hatchet"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    platform: linux/amd64
+    hostname: "rabbitmq"
+    ports:
+      - "5673:5672" # RabbitMQ
+      - "15673:15672" # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    volumes:
+      - "hatchet_rabbitmq_data:/var/lib/rabbitmq"
+      - "hatchet_rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  migration:
+    image: ghcr.io/hatchet-dev/hatchet/hatchet-migrate:${HATCHET_TAG}
+    platform: linux/amd64
+    environment:
+      DATABASE_URL: "postgres://hatchet:hatchet@postgres-hatchet:5432/hatchet"
+    depends_on:
+      postgres-hatchet:
+        condition: service_healthy
+
+  setup-config:
+    image: ghcr.io/hatchet-dev/hatchet/hatchet-admin:${HATCHET_TAG}
+    platform: linux/amd64
+    command: /hatchet/hatchet-admin quickstart --skip certs --generated-config-dir /hatchet/config --overwrite=false
+    environment:
+      DATABASE_URL: "postgres://hatchet:hatchet@postgres-hatchet:5432/hatchet"
+      DATABASE_POSTGRES_PORT: "5432"
+      DATABASE_POSTGRES_HOST: "postgres"
+      SERVER_TASKQUEUE_RABBITMQ_URL: amqp://user:password@rabbitmq:5672/
+      SERVER_AUTH_COOKIE_DOMAIN: localhost:8080
+      SERVER_AUTH_COOKIE_INSECURE: "t"
+      SERVER_GRPC_BIND_ADDRESS: "0.0.0.0"
+      SERVER_GRPC_INSECURE: "t"
+      SERVER_GRPC_BROADCAST_ADDRESS: "hatchet-engine:7070"
+    volumes:
+      - hatchet_certs:/hatchet/certs
+      - hatchet_config:/hatchet/config
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
+      postgres-hatchet:
+        condition: service_healthy
+
+  hatchet-engine:
+    image: ghcr.io/hatchet-dev/hatchet/hatchet-engine:${HATCHET_TAG}
+    platform: linux/amd64
+    command: /hatchet/hatchet-engine --config /hatchet/config
+    restart: on-failure
+    depends_on:
+      setup-config:
+        condition: service_completed_successfully
+      migration:
+        condition: service_completed_successfully
+    ports:
+      - "7077:7070"
+    environment:
+      DATABASE_URL: "postgres://hatchet:hatchet@postgres-hatchet:5432/hatchet"
+      SERVER_GRPC_BIND_ADDRESS: "0.0.0.0"
+      SERVER_GRPC_INSECURE: "t"
+    volumes:
+      - hatchet_certs:/hatchet/certs
+      - hatchet_config:/hatchet/config
+
+  hatchet-api:
+    image: ghcr.io/hatchet-dev/hatchet/hatchet-api:${HATCHET_TAG}
+    platform: linux/amd64
+    command: /hatchet/hatchet-api --config /hatchet/config
+    restart: on-failure
+    depends_on:
+      setup-config:
+        condition: service_completed_successfully
+      migration:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: "postgres://hatchet:hatchet@postgres-hatchet:5432/hatchet"
+    volumes:
+      - hatchet_certs:/hatchet/certs
+      - hatchet_config:/hatchet/config
+
+  hatchet-frontend:
+    image: ghcr.io/hatchet-dev/hatchet/hatchet-frontend:${HATCHET_TAG}
+    platform: linux/amd64
+    restart: on-failure
+
+  caddy:
+    image: caddy:2.7.6-alpine
+    platform: linux/amd64
+    restart: on-failure
+    ports:
+      - 8080:8080
+      - 443:443
+      - 80:80
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - hatchet-api
+      - hatchet-frontend
+
+  # ===== GREPTILE SECTION =====
 
   greptile_web_service:
     image: ${ECR_REGISTRY}/greptile/web:${TAG}
@@ -77,7 +223,7 @@ services:
     env_file:
       - common.env
     environment:
-      # Haard coded to false for on-prem deployments
+      # Hardcoded to false for on-prem deployments
       - BILLING_ENABLED=false
     ports:
       - "3000:3000"
@@ -159,29 +305,6 @@ services:
     ports:
       - "3005:3005"
 
-  greptile_query_service:
-    image: ${ECR_REGISTRY}/greptile/query:${TAG}
-    platform: linux/amd64
-    restart: on-failure
-    env_file:
-      - common.env
-    environment:
-      - PORT=8081
-      - ONPREM=true
-    ports:
-      - "8081:8081"
-
-  redis:
-    image: redis
-    container_name: redis-cache
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-    ports:
-      - "6379:6379"
-
   greptile_jobs_service:
     image: ${ECR_REGISTRY}/greptile/jobs:${TAG}
     platform: linux/amd64
@@ -195,6 +318,44 @@ services:
     ports:
       - "8086:8080"
 
+  # ===== SAML Auth Section ======
+  # [OPTIONAL] Comment out if needed
+  # greptile_jackson_service:
+  #   image: boxyhq/jackson
+  #   hostname: greptile_jackson_service
+  #   platform: linux/amd64
+  #   restart: on-failure
+  #   environment:
+  #     - DB_ENCRYPTION_KEY=${JACKSON_DB_ENCRYPTION_KEY}
+  #     - HOST_URL=${JACKSON_HOST_URL}
+  #     - EXTERNAL_URL=${JACKSON_EXTERNAL_URL}
+  #     - JACKSON_API_KEYS=${AUTH_BOXYHQ_API_KEY}
+  #     - SAML_AUDIENCE=${AUTH_BOXYHQ_SAML_ID}
+  #     - CLIENT_SECRET_VERIFIER=${AUTH_BOXYHQ_SAML_SECRET}
+  #     - NEXTAUTH_ADMIN_CREDENTIALS=${JACKSON_ADMIN_CREDENTIALS}
+  #     - PUBLIC_KEY=${JACKSON_PUBLIC_KEY}
+  #     - PRIVATE_KEY=${JACKSON_PRIVATE_KEY}
+  #     - NEXTAUTH_URL=${AUTH_BOXYHQ_URL}
+  #     - NEXTAUTH_SECRET=${JWT_SECRET}
+  #     - IDP_ENABLED=${JACKSON_IDP_ENABLED:-true}
+  #     - DB_URL=${DATABASE_URL}
+  #     - DB_ENGINE=sql
+  #     - DB_TYPE=postgres
+  #     - DB_SSL_REJECT_UNAUTHORIZED=false
+  #     - DB_SSL=true
+  #     - PORT=5225
+  #     - AWS_REGION=${AWS_REGION}
+  #     - DO_NOT_TRACK=1
+  #   ports:
+  #     - "5225:5225"
+
 volumes:
   pgdata: {}
   shared-mnt: {}
+  hatchet_postgres_data: {}
+  hatchet_rabbitmq_data: {}
+  hatchet_rabbitmq.conf: {}
+  hatchet_config: {}
+  hatchet_certs: {}
+  caddy_data: {}
+  caddy_config: {}
