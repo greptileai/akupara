@@ -25,13 +25,14 @@ services:
         condition: service_healthy
     environment:
       - DATABASE_URL=${DATABASE_URL}
-      - VECTOR_DB_URL=${VECTOR_DB_URL}
       - DIRECT_URL=${DATABASE_URL}
+      - VECTOR_DB_URL=${VECTOR_DB_URL}
     command: >
       /bin/sh -c '
       cd /app/packages/vector &&
       echo "Starting vector migration..." &&
       bunx prisma db execute --file ./scripts/create.sql --url "$DATABASE_URL" &&
+      # Switch to vector database
       export DATABASE_URL=$VECTOR_DB_URL &&
       export DIRECT_URL=$VECTOR_DB_URL &&
       bunx prisma db execute --file ./scripts/pgvector.sql &&
@@ -56,14 +57,7 @@ services:
       bunx prisma db execute --file ./scripts/create.sql --url "$DATABASE_URL" &&
       bunx prisma db execute --file ./scripts/hatchet.sql --url "$DATABASE_URL" &&
       if bunx prisma migrate deploy ; then
-        echo "Migration completed successfully" &&
-        API_KEY=$(openssl rand -hex 16) &&
-        sed "s@\$ORG_NAME@$ORG_NAME@g; s@\$TENANT_ID@$TENANT_ID@g; s@\$API_KEY@$API_KEY@g" ./scripts/root_org.sql > /tmp/processed.sql &&
-        cat /tmp/processed.sql | bunx prisma db execute --stdin --url "$DATABASE_URL" || {
-          echo "Failed to execute root_org.sql" &&
-          cat /tmp/processed.sql &&
-          exit 1
-        } &&
+        echo "Migration completed successfully"
         exit 0
       else
         echo "Migration failed" &&
