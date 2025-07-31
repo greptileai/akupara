@@ -323,7 +323,6 @@ jackson:
       dbEngine: "sql"
       dbType: "postgres"
       dbUrl: "postgres://postgres:postgres@postgres:5432/postgres"
-      nextauthUrl: "http://localhost:5225"
       externalUrl: "http://localhost:5225"
 
 # Shared storage

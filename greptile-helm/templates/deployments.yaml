@@ -687,7 +687,7 @@ spec:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: JACKSON_API_KEYS
             - name: NEXTAUTH_URL
-              value: {{ .Values.jackson.config.nextauthUrl | quote }}
+              value: {{ .Values.jackson.config.externalUrl | quote }}
             - name: EXTERNAL_URL
               value: {{ .Values.jackson.config.externalUrl | quote }}
             - name: SAML_AUDIENCE
