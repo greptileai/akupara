@@ -40,11 +40,10 @@ data:
   QUERY_URL: http://{{ include "greptile.fullname" . }}-query:8080/query
   
   # Authentication Configuration
-  AUTH_BOXYHQ_SAML_ID: "dummy"
-  AUTH_BOXYHQ_SAML_SECRET: "dummy"
-  AUTH_BOXYHQ_SAML_ISSUER: "http://localhost:5225"
-  AUTH_BOXYHQ_URL: "http://localhost:5225"
-  AUTH_BOXYHQ_API_KEY: ""
+  AUTH_BOXYHQ_SAML_ID: {{ .Values.jackson.config.samlId | default "dummy" | quote }}
+  AUTH_BOXYHQ_SAML_SECRET: {{ .Values.jackson.config.samlSecret | default "dummy" | quote }}
+  AUTH_BOXYHQ_SAML_ISSUER: {{ .Values.jackson.config.externalUrl | default (printf "http://localhost:%s" (.Values.jackson.service.port | toString)) | quote }}
+  AUTH_BOXYHQ_URL: {{ .Values.jackson.config.externalUrl | default (printf "http://localhost:%s" (.Values.jackson.service.port | toString)) | quote }}
   
   # GitHub Configuration - Leave dummy values if unused
   GITHUB_ENABLED: "false"

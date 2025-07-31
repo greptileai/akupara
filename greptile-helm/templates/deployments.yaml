@@ -46,6 +46,8 @@ spec:
           env:
             - name: BILLING_ENABLED
               value: "false"
+            - name: SKIP_COMPANY_ONBOARDING
+              value: "true"
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
@@ -81,6 +83,11 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: GLOBAL_GITLAB_TOKEN
+            - name: AUTH_BOXYHQ_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: JACKSON_API_KEYS
             # [OPTIONAL] to use Jackson with greptile web, ensure these env vars are set for web: 
             #  AUTH_BOXYHQ_API_KEY= JACKSON_API_KEYS
             #  AUTH_BOXYHQ_URL == NEXTAUTH_URL
@@ -683,6 +690,10 @@ spec:
               value: {{ .Values.jackson.config.nextauthUrl | quote }}
             - name: EXTERNAL_URL
               value: {{ .Values.jackson.config.externalUrl | quote }}
+            - name: SAML_AUDIENCE
+              value: {{ .Values.jackson.config.externalUrl | quote }}
+            - name: IDP_ENABLED
+              value: {{ .Values.jackson.config.idpEnabled | default "true" | quote }}
             - name: NEXTAUTH_SECRET
               valueFrom:
                 secretKeyRef:
