@@ -109,6 +109,7 @@ data:
   WORKER_HASH: "on-prem"
   HATCHET_REVIEWER_SLOTS: "2"
   HATCHET_REVIEWER_DURABLE_SLOTS: "10000"
+  LEARN_PROCEDURAL_MEMORY: {{ .Values.global.greptile.learnProceduralMemory | default "true" | quote }}
   
   # Integrations
   SLACK_WEBHOOK_URL: "test"

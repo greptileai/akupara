@@ -7,6 +7,8 @@ global:
   org:
     name: "greptile"
     tenant: "default"
+  greptile:
+    learnProceduralMemory: true
   externalUrl: ""
   tolerations:
     - key: "tolerationKey"
