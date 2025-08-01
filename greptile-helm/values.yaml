@@ -280,6 +280,9 @@ reviews:
   config:
     analytics: false
     billing: false
+    includeIssuesTable: false
+    includeSequenceDiagram: false
+    includeConfidenceScore: false
 
 jobs:
   enabled: true
