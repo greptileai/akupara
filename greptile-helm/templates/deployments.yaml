@@ -88,7 +88,7 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: JACKSON_API_KEYS
-            # [OPTIONAL] to use Jackson with greptile web, ensure these env vars are set for web: 
+            # [OPTIONAL] to use Jackson with greptile web, ensure these env vars are set for web:
             #  AUTH_BOXYHQ_API_KEY= JACKSON_API_KEYS
             #  AUTH_BOXYHQ_URL == NEXTAUTH_URL
             #  AUTH_BOXYHQ_SAML_ISSUER == NEXTAUTH_URL
@@ -680,10 +680,14 @@ spec:
             - name: DB_TYPE
               value: {{ .Values.jackson.config.dbType | quote }}
             - name: DB_URL
+              {{- if .Values.jackson.config.dbUrl }}
+              value: {{ .Values.jackson.config.dbUrl | quote }}
+              {{- else }}
               valueFrom:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: DATABASE_URL
+              {{- end }}
             - name: JACKSON_API_KEYS
               valueFrom:
                 secretKeyRef:
@@ -709,4 +713,4 @@ spec:
                   key: NEXTAUTH_ADMIN_CREDENTIALS
           resources:
             {{- toYaml .Values.jackson.resources | nindent 12 }}
-{{- end }} 
+{{- end }}
