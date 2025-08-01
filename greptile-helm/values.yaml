@@ -26,9 +26,9 @@ global:
     azure:
       openaiUrl: "https://onboardai.openai.azure.com/"
       openaiSummarizerDeploymentName: "gpt-4o-mini"
-      openaiEmbeddingsDeploymentName: "embedding"
-      openaiSummarizerApiVersion: "2024-08-01-preview"
-      openaiEmbeddingsApiVersion: "2023-05-15"
+      openaiEmbeddingsDeploymentName: "text-embedding-ada-002"
+      openaiSummarizerApiVersion: "2024-07-18"
+      openaiEmbeddingsApiVersion: "2"
     
     # Model Provider Configuration
     refiner:
@@ -44,7 +44,7 @@ global:
       modelProvider: "azure"
       model: "gpt-4o-mini"
     embeddings:
-      model: "text-embedding-3-small"
+      model: "text-embedding-ada-002"
       modelProvider: "azure"
     agent:
       modelProvider: "openai"

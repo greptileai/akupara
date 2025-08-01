@@ -91,6 +91,7 @@ data:
   AGENT_MODEL_PROVIDER: {{ .Values.global.ai.agent.modelProvider | quote }}
   AGENT_MODEL: {{ .Values.global.ai.agent.model | quote }}
   CHAT_MODEL: {{ .Values.global.ai.chat.model | quote }}
+  DEFAULT_CHAT_MODEL: {{ .Values.global.ai.chat.model | quote }}
   
   # OAuth Gateway Configuration (optional)
   {{- if .Values.global.ai.oauthGateway.endpoint }}
