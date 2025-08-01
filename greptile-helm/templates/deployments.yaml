@@ -680,7 +680,10 @@ spec:
             - name: DB_TYPE
               value: {{ .Values.jackson.config.dbType | quote }}
             - name: DB_URL
-              value: {{ .Values.jackson.config.dbUrl | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: DATABASE_URL
             - name: JACKSON_API_KEYS
               valueFrom:
                 secretKeyRef:
