@@ -12,6 +12,7 @@ data:
   BILLING_ENABLED: "false"
   EMAIL_FROM: {{ .Values.web.config.authEmailFrom | default "noreply@greptile.com" | quote }}
   AUTH_SAML_ONLY: {{ .Values.web.config.authSamlOnly | quote }}
+  AUTH_TENANT: {{ .Values.web.config.authTenant | quote }}
   GLOBAL_GITLAB_BASE_URL: {{ .Values.web.config.globalGitlabBaseUrl | quote }}
   SKIP_COMPANY_ONBOARDING: {{ .Values.web.config.skipCompanyOnboarding | quote }}
   DEFAULT_CODE_PROVIDER: {{ .Values.web.config.defaultCodeProvider | quote }}
