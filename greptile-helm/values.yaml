@@ -21,6 +21,9 @@ global:
   
   # AI Model Configuration
   ai:
+    # Privacy and compliance controls
+    disableLlmLogging: false  # Set to true to disable LLM request/response logging for privacy compliance
+    
     anthropic:
       baseUrl: "https://anthropic.helicone.ai"
     openai:
@@ -280,8 +283,6 @@ reviews:
       cpu: "100m"
       memory: "128Mi"
   config:
-    analytics: false
-    billing: false
     includeIssuesTable: false
     includeSequenceDiagram: false
     includeConfidenceScore: false

@@ -75,6 +75,7 @@ data:
   ANTHROPIC_BASE_URL: {{ .Values.global.ai.anthropic.baseUrl | quote }}
   REFINER_MODEL_PROVIDER: {{ .Values.global.ai.refiner.modelProvider | quote }}
   REFINER_MODEL: {{ .Values.global.ai.refiner.model | quote }}
+  DISABLE_LLM_LOGGING: {{ .Values.global.ai.disableLlmLogging | quote }}
   CHAT_MODEL_PROVIDER: {{ .Values.global.ai.chat.modelProvider | quote }}
   MEMORY_CHAT_MODEL_PROVIDER: {{ .Values.global.ai.memory.chatModelProvider | quote }}
   MEMORY_CHAT_MODEL: {{ .Values.global.ai.memory.chatModel | quote }}
@@ -105,26 +106,41 @@ data:
   {{- end }}
   
   # Application Configuration
-  BATCH_SIZE: "99"
-  WORKER_HASH: "on-prem"
-  HATCHET_REVIEWER_SLOTS: "2"
-  HATCHET_REVIEWER_DURABLE_SLOTS: "10000"
+  BATCH_SIZE: {{ .Values.indexer.chunker.config.batchSize | default "99" | quote }}
+  WORKER_HASH: {{ .Values.indexer.config.workerHash | default "on-prem" | quote }}
+  HATCHET_REVIEWER_SLOTS: {{ .Values.reviews.config.hatchetReviewerSlots | default "2" | quote }}
+  HATCHET_REVIEWER_DURABLE_SLOTS: {{ .Values.reviews.config.hatchetReviewerDurableSlots | default "2" | quote }}
   LEARN_PROCEDURAL_MEMORY: {{ .Values.global.greptile.learnProceduralMemory | default "true" | quote }}
+  USE_PROCEDURAL_MEMORY: {{ .Values.global.greptile.useProceduralMemory | default "true" | quote }}
+  
+  # Memory Configuration (using cloud defaults)
+  MEMORY_EVIDENCE_THRESHOLD: {{ .Values.global.greptile.memoryEvidenceThreshold | default "1" | quote }}
+  MEMORY_LEARNING_CONFIDENCE_THRESHOLD: {{ .Values.global.greptile.memoryLearningConfidenceThreshold | default "0.95" | quote }}
+  
+  # LLM Behavior Controls (configurable via values.yaml if needed)
+  {{- if .Values.global.ai.toolCallLimit }}
+  TOOL_CALL_LIMIT: {{ .Values.global.ai.toolCallLimit | quote }}
+  {{- end }}
+  {{- if .Values.reviews.config.suggestionConfidenceThreshold }}
+  SUGGESTION_CONFIDENCE_THRESHOLD: {{ .Values.reviews.config.suggestionConfidenceThreshold | quote }}
+  {{- end }}
   
   # Integrations
   SLACK_WEBHOOK_URL: "test"
   SLACK_ENABLED: "false"
   
-  # Misc Configuration
+  # Misc Configuration (hardcoded for on-prem)
   LOG_FORMAT: "json"
   ANALYTICS: "false"
-  POSTHOG_KEY: "dummy"
+  POSTHOG_KEY: ""
+  POSTHOG_HOST: ""
   BILLING: "false"
+  BILLING_ENABLED: "false"
   NOTIFICATIONS: "false"
+  HELICONE_KEY: ""
   HIDE_SOCIALS: "true"
   NODE_ENV: {{ .Values.global.environment | default "development" | quote }}
   LINEAR_ENABLED: "false"
-  POSTHOG_HOST: "dummyposthoghost"
   BENCHMARK: "false"
   AWS_REGION: "us-east-1"
 

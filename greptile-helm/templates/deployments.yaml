@@ -528,10 +528,6 @@ spec:
             - configMapRef:
                 name: {{ include "greptile.fullname" . }}-common-env
           env:
-            - name: ANALYTICS
-              value: {{ .Values.reviews.config.analytics | quote }}
-            - name: BILLING
-              value: {{ .Values.reviews.config.billing | quote }}
             - name: WEBHOOK_SECRET
               valueFrom:
                 secretKeyRef:
