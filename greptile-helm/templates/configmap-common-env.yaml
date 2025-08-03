@@ -132,8 +132,8 @@ data:
   # Misc Configuration (hardcoded for on-prem)
   LOG_FORMAT: "json"
   ANALYTICS: "false"
-  POSTHOG_KEY: ""
-  POSTHOG_HOST: ""
+  POSTHOG_KEY: "dummykey" # Leave dummy values for on-prem
+  POSTHOG_HOST: "dummyhost" # Leave dummy values for on-prem
   BILLING: "false"
   BILLING_ENABLED: "false"
   NOTIFICATIONS: "false"
