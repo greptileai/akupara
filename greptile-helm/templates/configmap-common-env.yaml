@@ -62,8 +62,8 @@ data:
   GITHUB_ENTERPRISE_URL: "https://github.your_org.com"
   GITHUB_ENTERPRISE_CLIENT_ID: {{ .Values.global.authGithubId | default "Iv1.dummy" }}
   GITHUB_ENTERPRISE_CLIENT_SECRET: {{ .Values.global.authGithubSecret | default "client_Secret" }}
-  AUTH_GITHUB_ID: "Iv1.dummyvalue"
-  AUTH_GITHUB_SECRET: "dummygithub_auth_secret"
+  AUTH_GITHUB_ID: {{ .Values.global.authGithubId | quote }}
+  AUTH_GITHUB_SECRET: {{ .Values.global.authGithubSecret | quote }}
   
   # GitLab Configuration
   GITLAB_ENABLED: "true"

@@ -10,6 +10,9 @@ global:
   greptile:
     learnProceduralMemory: true
   externalUrl: ""
+  # [Optional] GitHub Authentication Configuration
+  authGithubId: ""
+  authGithubSecret: ""
   tolerations:
     - key: "tolerationKey"
       operator: "Equal"
