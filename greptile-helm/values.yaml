@@ -9,6 +9,24 @@ global:
     tenant: "default"
   greptile:
     learnProceduralMemory: true
+    email:
+      # Email provider: SES or SMTP
+      provider: "SES"
+      # From email address
+      from: "noreply@greptile.com"
+      # SMTP configuration (only used when provider is "SMTP")
+      smtp:
+        host: ""
+        port: 587
+        user: ""
+        password: ""
+        secure: false  # true for port 465 (SSL), false for 587/25
+        tls: true     # true to enable STARTTLS
+        rejectUnauthorized: true  # false to allow self-signed certificates
+      # AWS SES configuration (only used when provider is "SES")
+      ses:
+        accessKeyId: ""
+        secretAccessKey: ""
   externalUrl: ""
   # [Optional] GitHub Authentication Configuration
   authGithubId: ""

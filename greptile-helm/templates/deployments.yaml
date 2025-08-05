@@ -140,8 +140,6 @@ spec:
             - configMapRef:
                 name: {{ include "greptile.fullname" . }}-common-env
           env:
-            - name: EMAIL_FROM
-              value: {{ .Values.web.config.authEmailFrom | default "noreply@greptile.com" | quote }}
             - name: APP_URL
               value: {{ .Values.web.config.externalUrl | default (printf "http://%s-web:%s" (include "greptile.fullname" .) (.Values.web.service.port | toString)) | quote }}
             - name: JWT_SECRET

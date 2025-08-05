@@ -8,8 +8,6 @@ data:
   PORT: "{{ .Values.web.service.port }}"
   NEXTAUTH_URL: {{ .Values.web.config.externalUrl | default (printf "http://%s-web:%s" (include "greptile.fullname" .) (.Values.web.service.port | toString)) | quote }}
   APP_URL: {{ .Values.web.config.externalUrl | default (printf "http://%s-web:%s" (include "greptile.fullname" .) (.Values.web.service.port | toString)) | quote }}
-  AUTH_EMAIL_FROM: {{ .Values.web.config.authEmailFrom | default "noreply@greptile.com" | quote }}
-  EMAIL_FROM: {{ .Values.web.config.authEmailFrom | default "noreply@greptile.com" | quote }}
   AUTH_SAML_ONLY: {{ .Values.web.config.authSamlOnly | quote }}
   AUTH_TENANT: {{ .Values.web.config.authTenant | quote }}
   GLOBAL_GITLAB_BASE_URL: {{ .Values.web.config.globalGitlabBaseUrl | quote }}

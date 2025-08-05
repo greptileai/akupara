@@ -69,7 +69,28 @@ data:
   GITLAB_ENABLED: "true"
   
   # Email Configuration
-  EMAIL_PROVIDER: "SES"
+  EMAIL_PROVIDER: {{ .Values.global.greptile.email.provider | quote }}
+  
+  # SMTP Configuration (used when EMAIL_PROVIDER is "SMTP")
+  {{- if eq .Values.global.greptile.email.provider "SMTP" }}
+  SMTP_HOST: {{ .Values.global.greptile.email.smtp.host | quote }}
+  SMTP_PORT: {{ .Values.global.greptile.email.smtp.port | quote }}
+  SMTP_USER: {{ .Values.global.greptile.email.smtp.user | quote }}
+  SMTP_PASSWORD: {{ .Values.global.greptile.email.smtp.password | quote }}
+  SMTP_SECURE: {{ .Values.global.greptile.email.smtp.secure | quote }}
+  SMTP_TLS: {{ .Values.global.greptile.email.smtp.tls | quote }}
+  SMTP_REJECT_UNAUTHORIZED: {{ .Values.global.greptile.email.smtp.rejectUnauthorized | quote }}
+  {{- end }}
+  
+  # AWS SES Configuration (used when EMAIL_PROVIDER is "SES")
+  {{- if eq .Values.global.greptile.email.provider "SES" }}
+  {{- if .Values.global.greptile.email.ses.accessKeyId }}
+  X_AWS_ACCESS_KEY_ID: {{ .Values.global.greptile.email.ses.accessKeyId | quote }}
+  {{- end }}
+  {{- if .Values.global.greptile.email.ses.secretAccessKey }}
+  X_AWS_SECRET_ACCESS_KEY: {{ .Values.global.greptile.email.ses.secretAccessKey | quote }}
+  {{- end }}
+  {{- end }}
   
   # LLM Configuration
   ANTHROPIC_BASE_URL: {{ .Values.global.ai.anthropic.baseUrl | quote }}
@@ -107,7 +128,7 @@ data:
   
   # Application Configuration
   BATCH_SIZE: {{ .Values.indexer.chunker.config.batchSize | default "99" | quote }}
-  WORKER_HASH: {{ .Values.indexer.config.workerHash | default "on-prem" | quote }}
+  WORKER_HASH: "onprem"
   HATCHET_REVIEWER_SLOTS: {{ .Values.reviews.config.hatchetReviewerSlots | default "2" | quote }}
   HATCHET_REVIEWER_DURABLE_SLOTS: {{ .Values.reviews.config.hatchetReviewerDurableSlots | default "2" | quote }}
   LEARN_PROCEDURAL_MEMORY: {{ .Values.global.greptile.learnProceduralMemory | default "true" | quote }}
@@ -148,8 +169,8 @@ data:
   NEXTAUTH_URL: {{ .Values.global.externalUrl | default (printf "http://%s-web:%s" (include "greptile.fullname" .) (.Values.web.service.port | toString)) | quote }}
   
   # Email Configuration
-  AUTH_EMAIL_FROM: {{ .Values.web.config.authEmailFrom | default "noreply@greptile.com" | quote }}
-  EMAIL_FROM: {{ .Values.web.config.authEmailFrom | default "noreply@greptile.com" | quote }}
+  AUTH_EMAIL_FROM: {{ .Values.global.greptile.email.from | quote }}
+  EMAIL_FROM: {{ .Values.global.greptile.email.from | quote }}
 
   # Additional LLM Configuration
   ANTHROPIC_KEY: {{ .Values.secrets.anthropicKey | quote }}
