@@ -12,3 +12,36 @@ sharedConfig:
   grpcInsecure: "true"
   defaultAdminEmail: "admin@example.com"
   defaultAdminPassword: "Admin123!!"
+
+postgres:
+  enabled: true
+  primary:
+    resources:
+      requests:
+        cpu: "4"
+        memory: "8Gi"
+      limits:
+        cpu: "4"
+        memory: "8Gi"
+
+# Reference a stable hatchet image
+api:
+  image:
+    tag: "v0.67.8"
+  migrationJob:
+    image:
+      tag: "v0.67.8"
+  setupJob:
+    image:
+      tag: "v0.67.8"
+  seedJob:
+    image:
+      tag: "v0.67.8"
+
+engine:
+  image:
+    tag: "v0.67.8"
+
+frontend:
+  image:
+    tag: "v0.67.8"

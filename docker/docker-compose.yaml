@@ -98,6 +98,14 @@ services:
       - "5436:5432"
     volumes:
       - hatchet_postgres_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '4'
+          memory: 8G
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d hatchet -U hatchet"]
       interval: 10s
