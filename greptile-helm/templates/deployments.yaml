@@ -553,6 +553,11 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: LLM_GATEWAY_CLIENT_SECRET
+            - name: P4PASSWD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: P4PASSWD
           resources:
             {{- toYaml .Values.reviews.resources | nindent 12 }}
 {{- end }}
