@@ -81,6 +81,14 @@ global:
       scope: "" # "awsanthropic-readwrite azureopenai-readwrite"
       clientId: "" # "your_client_id"
 
+  # Optional Perforce/Swarm configuration
+  perforce:
+    p4user: ""
+    p4passwd: ""
+    p4port: ""
+    p4client: ""
+    swarmUrl: ""
+
 # Database configuration
 postgresql:
   enabled: true
