@@ -89,6 +89,9 @@ global:
     p4client: ""
     swarmUrl: ""
 
+  # Optional Greptile Admin Key
+  greptileAdminKey: ""
+
 # Database configuration
 postgresql:
   enabled: true

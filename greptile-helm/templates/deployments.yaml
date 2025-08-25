@@ -249,6 +249,11 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: LLM_GATEWAY_CLIENT_SECRET
+            - name: GREPTILE_ADMIN_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: GREPTILE_ADMIN_KEY
           resources:
             {{- toYaml .Values.api.resources | nindent 12 }}
 {{- end }}
