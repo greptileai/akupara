@@ -558,6 +558,11 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: P4PASSWD
+            - name: GREPTILE_ADMIN_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: GREPTILE_ADMIN_KEY
           resources:
             {{- toYaml .Values.reviews.resources | nindent 12 }}
 {{- end }}
