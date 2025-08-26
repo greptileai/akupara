@@ -136,7 +136,7 @@ data:
   
   # Memory Configuration (using cloud defaults)
   MEMORY_EVIDENCE_THRESHOLD: {{ .Values.global.greptile.memoryEvidenceThreshold | default "1" | quote }}
-  MEMORY_LEARNING_CONFIDENCE_THRESHOLD: {{ .Values.global.greptile.memoryLearningConfidenceThreshold | default "0.95" | quote }}
+  MEMORY_LEARNING_CONFIDENCE_THRESHOLD: {{ .Values.global.greptile.memoryLearningConfidenceThreshold | default "0.15" | quote }}
   
   # LLM Behavior Controls (configurable via values.yaml if needed)
   {{- if .Values.global.ai.toolCallLimit }}
