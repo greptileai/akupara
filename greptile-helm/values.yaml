@@ -318,6 +318,7 @@ reviews:
     includeIssuesTable: false
     includeSequenceDiagram: false
     includeConfidenceScore: false
+    updateExistingSummaryComment: false
 
 jobs:
   enabled: true

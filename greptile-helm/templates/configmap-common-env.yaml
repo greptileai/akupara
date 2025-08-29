@@ -146,6 +146,9 @@ data:
   SUGGESTION_CONFIDENCE_THRESHOLD: {{ .Values.reviews.config.suggestionConfidenceThreshold | quote }}
   {{- end }}
   
+  # Review Configuration
+  UPDATE_EXISTING_SUMMARY_COMMENT: {{ .Values.reviews.config.updateExistingSummaryComment | default "false" | quote }}
+  
   # Integrations
   SLACK_WEBHOOK_URL: "test"
   SLACK_ENABLED: "false"
