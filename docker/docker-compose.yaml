@@ -49,24 +49,17 @@ services:
       - DIRECT_URL=${DATABASE_URL}
       - ORG_NAME=greptile
       - TENANT_ID=default
-    command: >
+    command: |
       /bin/sh -c '
-      cd /app/packages/db &&
-      echo "Starting migration..." &&
-      bunx prisma db execute --file ./scripts/create.sql --url "$DATABASE_URL" &&
-      bunx prisma db execute --file ./scripts/hatchet.sql --url "$DATABASE_URL" &&
+      cd /app/packages/db
+      echo "Starting migration..."
+      bunx prisma db execute --file ./scripts/create.sql --url "$DATABASE_URL"
+      bunx prisma db execute --file ./scripts/hatchet.sql --url "$DATABASE_URL"
       if bunx prisma migrate deploy ; then
-        echo "Migration completed successfully" &&
-        API_KEY=$(openssl rand -hex 16) &&
-        sed "s@\$ORG_NAME@$ORG_NAME@g; s@\$TENANT_ID@$TENANT_ID@g; s@\$API_KEY@$API_KEY@g" ./scripts/root_org.sql > /tmp/processed.sql &&
-        cat /tmp/processed.sql | bunx prisma db execute --stdin --url "$DATABASE_URL" || {
-          echo "Failed to execute root_org.sql" &&
-          cat /tmp/processed.sql &&
-          exit 1
-        } &&
+        echo "Migration completed successfully"
         exit 0
       else
-        echo "Migration failed" &&
+        echo "Migration failed"
         exit 1
       fi'
   
@@ -233,6 +226,7 @@ services:
     environment:
       # Hardcoded to false for on-prem deployments
       - BILLING_ENABLED=false
+      - AUTH_BOXYHQ_SAML_ISSUER=${AUTH_BOXYHQ_URL}
     ports:
       - "3000:3000"
 
@@ -333,7 +327,7 @@ services:
   #   environment:
   #     - DB_ENCRYPTION_KEY=${JACKSON_DB_ENCRYPTION_KEY}
   #     - HOST_URL=${JACKSON_HOST_URL}
-  #     - EXTERNAL_URL=${JACKSON_EXTERNAL_URL}
+  #     - EXTERNAL_URL=${AUTH_BOXYHQ_URL}
   #     - JACKSON_API_KEYS=${AUTH_BOXYHQ_API_KEY}
   #     - SAML_AUDIENCE=${AUTH_BOXYHQ_SAML_ID}
   #     - CLIENT_SECRET_VERIFIER=${AUTH_BOXYHQ_SAML_SECRET}
