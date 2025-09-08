@@ -1,6 +1,6 @@
 ## Setting up Greptile using Docker Compose
 
-The greptile app requires running an EC2 instance. The docker compose includes the greptile services as well as the dependencies required by Greptile - these dependencies are: Postgres, Hatchet (consisting of multiple services) and optionally Redis. We also have a terraform script that spins up Postgres and Redis in the `docker/terraform` directory as an AWS managed services instead of running containers. 
+The greptile app requires running an EC2 instance. The docker compose includes the greptile services as well as the dependencies required by Greptile - these dependencies are: Postgres, Hatchet (consisting of multiple services) and optionally Redis. We also have a terraform script that spins up Postgres and Redis in the `docker/terraform` directory as AWS managed services instead of running containers.
 Please follow [this](https://github.com/greptileai/akupara/blob/main/docker/terraform/README-TF.md) doc as a guide to bring up Greptile.
 
 
