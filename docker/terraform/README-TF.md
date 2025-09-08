@@ -42,27 +42,10 @@ Go to the akupara directory
 cd /opt/akupara/docker/
 ```
 
-Edit the `SERVER_GRPC_BROADCAST_ADDRESS` environment variable in the `docker-compose.yaml` file to point to the IP address of the EC2 instance. 
-```bash
-SERVER_GRPC_BROADCAST_ADDRESS: "<ec2-public-ip>:7077"
-```
-
-Edit the `Caddyfile` to point to the EC2 instance.
-```bash
-http://<ec2-public-ip>:8080 {
-    handle /api/* {
-		reverse_proxy hatchet-api:8080
-	}
-
-	handle /* {
-		reverse_proxy hatchet-frontend:80
-	}
-}
-```
 
 **Note**: The `Caddyfile` is used to reverse proxy the hatchet frontend to the EC2 instance. You can use this to reverse proxy custom domain names to the EC2 instance as well. See `/docker/docs/CustomDomains.md` for more details. 
 
-Create a `.env` file and fill it up based on the `.env.example` file. For this step - you will need to register a new **Github App**.
+Create a `common.env` file based on the template provided by `common.env.example` file. For this step - you will need to register a new **Github App**.
 
 ### Step 4: Register a GitHub App.
 1. Go to your GitHub organization settings > Developer Settings > GitHub Apps > New GitHub App. If you have problems finding it, refer to the [official guide](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app#registering-a-github-app)
@@ -104,7 +87,7 @@ Create a `.env` file and fill it up based on the `.env.example` file. For this s
       - Pull Request Review Thread
 8. Click on "Optional features" in the left menu bar.
     - Ensure to `Opt-out` of "User-to-server token expiration"
-9. Gather the following values below to populate the relevant fields in the `.env` file:
+9. Gather the following values below to populate the relevant fields in the `common.env` file:
     - App ID
     - App URL 
     - App Name 
@@ -118,12 +101,12 @@ The following variables should be filled using the values we got from the terraf
 ```bash
 DB_HOST
 REDIS_HOST
-WEB_URL
+APP_URL
 ```
 
 The `DB_PASSWORD` should be the password we set for the RDS database in the `terraform.tfvars` file.
 
-The rest of the variables should be filled based on the `.env.variables` file. You will notice fields for BOXYHQ/SAML that do not need to be changed if you do not want to set up SSO. If you do want to set up SSO, refer to `docker/docs/SSO.md` for more information. 
+The rest of the variables should be filled based on the `common.env.example` file. You will notice fields for BOXYHQ/SAML that do not need to be changed if you do not want to set up SSO. If you do want to set up SSO, refer to `docker/docs/SSO.md` for more information. 
 
 ### Step 5: Start the services
 
@@ -140,9 +123,7 @@ Password: Admin123!!
 
 **Note**: you may need to modify the ingress rules of the security group of the EC2 instance to allow HTTP and HTTPS traffic. Our terraform defaults to only allow SSH traffic. 
 
-Once the hatchet services are running, add the contents of the `.env.hatchet` file to the `.env` file. If you every restart the [hatchet-services](https://docs.hatchet.run/self-hosting/docker-compose)
-, the `HATCHET_CLIENT_TOKEN` will change and you will need to add the new token to the `.env` file.
-
+Once the hatchet services are running, login to Hatchet using the default credentials from above and go to Settings > General > API Tokens to create an API token. Make sure to add this API token to the common.env file.
 
 Then start the greptile services
 ```bash
@@ -158,11 +139,12 @@ You should see the following services running:
 ```
 greptile_api_service
 greptile_auth_service
-greptile_github_service
 greptile_indexer_chunker
 greptile_indexer_summarizer
-greptile_query_service
 greptile_web_service
+greptile_reviews_service
+greptile_webhook_service
+greptile_jobs_service
 hatchet-api
 hatchet-engine
 hatchet-frontend
