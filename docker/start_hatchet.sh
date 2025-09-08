@@ -12,7 +12,7 @@ fi
 echo "Starting Hatchet services..."
 
 # Start only Hatchet-related services
-docker compose up \
+docker compose up -d \
     postgres-hatchet \
     rabbitmq \
     migration \
