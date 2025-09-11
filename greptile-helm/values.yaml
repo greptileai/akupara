@@ -36,6 +36,7 @@ global:
       operator: "Equal"
       value: "greptile"
       effect: "NoExecute"
+  defaultTriggerOnUpdates: false
   # Uncomment below to enable nodeSelector
   # nodeSelector:
   #   nodeSelectorKey: "greptile"

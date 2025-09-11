@@ -133,6 +133,9 @@ data:
   HATCHET_REVIEWER_DURABLE_SLOTS: {{ .Values.reviews.config.hatchetReviewerDurableSlots | default "2" | quote }}
   LEARN_PROCEDURAL_MEMORY: {{ .Values.global.greptile.learnProceduralMemory | default "true" | quote }}
   USE_PROCEDURAL_MEMORY: {{ .Values.global.greptile.useProceduralMemory | default "true" | quote }}
+  {{- if .Values.global.defaultTriggerOnUpdates }}
+  DEFAULT_TRIGGER_ON_UPDATES: {{ .Values.global.defaultTriggerOnUpdates | quote }}
+  {{- end }}
   
   # Memory Configuration (using cloud defaults)
   MEMORY_EVIDENCE_THRESHOLD: {{ .Values.global.greptile.memoryEvidenceThreshold | default "1" | quote }}
