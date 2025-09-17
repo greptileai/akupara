@@ -201,6 +201,7 @@ data:
   INCLUDE_ISSUES_TABLE: {{ .Values.reviews.config.includeIssuesTable | default "false" | quote }}
   INCLUDE_SEQUENCE_DIAGRAM: {{ .Values.reviews.config.includeSequenceDiagram | default "false" | quote }}
   INCLUDE_CONFIDENCE_SCORE: {{ .Values.reviews.config.includeConfidenceScore | default "false" | quote }}
+  PROMPT_TO_FIX_WITH_AI: {{ .Values.global.greptile.promptToFixWithAi | default "true" | quote }}
   
   # Additional Configuration
   GITHUB_ENTERPRISE_APP_PRIVATE_KEY: {{ .Values.secrets.githubPrivateKey | quote }} 
