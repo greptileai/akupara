@@ -33,6 +33,7 @@ data:
   # Service URLs
   GREPTILE_AUTH_SERVER: http://{{ include "greptile.fullname" . }}-auth:{{ .Values.auth.service.port | toString }}
   GREPTILE_API_URL: http://{{ include "greptile.fullname" . }}-api:{{ .Values.api.service.port | toString }}/v2
+  GREPTILE_WEBHOOK_URL: http://{{ include "greptile.fullname" . }}-webhook:{{ .Values.webhook.service.port | toString }}/webhook
   API_URL: http://{{ include "greptile.fullname" . }}-api:{{ .Values.api.service.port | toString }}
   GITHUB_WEBHOOK_URL: http://{{ include "greptile.fullname" . }}-webhook:{{ .Values.webhook.service.port | toString }}/webhook
   GITLAB_WEBHOOK_URL: http://{{ include "greptile.fullname" . }}-webhook:{{ .Values.webhook.service.port | toString }}/webhook
