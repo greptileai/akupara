@@ -335,6 +335,11 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: LLM_GATEWAY_CLIENT_SECRET
+            - name: WEBHOOK_SECRET
+               valueFrom:
+                 secretKeyRef:
+                   name: {{ include "greptile.fullname" . }}-secrets
+                   key: WEBHOOK_SECRET
           resources:
             {{- toYaml .Values.indexer.chunker.resources | nindent 12 }}
           volumeMounts:
