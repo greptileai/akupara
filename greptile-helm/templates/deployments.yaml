@@ -244,6 +244,11 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: GLOBAL_GITLAB_TOKEN
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: REDIS_PASSWORD
           resources:
             {{- toYaml .Values.api.resources | nindent 12 }}
 {{- end }}
@@ -533,6 +538,11 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: P4PASSWD
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: REDIS_PASSWORD
           resources:
             {{- toYaml .Values.reviews.resources | nindent 12 }}
 {{- end }}
