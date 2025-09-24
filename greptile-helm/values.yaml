@@ -124,6 +124,7 @@ postgresql:
 # Redis configuration
 redis:
   enabled: false
+  architecture: standalone
   auth:
     enabled: false
   master:

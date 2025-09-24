@@ -73,11 +73,6 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: GITHUB_PRIVATE_KEY
-            - name: REDIS_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "greptile.fullname" . }}-secrets
-                  key: REDIS_HOST
             - name: GLOBAL_GITLAB_TOKEN
               valueFrom:
                 secretKeyRef:
@@ -157,11 +152,6 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: DATABASE_URL
-            - name: REDIS_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "greptile.fullname" . }}-secrets
-                  key: REDIS_HOST
           resources:
             {{- toYaml .Values.auth.resources | nindent 12 }}
 {{- end }}
@@ -234,11 +224,6 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: DATABASE_URL
-            - name: REDIS_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "greptile.fullname" . }}-secrets
-                  key: REDIS_HOST
             - name: HATCHET_CLIENT_TOKEN
               valueFrom:
                 secretKeyRef:
@@ -325,11 +310,6 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: TOKEN_ENCRYPTION_KEY
-            - name: REDIS_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "greptile.fullname" . }}-secrets
-                  key: REDIS_HOST
             - name: LLM_GATEWAY_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
@@ -406,11 +386,6 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: TOKEN_ENCRYPTION_KEY
-            - name: REDIS_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "greptile.fullname" . }}-secrets
-                  key: REDIS_HOST
             - name: LLM_GATEWAY_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
@@ -483,11 +458,6 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: WEBHOOK_SECRET
-            - name: REDIS_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "greptile.fullname" . }}-secrets
-                  key: REDIS_HOST
           resources:
             {{- toYaml .Values.webhook.resources | nindent 12 }}
 {{- end }}
@@ -553,11 +523,6 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: TOKEN_ENCRYPTION_KEY
-            - name: REDIS_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "greptile.fullname" . }}-secrets
-                  key: REDIS_HOST
             - name: LLM_GATEWAY_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
@@ -629,11 +594,6 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: DATABASE_URL
-            - name: REDIS_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "greptile.fullname" . }}-secrets
-                  key: REDIS_HOST
             - name: LLM_GATEWAY_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
