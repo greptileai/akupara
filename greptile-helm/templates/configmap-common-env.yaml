@@ -154,18 +154,6 @@ data:
   
   # Review Configuration
   UPDATE_EXISTING_SUMMARY_COMMENT: {{ .Values.reviews.config.updateExistingSummaryComment | default "false" | quote }}
-  INCLUDE_SUMMARY: {{ .Values.reviews.config.includeSummary | default "true" | quote }}
-  SUMMARY_COLLAPSIBLE: {{ .Values.reviews.config.summaryCollapsible | default "false" | quote }}
-  SUMMARY_DEFAULT_OPEN: {{ .Values.reviews.config.summaryDefaultOpen | default "false" | quote }}
-  INCLUDE_ISSUES_TABLE: {{ .Values.reviews.config.includeIssuesTable | default "true" | quote }}
-  ISSUES_TABLE_COLLAPSIBLE: {{ .Values.reviews.config.issuesTableCollapsible | default "false" | quote }}
-  ISSUES_TABLE_DEFAULT_OPEN: {{ .Values.reviews.config.issuesTableDefaultOpen | default "false" | quote }}
-  INCLUDE_CONFIDENCE_SCORE: {{ .Values.reviews.config.includeConfidenceScore | default "true" | quote }}
-  CONFIDENCE_SCORE_COLLAPSIBLE: {{ .Values.reviews.config.confidenceScoreCollapsible | default "false" | quote }}
-  CONFIDENCE_SCORE_DEFAULT_OPEN: {{ .Values.reviews.config.confidenceScoreDefaultOpen | default "false" | quote }}
-  INCLUDE_SEQUENCE_DIAGRAM: {{ .Values.reviews.config.includeSequenceDiagram | default "true" | quote }}
-  SEQUENCE_DIAGRAM_COLLAPSIBLE: {{ .Values.reviews.config.sequenceDiagramCollapsible | default "false" | quote }}
-  SEQUENCE_DIAGRAM_DEFAULT_OPEN: {{ .Values.reviews.config.sequenceDiagramDefaultOpen | default "false" | quote }}
   
   # Integrations
   SLACK_WEBHOOK_URL: "test"
@@ -213,9 +201,18 @@ data:
   GITHUB_PRIVATE_KEY: {{ .Values.secrets.githubPrivateKey | quote }}
   
   # Reviews Configuration
-  INCLUDE_ISSUES_TABLE: {{ .Values.reviews.config.includeIssuesTable | default "false" | quote }}
-  INCLUDE_SEQUENCE_DIAGRAM: {{ .Values.reviews.config.includeSequenceDiagram | default "false" | quote }}
-  INCLUDE_CONFIDENCE_SCORE: {{ .Values.reviews.config.includeConfidenceScore | default "false" | quote }}
+  INCLUDE_SUMMARY: {{ .Values.reviews.config.includeSummary | default "true" | quote }}
+  SUMMARY_COLLAPSIBLE: {{ .Values.reviews.config.summaryCollapsible | default "false" | quote }}
+  SUMMARY_DEFAULT_OPEN: {{ .Values.reviews.config.summaryDefaultOpen | default "false" | quote }}
+  INCLUDE_ISSUES_TABLE: {{ .Values.reviews.config.includeIssuesTable | default "true" | quote }}
+  ISSUES_TABLE_COLLAPSIBLE: {{ .Values.reviews.config.issuesTableCollapsible | default "false" | quote }}
+  ISSUES_TABLE_DEFAULT_OPEN: {{ .Values.reviews.config.issuesTableDefaultOpen | default "false" | quote }}
+  INCLUDE_CONFIDENCE_SCORE: {{ .Values.reviews.config.includeConfidenceScore | default "true" | quote }}
+  CONFIDENCE_SCORE_COLLAPSIBLE: {{ .Values.reviews.config.confidenceScoreCollapsible | default "false" | quote }}
+  CONFIDENCE_SCORE_DEFAULT_OPEN: {{ .Values.reviews.config.confidenceScoreDefaultOpen | default "false" | quote }}
+  INCLUDE_SEQUENCE_DIAGRAM: {{ .Values.reviews.config.includeSequenceDiagram | default "true" | quote }}
+  SEQUENCE_DIAGRAM_COLLAPSIBLE: {{ .Values.reviews.config.sequenceDiagramCollapsible | default "false" | quote }}
+  SEQUENCE_DIAGRAM_DEFAULT_OPEN: {{ .Values.reviews.config.sequenceDiagramDefaultOpen | default "false" | quote }}
   PROMPT_TO_FIX_WITH_AI: {{ .Values.global.greptile.promptToFixWithAi | default "true" | quote }}
   
   # Additional Configuration
