@@ -44,8 +44,6 @@ spec:
             - configMapRef:
                 name: {{ include "greptile.fullname" . }}-web-config
           env:
-            - name: GREPTILE_WEB_URL
-              value: {{ printf "http://%s-web:%s" (include "greptile.fullname" .) (.Values.web.service.port | toString) | quote }}
             - name: BILLING_ENABLED
               value: "false"
             - name: SKIP_COMPANY_ONBOARDING
@@ -518,8 +516,6 @@ spec:
             - configMapRef:
                 name: {{ include "greptile.fullname" . }}-common-env
           env:
-            - name: GREPTILE_WEB_URL
-              value: {{ printf "http://%s-web:%s" (include "greptile.fullname" .) (.Values.web.service.port | toString) | quote }}
             - name: WEBHOOK_SECRET
               valueFrom:
                 secretKeyRef:
