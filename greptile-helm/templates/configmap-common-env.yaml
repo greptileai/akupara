@@ -163,6 +163,7 @@ data:
   P4USER: {{ .Values.global.perforce.p4user | default "" | quote }}
   P4PORT: {{ .Values.global.perforce.p4port | default "" | quote }}
   P4CLIENT: {{ .Values.global.perforce.p4client | default "" | quote }}
+  P4_CHILD_PATHS: {{ .Values.global.perforce.p4childPaths | default "" | quote }}
   SWARM_URL: {{ .Values.global.perforce.swarmUrl | default "" | quote }}
   
   # Misc Configuration (hardcoded for on-prem)
