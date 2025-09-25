@@ -320,9 +320,19 @@ reviews:
       cpu: "100m"
       memory: "128Mi"
   config:
-    includeIssuesTable: false
-    includeSequenceDiagram: false
-    includeConfidenceScore: false
+    includeSummary: true
+    summaryCollapsible: false
+    summaryDefaultOpen: false
+    includeIssuesTable: true
+    issuesTableCollapsible: false
+    issuesTableDefaultOpen: false
+    includeConfidenceScore: true
+    confidenceScoreCollapsible: false
+    confidenceScoreDefaultOpen: false
+    includeSequenceDiagram: true
+    sequenceDiagramCollapsible: false
+    sequenceDiagramDefaultOpen: false
+
     updateExistingSummaryComment: false
 
 jobs:
