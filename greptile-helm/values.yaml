@@ -321,17 +321,17 @@ reviews:
       memory: "128Mi"
   config:
     includeSummary: true
-    summaryCollapsible: true
-    summaryDefaultOpen: true
+    summaryCollapsible: false
+    summaryDefaultOpen: false
     includeIssuesTable: true
-    issuesTableCollapsible: true
-    issuesTableDefaultOpen: true
+    issuesTableCollapsible: false
+    issuesTableDefaultOpen: false
     includeConfidenceScore: true
-    confidenceScoreCollapsible: true
-    confidenceScoreDefaultOpen: true
+    confidenceScoreCollapsible: false
+    confidenceScoreDefaultOpen: false
     includeSequenceDiagram: true
-    sequenceDiagramCollapsible: true
-    sequenceDiagramDefaultOpen: true
+    sequenceDiagramCollapsible: false
+    sequenceDiagramDefaultOpen: false
 
     updateExistingSummaryComment: false
 
