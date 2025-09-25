@@ -88,6 +88,7 @@ global:
     p4passwd: ""
     p4port: ""
     p4client: ""
+    p4childPaths: ""
     swarmUrl: ""
 
   # Optional Greptile Admin Key
