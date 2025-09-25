@@ -124,8 +124,11 @@ postgresql:
 # Redis configuration
 redis:
   enabled: false
+  architecture: standalone
   auth:
     enabled: false
+    # If enabled and password set, it will be used as REDIS_PASSWORD secret
+    password: ""
   master:
     persistence:
       enabled: true
@@ -398,6 +401,8 @@ secrets:
   anthropicKey: "dummy-anthropic-key"
   openaiKey: "dummy-openai-key"
   azureOpenaiKey: "dummy-azure-openai-key"
+  # Optional: set Redis password directly; overrides redis.auth.password if provided
+  redisPassword: ""
   globalGitlabToken: ""  # Set to a service account token / group access token if GitLab integration is needed
   oauthGatewayClientSecret: "" # Only required if using an oauthGateway for generating LLM keys
   # [OPTIONAL] Jackson secrets
