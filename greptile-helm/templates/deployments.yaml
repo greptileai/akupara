@@ -507,6 +507,12 @@ spec:
       containers:
         - name: reviews
           image: {{ include "greptile.image" (dict "Values" .Values "repository" .Values.reviews.image.repository "tag" .Values.reviews.image.tag) }}
+          {{- if .Values.reviews.storage.enabled }}
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["SYS_ADMIN"]
+          {{- end }}
           imagePullPolicy: {{ .Values.reviews.image.pullPolicy }}
           ports:
             - name: http
@@ -538,6 +544,15 @@ spec:
                 secretKeyRef:
                   name: {{ include "greptile.fullname" . }}-secrets
                   key: LLM_GATEWAY_CLIENT_SECRET
+            {{- if .Values.reviews.storage.enabled }}
+            - name: PARENT_DIR
+              value: "/mnt/efs/"
+            - name: ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: ANTHROPIC_KEY
+            {{- end }}
             - name: P4PASSWD
               valueFrom:
                 secretKeyRef:
@@ -550,6 +565,17 @@ spec:
                   key: REDIS_PASSWORD
           resources:
             {{- toYaml .Values.reviews.resources | nindent 12 }}
+          {{- if .Values.reviews.storage.enabled }}
+          volumeMounts:
+            - name: reviews-storage
+              mountPath: /mnt/efs
+          {{- end }}
+      {{- if .Values.reviews.storage.enabled }}
+      volumes:
+        - name: reviews-storage
+          persistentVolumeClaim:
+            claimName: {{ include "greptile.fullname" . }}-reviews
+      {{- end }}
 {{- end }}
 
 {{- if .Values.jobs.enabled }}

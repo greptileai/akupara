@@ -1,0 +1,19 @@
+{{- if and .Values.reviews.enabled .Values.reviews.storage.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "greptile.fullname" . }}-reviews
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+spec:
+  {{- if .Values.reviews.storage.storageClass }}
+  storageClassName: {{ .Values.reviews.storage.storageClass }}
+  {{- else if .Values.storage.createStorageClass }}
+  storageClassName: {{ include "greptile.fullname" . }}-storage
+  {{- end }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.reviews.storage.size }}
+{{- end }}
