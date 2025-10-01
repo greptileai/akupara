@@ -319,6 +319,11 @@ reviews:
     requests:
       cpu: "100m"
       memory: "128Mi"
+  # Required for greptile v3
+  storage:
+    enabled: true
+    size: 1Ti
+    storageClass: ""
   config:
     includeSummary: true
     summaryCollapsible: false
