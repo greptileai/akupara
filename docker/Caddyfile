@@ -7,3 +7,9 @@ http://:8080 {
 		reverse_proxy hatchet-frontend:80
 	}
 }
+
+http://:3000 {
+	handle /* {
+		reverse_proxy greptile-web:3000
+	}
+}

@@ -1,82 +1,5 @@
-services:
-  # ===== DATABASE SECTION =====
-  greptile-postgres:
-    image: pgvector/pgvector:pg15
-    container_name: greptile-postgres-db
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres"]
-      interval: 2s
-      timeout: 5s
-      retries: 10
-
-  greptile_vector_db_migration:
-    image: ${ECR_REGISTRY}/greptile/vectordb-migration:${TAG}
-    platform: linux/amd64
-    depends_on:
-      greptile-postgres:
-        condition: service_healthy
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - VECTOR_DB_URL=${VECTOR_DB_URL}
-      - DIRECT_URL=${DATABASE_URL}
-    command: >
-      /bin/sh -c '
-      cd /app/packages/vector &&
-      echo "Starting vector migration..." &&
-      bunx prisma db execute --file ./scripts/create.sql --url "$DATABASE_URL" &&
-      export DATABASE_URL=$VECTOR_DB_URL &&
-      export DIRECT_URL=$VECTOR_DB_URL &&
-      bunx prisma db execute --file ./scripts/pgvector.sql &&
-      bunx prisma migrate deploy --schema=./prisma/schema.prisma &&
-      echo "Vector migration completed."'
-
-  greptile_db_migration:
-    image: ${ECR_REGISTRY}/greptile/db-migration:${TAG}
-    platform: linux/amd64
-    depends_on:
-      greptile-postgres:
-        condition: service_healthy
-    environment:
-      - DATABASE_URL=${DATABASE_URL}
-      - DIRECT_URL=${DATABASE_URL}
-      - ORG_NAME=greptile
-      - TENANT_ID=default
-    command: |
-      /bin/sh -c '
-      cd /app/packages/db
-      echo "Starting migration..."
-      bunx prisma db execute --file ./scripts/create.sql --url "$DATABASE_URL"
-      bunx prisma db execute --file ./scripts/hatchet.sql --url "$DATABASE_URL"
-      if bunx prisma migrate deploy ; then
-        echo "Migration completed successfully"
-        exit 0
-      else
-        echo "Migration failed"
-        exit 1
-      fi'
-  
-  # [OPTIONAL] Comment out redis if used
-  # redis:
-  #   image: redis
-  #   container_name: redis-cache
-  #   healthcheck:
-  #     test: ["CMD", "redis-cli", "ping"]
-  #     interval: 5s
-  #     timeout: 3s
-  #     retries: 5
-  #   ports:
-  #     - "6379:6379"
-  
+services:  
   # ===== HATCHET SECTION ======
-
   postgres-hatchet:
     image: postgres:15.6
     platform: linux/amd64
@@ -84,9 +7,9 @@ services:
     restart: always
     hostname: "postgres-hatchet"
     environment:
-      - POSTGRES_USER=hatchet
-      - POSTGRES_PASSWORD=hatchet
-      - POSTGRES_DB=hatchet
+      - POSTGRES_USER=${HATCHET_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${HATCHET_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${HATCHET_POSTGRES_DB}
     ports:
       - "5436:5432"
     volumes:
@@ -129,7 +52,7 @@ services:
     image: ghcr.io/hatchet-dev/hatchet/hatchet-migrate:v0.67.8
     platform: linux/amd64
     environment:
-      DATABASE_URL: "postgres://hatchet:hatchet@postgres-hatchet:5432/hatchet"
+      DATABASE_URL: ${HATCHET_DATABASE_URL}
     depends_on:
       postgres-hatchet:
         condition: service_healthy
@@ -139,7 +62,7 @@ services:
     platform: linux/amd64
     command: /hatchet/hatchet-admin quickstart --skip certs --generated-config-dir /hatchet/config --overwrite=false
     environment:
-      DATABASE_URL: "postgres://hatchet:hatchet@postgres-hatchet:5432/hatchet"
+      DATABASE_URL: ${HATCHET_DATABASE_URL}
       DATABASE_POSTGRES_PORT: "5432"
       DATABASE_POSTGRES_HOST: "postgres"
       SERVER_TASKQUEUE_RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/
@@ -172,7 +95,7 @@ services:
     ports:
       - "7077:7070"
     environment:
-      DATABASE_URL: "postgres://hatchet:hatchet@postgres-hatchet:5432/hatchet"
+      DATABASE_URL: ${HATCHET_DATABASE_URL}
       SERVER_GRPC_BIND_ADDRESS: "0.0.0.0"
       SERVER_GRPC_INSECURE: "t"
     volumes:
@@ -190,7 +113,7 @@ services:
       migration:
         condition: service_completed_successfully
     environment:
-      DATABASE_URL: "postgres://hatchet:hatchet@postgres-hatchet:5432/hatchet"
+      DATABASE_URL: ${HATCHET_DATABASE_URL}
     volumes:
       - hatchet_certs:/hatchet/certs
       - hatchet_config:/hatchet/config
@@ -216,36 +139,64 @@ services:
       - hatchet-api
       - hatchet-frontend
 
+# ===== DATABASE SECTION =====
+  greptile-postgres:
+    image: pgvector/pgvector:pg15
+    container_name: greptile-postgres-db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+
+  greptile_db_migration-job:
+    image: ${ECR_REGISTRY}/db-migration-job:${TAG}
+    platform: linux/amd64
+    depends_on:
+      greptile-postgres:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - DIRECT_URL=${DATABASE_URL}
+      - VECTOR_DB_URL=${VECTOR_DB_URL}
+
   # ===== GREPTILE SECTION =====
 
   greptile_web_service:
-    image: ${ECR_REGISTRY}/greptile/web:${TAG}
+    image: ${ECR_REGISTRY}/web:${TAG}
     platform: linux/amd64
     env_file:
-      - common.env
+      - .env
     environment:
-      # Hardcoded to false for on-prem deployments
-      - BILLING_ENABLED=false
       - AUTH_BOXYHQ_SAML_ISSUER=${AUTH_BOXYHQ_URL}
+      - BILLING_ENABLED=${BILLING}
+      - NEXT_PUBLIC_BILLING=${BILLING}
+      - NEXT_PUBLIC_ANALYTICS=${ANALYTICS}
     ports:
       - "3000:3000"
 
   greptile_auth_service:
-    image: ${ECR_REGISTRY}/greptile/auth:${TAG}
+    image: ${ECR_REGISTRY}/auth:${TAG}
     platform: linux/amd64
     env_file:
-      - common.env
-    environment:
-      - EMAIL_FROM=${AUTH_EMAIL_FROM}
+      - .env
     ports:
       - "3001:3001"
 
   greptile_api_service:
-    image: ${ECR_REGISTRY}/greptile/api:${TAG}
+    image: ${ECR_REGISTRY}/api:${TAG}
     platform: linux/amd64
     restart: on-failure
     env_file:
-      - common.env
+      - .env
     environment:
       - URL=${API_URL}
       - X_AWS_REGION=${AWS_REGION}
@@ -254,99 +205,62 @@ services:
       - "3002:3002"
 
   greptile_indexer_chunker:
-    image: ${ECR_REGISTRY}/greptile/chunker:${TAG}
+    image: ${ECR_REGISTRY}/chunker:${TAG}
     platform: linux/amd64
     restart: on-failure
     env_file:
-      - common.env
+      - .env
     environment:
-      - LOG_FORMAT=json
       - PARENT_DIR=/mnt/data/
-      # To prevent health checker bug
-      - NODE_ENV=""
       - PORT=3003
     volumes:
       - shared-mnt:/mnt
 
   greptile_indexer_summarizer:
-    image: ${ECR_REGISTRY}/greptile/summarizer:${TAG}
+    image: ${ECR_REGISTRY}/summarizer:${TAG}
     platform: linux/amd64
     restart: on-failure
     env_file:
-      - common.env
+      - .env
     environment:
-      - LOG_FORMAT=json
       - PARENT_DIR=/mnt/data/
       - PORT=3004
     volumes:
       - shared-mnt:/mnt
 
   greptile_webhook_service:
-    image: ${ECR_REGISTRY}/greptile/webhook:${TAG}
+    image: ${ECR_REGISTRY}/webhook:${TAG}
     platform: linux/amd64
     restart: on-failure
     env_file:
-      - common.env
+      - .env
     environment:
       - PORT=3007
     ports:
       - "3007:3007"
 
   greptile_reviews_service:
-    image: ${ECR_REGISTRY}/greptile/reviews:${TAG}
+    image: ${ECR_REGISTRY}/reviews:${TAG}
     platform: linux/amd64
     restart: on-failure
     env_file:
-      - common.env
+      - .env
     environment:
-      - WEBHOOK_SECRET=${GITHUB_WEBHOOK_SECRET}
       - PORT=3005
     ports:
       - "3005:3005"
 
   greptile_jobs_service:
-    image: ${ECR_REGISTRY}/greptile/jobs:${TAG}
+    image: ${ECR_REGISTRY}/jobs:${TAG}
     platform: linux/amd64
     restart: on-failure
     env_file:
-      - common.env
+      - .env
     environment:
       - X_AWS_REGION=${AWS_REGION}
-      - NODE_ENV=production
       - PORT=8080
     ports:
       - "8086:8080"
-
-  # ===== SAML Auth Section ======
-  # [OPTIONAL] Comment out if needed
-  # greptile_jackson_service:
-  #   image: boxyhq/jackson
-  #   hostname: greptile_jackson_service
-  #   platform: linux/amd64
-  #   restart: on-failure
-  #   environment:
-  #     - DB_ENCRYPTION_KEY=${JACKSON_DB_ENCRYPTION_KEY}
-  #     - HOST_URL=${JACKSON_HOST_URL}
-  #     - EXTERNAL_URL=${AUTH_BOXYHQ_URL}
-  #     - JACKSON_API_KEYS=${AUTH_BOXYHQ_API_KEY}
-  #     - SAML_AUDIENCE=${AUTH_BOXYHQ_SAML_ID}
-  #     - CLIENT_SECRET_VERIFIER=${AUTH_BOXYHQ_SAML_SECRET}
-  #     - NEXTAUTH_ADMIN_CREDENTIALS=${JACKSON_ADMIN_CREDENTIALS}
-  #     - PUBLIC_KEY=${JACKSON_PUBLIC_KEY}
-  #     - PRIVATE_KEY=${JACKSON_PRIVATE_KEY}
-  #     - NEXTAUTH_URL=${AUTH_BOXYHQ_URL}
-  #     - NEXTAUTH_SECRET=${JWT_SECRET}
-  #     - IDP_ENABLED=${JACKSON_IDP_ENABLED:-true}
-  #     - DB_URL=${DATABASE_URL}
-  #     - DB_ENGINE=sql
-  #     - DB_TYPE=postgres
-  #     - DB_SSL_REJECT_UNAUTHORIZED=false
-  #     - DB_SSL=true
-  #     - PORT=5225
-  #     - AWS_REGION=${AWS_REGION}
-  #     - DO_NOT_TRACK=1
-  #   ports:
-  #     - "5225:5225"
 
 volumes:
   pgdata: {}

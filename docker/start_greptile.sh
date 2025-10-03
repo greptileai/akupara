@@ -56,3 +56,13 @@ fi
 
 echo "All Greptile services have been started."
 echo "You can check service status with: docker compose ps"
+
+
+"""
+#!/usr/bin/env bash
+
+# Generate a random 32-character alphanumeric string
+random_string=$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 32)
+
+echo "$random_string
+"""
