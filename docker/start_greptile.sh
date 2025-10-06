@@ -71,7 +71,15 @@ echo "Database migrations completed successfully."
 
 # Start the core services
 echo "Starting core services..."
-docker compose up -d --force-recreate "${GREPTILE_SERVICES[@]}" 
+
+# Check if SAML authentication should be enabled
+COMPOSE_PROFILES=""
+if [ "${AUTH_SAML_ONLY:-false}" = "true" ]; then
+    echo "SAML authentication enabled - starting Jackson service..."
+    COMPOSE_PROFILES="--profile saml"
+fi
+
+docker compose up -d --force-recreate $COMPOSE_PROFILES "${GREPTILE_SERVICES[@]}" 
 
 # Copy SSL certificates to all services if CUSTOM_FILE_PATH is set
 if [ -n "$CUSTOM_FILE_PATH" ]; then
