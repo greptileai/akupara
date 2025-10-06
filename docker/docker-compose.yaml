@@ -140,9 +140,9 @@ services:
       - hatchet-frontend
 
 # ===== DATABASE SECTION =====
-  greptile-postgres:
+  greptile_postgres:
     image: pgvector/pgvector:pg15
-    container_name: greptile-postgres-db
+    container_name: greptile_postgres_db
     ports:
       - "5432:5432"
     environment:
@@ -157,11 +157,11 @@ services:
       timeout: 5s
       retries: 10
 
-  greptile_db_migration-job:
+  greptile_db_migration_job:
     image: ${ECR_REGISTRY}/db-migration-job:${TAG}
     platform: linux/amd64
     depends_on:
-      greptile-postgres:
+      greptile_postgres:
         condition: service_healthy
     environment:
       - DATABASE_URL=${DATABASE_URL}
@@ -199,7 +199,6 @@ services:
       - .env
     environment:
       - URL=${API_URL}
-      - X_AWS_REGION=${AWS_REGION}
       - PORT=3002
     ports:
       - "3002:3002"
@@ -257,7 +256,6 @@ services:
     env_file:
       - .env
     environment:
-      - X_AWS_REGION=${AWS_REGION}
       - PORT=8080
     ports:
       - "8086:8080"
