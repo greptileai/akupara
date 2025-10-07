@@ -43,15 +43,12 @@ echo "You can access the Hatchet UI at http://localhost:8080"
 
 echo "Preparing to set Hatchet token"
 
-# Determine target env file (.env preferred over .env.example)
-if [ -f ".env" ]; then
-    env_file=".env"
-elif [ -f ".env.example" ]; then
-    env_file=".env.example"
-else
-    echo "Warning: Neither .env nor .env.example found in current directory. Skipping token insertion."
-    exit 0
+# Check if .env file exists - secrets should never be written to .env.example
+if [ ! -f ".env" ]; then
+    echo "Error: .env file not found. Please create one from .env.example before running Hatchet."
+    exit 1
 fi
+env_file=".env"
 
 # If HATCHET_CLIENT_TOKEN already exists and has a non-empty value, do not change it
 if awk -F'=' '
