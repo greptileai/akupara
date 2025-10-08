@@ -286,7 +286,7 @@ services:
       - DB_ENGINE=sql
       - DB_TYPE=postgres
       - DB_SSL_REJECT_UNAUTHORIZED=false
-      - DB_SSL=true
+      - DB_SSL=${JACKSON_DB_SSL}
       - PORT=5225
       - AWS_REGION=${AWS_REGION}
       - DO_NOT_TRACK=1
