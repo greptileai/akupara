@@ -37,7 +37,7 @@ if ! grep -q "^TOKEN_ENCRYPTION_KEY=.\+" .env; then
     fi
 fi
 
-# Define the list of services
+# Define the list of services (kept for explicit starts, default to profile)
 GREPTILE_SERVICES=(
     greptile_api_service
     greptile_auth_service
@@ -79,7 +79,8 @@ if [ "${AUTH_SAML_ONLY:-false}" = "true" ]; then
     COMPOSE_PROFILES="--profile saml"
 fi
 
-docker compose up -d --force-recreate $COMPOSE_PROFILES "${GREPTILE_SERVICES[@]}" 
+# Prefer using the greptile profile to start all app services together
+docker compose up -d --force-recreate $COMPOSE_PROFILES --profile greptile 
 
 # Copy SSL certificates to all services if CUSTOM_FILE_PATH is set
 if [ -n "$CUSTOM_FILE_PATH" ]; then

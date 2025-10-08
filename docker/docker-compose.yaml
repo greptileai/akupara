@@ -28,6 +28,8 @@ services:
       timeout: 10s
       retries: 5
       start_period: 10s
+    profiles:
+      - hatchet
 
   rabbitmq:
     image: "rabbitmq:3-management"
@@ -47,6 +49,8 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
+    profiles:
+      - hatchet
 
   migration:
     image: ghcr.io/hatchet-dev/hatchet/hatchet-migrate:v0.67.8
@@ -56,6 +60,8 @@ services:
     depends_on:
       postgres-hatchet:
         condition: service_healthy
+    profiles:
+      - hatchet
 
   setup-config:
     image: ghcr.io/hatchet-dev/hatchet/hatchet-admin:v0.67.8
@@ -81,6 +87,8 @@ services:
         condition: service_healthy
       postgres-hatchet:
         condition: service_healthy
+    profiles:
+      - hatchet
 
   hatchet-engine:
     image: ghcr.io/hatchet-dev/hatchet/hatchet-engine:v0.67.8
@@ -101,6 +109,8 @@ services:
     volumes:
       - hatchet_certs:/hatchet/certs
       - hatchet_config:/hatchet/config
+    profiles:
+      - hatchet
 
   hatchet-api:
     image: ghcr.io/hatchet-dev/hatchet/hatchet-api:v0.67.8
@@ -117,11 +127,15 @@ services:
     volumes:
       - hatchet_certs:/hatchet/certs
       - hatchet_config:/hatchet/config
+    profiles:
+      - hatchet
 
   hatchet-frontend:
     image: ghcr.io/hatchet-dev/hatchet/hatchet-frontend:v0.67.8
     platform: linux/amd64
     restart: on-failure
+    profiles:
+      - hatchet
 
   caddy:
     image: caddy:2.7.6-alpine
@@ -138,6 +152,8 @@ services:
     depends_on:
       - hatchet-api
       - hatchet-frontend
+    profiles:
+      - hatchet
 
 # ===== DATABASE SECTION =====
   greptile_postgres:
@@ -182,6 +198,8 @@ services:
       - NEXT_PUBLIC_ANALYTICS=${ANALYTICS}
     ports:
       - "3000:3000"
+    profiles:
+      - greptile
 
   greptile_auth_service:
     image: ${ECR_REGISTRY}/auth:${TAG}
@@ -190,6 +208,8 @@ services:
       - .env
     ports:
       - "3001:3001"
+    profiles:
+      - greptile
 
   greptile_api_service:
     image: ${ECR_REGISTRY}/api:${TAG}
@@ -202,6 +222,8 @@ services:
       - PORT=3002
     ports:
       - "3002:3002"
+    profiles:
+      - greptile
 
   greptile_indexer_chunker:
     image: ${ECR_REGISTRY}/chunker:${TAG}
@@ -214,6 +236,8 @@ services:
       - PORT=3003
     volumes:
       - shared-mnt:/mnt
+    profiles:
+      - greptile
 
   greptile_indexer_summarizer:
     image: ${ECR_REGISTRY}/summarizer:${TAG}
@@ -226,6 +250,8 @@ services:
       - PORT=3004
     volumes:
       - shared-mnt:/mnt
+    profiles:
+      - greptile
 
   greptile_webhook_service:
     image: ${ECR_REGISTRY}/webhook:${TAG}
@@ -237,6 +263,8 @@ services:
       - PORT=3007
     ports:
       - "3007:3007"
+    profiles:
+      - greptile
 
   greptile_reviews_service:
     image: ${ECR_REGISTRY}/reviews:${TAG}
@@ -248,6 +276,8 @@ services:
       - PORT=3005
     ports:
       - "3005:3005"
+    profiles:
+      - greptile
 
   greptile_jobs_service:
     image: ${ECR_REGISTRY}/jobs:${TAG}
@@ -259,6 +289,8 @@ services:
       - PORT=8080
     ports:
       - "8086:8080"
+    profiles:
+      - greptile
 
   # ===== SAML Auth Section ======
   # Deployed conditionally based on AUTH_SAML_ONLY environment variable

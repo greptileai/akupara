@@ -11,16 +11,8 @@ fi
 
 echo "Starting Hatchet services..."
 
-# Start only Hatchet-related services
-docker compose up -d \
-    postgres-hatchet \
-    rabbitmq \
-    migration \
-    setup-config \
-    hatchet-engine \
-    hatchet-api \
-    hatchet-frontend \
-    caddy
+# Start only Hatchet-related services using the hatchet profile
+docker compose up -d --force-recreate --profile hatchet
 
 echo "Waiting for services to be healthy..."
 
