@@ -67,9 +67,9 @@ Database URL template
 {{- define "greptile.databaseUrl" -}}
 {{- if .Values.postgresql.enabled }}
 {{- if .Values.pgbouncer.enabled }}
-{{- printf "postgresql://%s:%s@%s:%s/%s?pgbouncer=true" .Values.postgresql.auth.postgresPassword .Values.postgresql.auth.postgresPassword (printf "%s-pgbouncer" (include "greptile.fullname" .)) (.Values.pgbouncer.service.port | toString) .Values.postgresql.auth.database }}
+{{- printf "postgresql://%s:%s@%s:%s/%s?pgbouncer=true" .Values.postgresql.auth.username .Values.postgresql.auth.postgresPassword (printf "%s-pgbouncer" (include "greptile.fullname" .)) (.Values.pgbouncer.service.port | toString) .Values.postgresql.auth.database }}
 {{- else }}
-{{- printf "postgresql://%s:%s@%s:%s/%s" .Values.postgresql.auth.postgresPassword .Values.postgresql.auth.postgresPassword (printf "%s-postgresql" (include "greptile.fullname" .)) (.Values.postgresql.primary.service.port | toString) .Values.postgresql.auth.database }}
+{{- printf "postgresql://%s:%s@%s:%s/%s" .Values.postgresql.auth.username .Values.postgresql.auth.postgresPassword (printf "%s-postgresql" (include "greptile.fullname" .)) (.Values.postgresql.primary.service.port | toString) .Values.postgresql.auth.database }}
 {{- end }}
 {{- else }}
 {{- .Values.database.url }}
@@ -82,9 +82,9 @@ Vector Database URL template
 {{- define "greptile.vectorDatabaseUrl" -}}
 {{- if .Values.postgresql.enabled }}
 {{- if .Values.pgbouncer.enabled }}
-{{- printf "postgresql://%s:%s@%s:%s/vector?pgbouncer=true" .Values.postgresql.auth.postgresPassword .Values.postgresql.auth.postgresPassword (printf "%s-pgbouncer" (include "greptile.fullname" .)) (.Values.pgbouncer.service.port | toString) }}
+{{- printf "postgresql://%s:%s@%s:%s/vector?pgbouncer=true" .Values.postgresql.auth.username .Values.postgresql.auth.postgresPassword (printf "%s-pgbouncer" (include "greptile.fullname" .)) (.Values.pgbouncer.service.port | toString) }}
 {{- else }}
-{{- printf "postgresql://%s:%s@%s:%s/vector" .Values.postgresql.auth.postgresPassword .Values.postgresql.auth.postgresPassword (printf "%s-postgresql" (include "greptile.fullname" .)) (.Values.postgresql.primary.service.port | toString) }}
+{{- printf "postgresql://%s:%s@%s:%s/vector" .Values.postgresql.auth.username .Values.postgresql.auth.postgresPassword (printf "%s-postgresql" (include "greptile.fullname" .)) (.Values.postgresql.primary.service.port | toString) }}
 {{- end }}
 {{- else }}
 {{- .Values.vectordb.url }}
@@ -107,7 +107,7 @@ Direct Database URL template (always bypasses pgbouncer for migrations)
 */}}
 {{- define "greptile.directDatabaseUrl" -}}
 {{- if .Values.postgresql.enabled }}
-{{- printf "postgresql://%s:%s@%s:%s/%s" .Values.postgresql.auth.postgresPassword .Values.postgresql.auth.postgresPassword (printf "%s-postgresql" (include "greptile.fullname" .)) (.Values.postgresql.primary.service.port | toString) .Values.postgresql.auth.database }}
+{{- printf "postgresql://%s:%s@%s:%s/%s" .Values.postgresql.auth.username .Values.postgresql.auth.postgresPassword (printf "%s-postgresql" (include "greptile.fullname" .)) (.Values.postgresql.primary.service.port | toString) .Values.postgresql.auth.database }}
 {{- else }}
 {{- .Values.database.url }}
 {{- end }}

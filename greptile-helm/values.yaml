@@ -98,6 +98,7 @@ global:
 postgresql:
   enabled: true
   auth:
+    username: "postgres"
     postgresPassword: "postgres"
     database: "postgres"
   primary:
