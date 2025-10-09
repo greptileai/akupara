@@ -29,9 +29,7 @@ data:
   
   # Redis Configuration
   REDIS_PORT: "{{ if .Values.redis.enabled }}{{ .Values.redis.master.service.port }}{{ else }}{{ .Values.redis.port }}{{ end }}"
-  REDIS_HOST: "{{ if .Values.redis.enabled }}{{ printf "%s-redis-master" (include "greptile.fullname" .) }}{{ else }}{{ .Values.redis.host }}{{ end }}"
-  REDIS_USE_TLS: {{ .Values.redis.useTls | default false | quote }}
-
+  
   # Service URLs
   GREPTILE_AUTH_SERVER: http://{{ include "greptile.fullname" . }}-auth:{{ .Values.auth.service.port | toString }}
   GREPTILE_API_URL: http://{{ include "greptile.fullname" . }}-api:{{ .Values.api.service.port | toString }}/v2
