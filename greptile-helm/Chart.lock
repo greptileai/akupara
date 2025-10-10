@@ -5,5 +5,8 @@ dependencies:
 - name: redis
   repository: https://charts.bitnami.com/bitnami
   version: 21.2.6
-digest: sha256:2ad8b4e6d0926d320113099327733dbaa3cf3ad44af8e5a8c6c637d03b795c05
-generated: "2025-07-17T14:40:32.372633-07:00"
+- name: pgbouncer
+  repository: https://icoretech.github.io/helm
+  version: 3.0.1
+digest: sha256:0b2411d9bb048a9588cef919125e22885bc2456151cec9aab9d70b6e0a1bf819
+generated: "2025-10-08T20:42:49.495455512Z"
