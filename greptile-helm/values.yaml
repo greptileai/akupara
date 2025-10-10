@@ -123,7 +123,7 @@ postgresql:
         effect: "NoExecute"
     extendedConfiguration: |-
       # Connection Management
-      max_connections = 155
+      max_connections = 200
 
       # Timeouts
       statement_timeout = 120000                  # 2 min
