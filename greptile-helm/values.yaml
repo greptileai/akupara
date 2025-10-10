@@ -132,10 +132,10 @@ postgresql:
       idle_session_timeout = 600000               # 10 min
 
       # Memory Configuration
-      shared_buffers = 64GB
+      shared_buffers = 192GB
       effective_cache_size = 566GB
-      work_mem = 128MB
-      maintenance_work_mem = 8GB
+      work_mem = 256MB
+      maintenance_work_mem = 16GB
 
       # WAL Configuration
       max_wal_size = 16GB
