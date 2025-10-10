@@ -122,11 +122,51 @@ postgresql:
         value: "greptile"
         effect: "NoExecute"
     extendedConfiguration: |-
-      max_connections = 155
+      # Connection Management
+      max_connections = 200
+
+      # Timeouts
       statement_timeout = 120000                  # 2 min
       idle_in_transaction_session_timeout = 300000 # 5 min
       lock_timeout = 5000                         # 5 s
       idle_session_timeout = 600000               # 10 min
+
+      # Memory Configuration
+      # shared_buffers = 16GB
+      # effective_cache_size = 48GB
+      # work_mem = 64MB
+      # maintenance_work_mem = 2GB
+
+      # WAL Configuration
+      # max_wal_size = 4GB
+      # min_wal_size = 1GB
+      # checkpoint_completion_target = 0.9
+      # wal_compression = on
+
+      # Query Planning
+      # random_page_cost = 1.1
+      # effective_io_concurrency = 200
+
+      # Parallel Query
+      # max_parallel_workers_per_gather = 4
+      # max_parallel_workers = 8
+      # max_parallel_maintenance_workers = 4
+      # max_worker_processes = 8
+
+      # Auto-Vacuum
+      # autovacuum_max_workers = 3
+      # autovacuum_naptime = 10s
+      # autovacuum_vacuum_cost_limit = 2000
+      # autovacuum_vacuum_scale_factor = 0.05
+      # autovacuum_analyze_scale_factor = 0.025
+
+      # Logging
+      # log_min_duration_statement = 1000
+      # log_checkpoints = on
+      # log_temp_files = 0
+
+      # Statistics
+      # default_statistics_target = 500
     # Uncomment below to enable nodeSelector
     # nodeSelector:
     #   nodeSelectorKey: "greptile"
