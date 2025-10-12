@@ -17,4 +17,8 @@ dependencies:
   - name: redis
     version: "21.2.6"
     repository: https://charts.bitnami.com/bitnami
-    condition: redis.enabled 
+    condition: redis.enabled
+  - name: pgbouncer
+    version: "3.0.1"
+    repository: https://icoretech.github.io/helm
+    condition: pgbouncer.enabled 
