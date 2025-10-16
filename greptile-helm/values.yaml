@@ -7,6 +7,7 @@ global:
   org:
     name: "greptile"
     tenant: "default"
+    customerName: null
   greptile:
     learnProceduralMemory: true
     email:

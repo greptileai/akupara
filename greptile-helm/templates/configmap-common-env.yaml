@@ -165,6 +165,11 @@ data:
   P4_CHILD_PATHS: {{ .Values.global.perforce.p4childPaths | default "" | quote }}
   SWARM_URL: {{ .Values.global.perforce.swarmUrl | default "" | quote }}
   
+  # Organization Configuration
+  {{- if .Values.global.org.customerName }}
+  ON_PREM_CUSTOMER_NAME: {{ .Values.global.org.customerName | quote }}
+  {{- end }}
+
   # Misc Configuration (hardcoded for on-prem)
   LOG_FORMAT: "json"
   ANALYTICS: "false"
