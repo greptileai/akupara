@@ -224,4 +224,29 @@ spec:
     app.kubernetes.io/name: {{ include "greptile.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/component: jackson
-{{- end }} 
+{{- end }}
+
+{{- if .Values.llmproxy.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "greptile.fullname" . }}-llmproxy
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: llmproxy
+  {{- with .Values.llmproxy.service.annotations }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+spec:
+  type: {{ .Values.llmproxy.service.type }}
+  ports:
+    - port: {{ .Values.llmproxy.service.port }}
+      targetPort: {{ .Values.llmproxy.service.port }}
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ include "greptile.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: llmproxy
+{{- end }}

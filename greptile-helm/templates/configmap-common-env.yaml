@@ -117,6 +117,10 @@ data:
   CHAT_MODEL: {{ .Values.global.ai.chat.model | quote }}
   DEFAULT_CHAT_MODEL: {{ .Values.global.ai.chat.model | quote }}
   
+  # LLM Proxy Configuration
+  LLM_PROXY_KEY: {{ .Values.llmproxy.proxy.key | quote }}
+  LLM_PROXY_BASE_URL: http://{{ include "greptile.fullname" . }}-llmproxy:{{ .Values.llmproxy.service.port | toString }}
+
   # OAuth Gateway Configuration (optional)
   {{- if .Values.global.ai.oauthGateway.endpoint }}
   LLM_OAUTH_ENDPOINT: {{ .Values.global.ai.oauthGateway.endpoint | quote }}
@@ -190,6 +194,7 @@ data:
   # Additional LLM Configuration
   ANTHROPIC_KEY: {{ .Values.secrets.anthropicKey | quote }}
   OPENAI_KEY: {{ .Values.secrets.openaiKey | quote }}
+  OPENAI_API_KEY: {{ .Values.secrets.openaiKey | quote }}
   AZURE_OPENAI_KEY: {{ .Values.secrets.azureOpenaiKey | quote }}
   
   # Hatchet Configuration

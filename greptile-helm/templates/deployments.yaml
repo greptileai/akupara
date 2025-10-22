@@ -754,3 +754,69 @@ spec:
           resources:
             {{- toYaml .Values.jackson.resources | nindent 12 }}
 {{- end }}
+
+{{- if .Values.llmproxy.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "greptile.fullname" . }}-llmproxy
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: llmproxy
+spec:
+  replicas: {{ .Values.llmproxy.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "greptile.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: llmproxy
+  template:
+    metadata:
+      labels:
+        {{- include "greptile.labels" . | nindent 8 }}
+        app.kubernetes.io/component: llmproxy
+    spec:
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
+      {{- if .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml .Values.global.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.global.nodeSelector | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: llmproxy
+          image: {{ include "greptile.image" (dict "Values" .Values "repository" .Values.llmproxy.image.repository "tag" .Values.llmproxy.image.tag) }}
+          imagePullPolicy: {{ .Values.llmproxy.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.llmproxy.service.port }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "greptile.fullname" . }}-common-env
+          env:
+            - name: PORT
+              value: {{ .Values.llmproxy.service.port | quote }}
+            - name: LITELLM_MASTER_KEY
+              value: {{ .Values.llmproxy.proxy.key | quote }}
+            - name: LLM_GATEWAY_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.fullname" . }}-secrets
+                  key: LLM_GATEWAY_CLIENT_SECRET
+          resources:
+            {{- toYaml .Values.llmproxy.resources | nindent 12 }}
+          volumeMounts:
+            - name: llmproxy-config
+              mountPath: /app/config.yaml
+              subPath: config.yaml
+              readOnly: true
+      volumes:
+        - name: llmproxy-config
+          configMap:
+            name: {{ include "greptile.fullname" . }}-llmproxy-config
+{{- end }}

@@ -243,7 +243,7 @@ migrations:
     enabled: true
     image:
       repository: "db-migration"
-      tag: "0.3.0-dev-build"
+      tag: "0.3.41"
       pullPolicy: IfNotPresent
     resources:
       limits:
@@ -256,7 +256,7 @@ migrations:
     enabled: true
     image:
       repository: "vectordb-migration"
-      tag: "0.3.0-dev-build"
+      tag: "0.3.41"
       pullPolicy: IfNotPresent
     resources:
       limits:
@@ -272,7 +272,7 @@ web:
   replicaCount: 1
   image:
     repository: "web"
-    tag: "0.3.0-dev-build"
+    tag: "0.3.41"
     pullPolicy: IfNotPresent
   service:
     type: NodePort  # Change according to your environment
@@ -297,7 +297,7 @@ auth:
   replicaCount: 1
   image:
     repository: "auth"
-    tag: "0.3.0-dev-build"
+    tag: "0.3.41"
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
@@ -315,7 +315,7 @@ api:
   replicaCount: 1
   image:
     repository: "api"
-    tag: "0.3.0-dev-build"
+    tag: "0.3.41"
     pullPolicy: IfNotPresent
   service:
     type: NodePort
@@ -337,7 +337,7 @@ indexer:
     replicaCount: 1
     image:
       repository: "chunker"
-      tag: "0.3.0-dev-build"
+      tag: "0.3.41"
       pullPolicy: IfNotPresent
     service:
       type: ClusterIP
@@ -358,7 +358,7 @@ indexer:
     replicaCount: 1
     image:
       repository: "summarizer"
-      tag: "0.3.0-dev-build"
+      tag: "0.3.41"
       pullPolicy: IfNotPresent
     service:
       type: ClusterIP
@@ -378,7 +378,7 @@ webhook:
   replicaCount: 1
   image:
     repository: "webhook"
-    tag: "0.3.0-dev-build"
+    tag: "0.3.41"
     pullPolicy: IfNotPresent
   service:
     # Has to be exposed for github/gitlab webhooks to be received
@@ -398,7 +398,7 @@ reviews:
   replicaCount: 1
   image:
     repository: "reviews"
-    tag: "0.3.0-dev-build"
+    tag: "0.3.41"
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
@@ -436,7 +436,7 @@ jobs:
   replicaCount: 1
   image:
     repository: "jobs"
-    tag: "0.3.0-dev-build"
+    tag: "0.3.41"
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
@@ -450,6 +450,26 @@ jobs:
       memory: "128Mi"
   config:
     openaiApiVersion: "2024-08-01-preview"
+
+llmproxy:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: "llmproxy"
+    tag: "0.3.41"
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 4000
+  resources:
+    limits:
+      cpu: "2"
+      memory: "8Gi"
+    requests:
+      cpu: "500m"
+      memory: "2Gi"
+  proxy:
+    key: "dummy-llm-proxy-key"
 
 jackson:
   enabled: false
