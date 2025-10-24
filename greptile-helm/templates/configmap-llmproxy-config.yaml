@@ -63,6 +63,7 @@ data:
           'summarizer': 'gpt-5-nano',
           'engine-mini': 'claude-sonnet-4-20250514',
           'claude-code': 'claude-sonnet-4-5',
+          'claude-haiku': 'claude-3-5-haiku-20241022',
         }
       num_retries: 2
       timeout: 30 # seconds
