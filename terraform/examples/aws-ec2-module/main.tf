@@ -1,0 +1,45 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+provider "aws" {
+  region  = var.aws_region
+  profile = var.aws_profile
+}
+
+module "greptile_aws_ec2" {
+  source = "github.com/greptile/akupara//terraform/stacks/aws-ec2?ref=main"
+
+  aws_region               = var.aws_region
+  aws_profile              = var.aws_profile
+  name_prefix              = var.name_prefix
+  vpc_id                   = var.vpc_id
+  private_subnet_ids       = var.private_subnet_ids
+  ec2_subnet_id            = var.ec2_subnet_id
+  ami_id                   = var.ami_id
+  key_name                 = var.key_name
+  instance_type            = var.instance_type
+  associate_public_ip      = var.associate_public_ip
+  ingress_rules            = var.ingress_rules
+  db_password              = var.db_password
+  db_username              = var.db_username
+  db_allocated_storage     = var.db_allocated_storage
+  db_max_allocated_storage = var.db_max_allocated_storage
+  db_instance_class        = var.db_instance_class
+  db_engine_version        = var.db_engine_version
+  db_storage_type          = var.db_storage_type
+  db_iops                  = var.db_iops
+  redis_node_type          = var.redis_node_type
+  redis_engine_version     = var.redis_engine_version
+  tags                     = var.tags
+}
+
+output "ec2_public_ip" {
+  value       = module.greptile_aws_ec2.ec2_public_ip
+  description = "Surface stack output for convenience."
+}
