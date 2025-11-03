@@ -140,6 +140,18 @@ variable "performance_insights_enabled" {
   default     = false
 }
 
+variable "skip_final_snapshot" {
+  description = "Skip taking a final snapshot when destroying the database."
+  type        = bool
+  default     = false
+}
+
+variable "final_snapshot_identifier" {
+  description = "Name of the final snapshot when skip_final_snapshot is false."
+  type        = string
+  default     = null
+}
+
 variable "tags" {
   description = "Additional tags applied to resources."
   type        = map(string)
