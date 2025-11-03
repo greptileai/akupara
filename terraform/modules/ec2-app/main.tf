@@ -1,43 +1,5 @@
 locals {
-  default_ingress_rules = [
-    {
-      description = "SSH"
-      from_port   = 22
-      to_port     = 22
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-    },
-    {
-      description = "App HTTP"
-      from_port   = 3000
-      to_port     = 3000
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-    },
-    {
-      description = "GitHub Webhooks"
-      from_port   = 3010
-      to_port     = 3010
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-    },
-    {
-      description = "Hatchet UI"
-      from_port   = 8080
-      to_port     = 8080
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-    },
-    {
-      description = "Hatchet Service"
-      from_port   = 7077
-      to_port     = 7077
-      protocol    = "tcp"
-      cidr_blocks = ["0.0.0.0/0"]
-    }
-  ]
-
-  ingress_rules = coalesce(var.ingress_rules, local.default_ingress_rules)
+  ingress_rules = var.ingress_rules
 }
 
 resource "aws_security_group" "this" {

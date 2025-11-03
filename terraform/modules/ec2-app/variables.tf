@@ -52,6 +52,11 @@ variable "ingress_rules" {
     cidr_blocks = list(string)
   }))
   default = null
+
+  validation {
+    condition     = var.ingress_rules != null && length(var.ingress_rules) > 0
+    error_message = "Provide at least one ingress rule with corporate CIDR blocks (e.g., 10.0.0.0/8)."
+  }
 }
 
 variable "tags" {
