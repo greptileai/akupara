@@ -62,7 +62,43 @@ variable "ingress_rules" {
     protocol    = string
     cidr_blocks = list(string)
   }))
-  default = null
+  default = [
+    {
+      description = "SSH from corp network"
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = ["10.0.0.0/8"]
+    },
+    {
+      description = "App HTTP"
+      from_port   = 3000
+      to_port     = 3000
+      protocol    = "tcp"
+      cidr_blocks = ["10.0.0.0/8"]
+    },
+    {
+      description = "GitHub Webhooks"
+      from_port   = 3010
+      to_port     = 3010
+      protocol    = "tcp"
+      cidr_blocks = ["10.0.0.0/8"]
+    },
+    {
+      description = "Hatchet UI"
+      from_port   = 8080
+      to_port     = 8080
+      protocol    = "tcp"
+      cidr_blocks = ["10.0.0.0/8"]
+    },
+    {
+      description = "Hatchet service"
+      from_port   = 7077
+      to_port     = 7077
+      protocol    = "tcp"
+      cidr_blocks = ["10.0.0.0/8"]
+    }
+  ]
 }
 
 variable "db_password" {
