@@ -149,6 +149,18 @@ variable "db_iops" {
   default     = 3000
 }
 
+variable "db_skip_final_snapshot" {
+  description = "Skip the final snapshot when destroying the database."
+  type        = bool
+  default     = false
+}
+
+variable "db_final_snapshot_identifier" {
+  description = "Override name for the final snapshot (when not skipping)."
+  type        = string
+  default     = null
+}
+
 variable "redis_node_type" {
   description = "ElastiCache node type."
   type        = string

@@ -73,7 +73,8 @@ resource "aws_db_instance" "this" {
   backup_window                = var.backup_window
   maintenance_window           = var.maintenance_window
   performance_insights_enabled = var.performance_insights_enabled
-  skip_final_snapshot          = true
+  skip_final_snapshot          = var.skip_final_snapshot
+  final_snapshot_identifier    = var.skip_final_snapshot ? null : coalesce(var.final_snapshot_identifier, "${var.db_identifier}-final")
   port                         = 5432
 
   tags = merge({

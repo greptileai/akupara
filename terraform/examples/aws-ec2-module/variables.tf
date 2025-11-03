@@ -149,6 +149,18 @@ variable "db_iops" {
   default     = 3000
 }
 
+variable "db_skip_final_snapshot" {
+  description = "Skip the final snapshot when destroying the DB."
+  type        = bool
+  default     = false
+}
+
+variable "db_final_snapshot_identifier" {
+  description = "Optional override for the final snapshot name."
+  type        = string
+  default     = null
+}
+
 variable "redis_node_type" {
   description = "Redis node type."
   type        = string

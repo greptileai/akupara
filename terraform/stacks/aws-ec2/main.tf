@@ -72,6 +72,8 @@ module "rds" {
   max_allocated_storage      = var.db_max_allocated_storage
   storage_type               = var.db_storage_type
   iops                       = var.db_iops
+  skip_final_snapshot        = var.db_skip_final_snapshot
+  final_snapshot_identifier  = var.db_final_snapshot_identifier
   tags                       = local.tags
 }
 
