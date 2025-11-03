@@ -13,7 +13,7 @@ provider "aws" {
 }
 
 module "greptile_aws_ec2" {
-  source = "github.com/greptile/akupara//terraform/stacks/aws-ec2?ref=main"
+  source = "github.com/greptileai/akupara//terraform/stacks/aws-ec2?ref=main"
 
   aws_region                   = var.aws_region
   aws_profile                  = var.aws_profile
