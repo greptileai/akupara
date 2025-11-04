@@ -89,5 +89,6 @@ module "redis" {
   replication_group_id       = "${var.name_prefix}-redis"
   node_type                  = var.redis_node_type
   engine_version             = var.redis_engine_version
+  auth_token                 = var.redis_auth_token
   tags                       = local.tags
 }
