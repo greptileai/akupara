@@ -68,6 +68,18 @@ variable "transit_encryption_enabled" {
   default     = true
 }
 
+variable "auth_token" {
+  description = "Redis AUTH token (required when transit encryption is enabled)."
+  type        = string
+  sensitive   = true
+  default     = null
+
+  validation {
+    condition     = (!var.transit_encryption_enabled) || (var.auth_token != null && length(var.auth_token) >= 16)
+    error_message = "Provide a Redis auth_token of at least 16 characters when transit_encryption_enabled is true."
+  }
+}
+
 variable "tags" {
   description = "Additional tags applied to Redis resources."
   type        = map(string)

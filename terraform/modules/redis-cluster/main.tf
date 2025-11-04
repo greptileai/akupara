@@ -57,6 +57,7 @@ resource "aws_elasticache_replication_group" "this" {
   security_group_ids         = [aws_security_group.this.id]
   at_rest_encryption_enabled = var.at_rest_encryption_enabled
   transit_encryption_enabled = var.transit_encryption_enabled
+  auth_token                 = var.transit_encryption_enabled ? var.auth_token : null
   auto_minor_version_upgrade = true
   maintenance_window         = "sun:05:00-sun:06:00"
   apply_immediately          = true

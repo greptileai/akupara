@@ -38,6 +38,7 @@ module "greptile_aws_ec2" {
   db_final_snapshot_identifier = var.db_final_snapshot_identifier
   redis_node_type              = var.redis_node_type
   redis_engine_version         = var.redis_engine_version
+  redis_auth_token             = var.redis_auth_token
   tags                         = var.tags
 }
 
