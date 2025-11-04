@@ -173,6 +173,12 @@ variable "redis_engine_version" {
   default     = "6.2"
 }
 
+variable "redis_auth_token" {
+  description = "Redis auth token (required when transit encryption is enabled)."
+  type        = string
+  sensitive   = true
+}
+
 variable "tags" {
   description = "Tags applied to the stack."
   type        = map(string)
