@@ -87,14 +87,14 @@ echo "Database migrations completed successfully."
 echo "Starting core services..."
 
 # Check if SAML authentication should be enabled
-COMPOSE_PROFILES=""
+COMPOSE_PROFILES="--profile greptile"
 if [ "${AUTH_SAML_ONLY:-false}" = "true" ]; then
     echo "SAML authentication enabled - starting Jackson service..."
-    COMPOSE_PROFILES="--profile saml"
+    COMPOSE_PROFILES="$COMPOSE_PROFILES --profile saml"
 fi
 
 # Prefer using the greptile profile to start all app services together
-docker compose up -d --force-recreate $COMPOSE_PROFILES --profile greptile 
+docker compose $COMPOSE_PROFILES up -d --force-recreate
 
 # Copy SSL certificates to all services if CUSTOM_FILE_PATH is set
 if [ -n "$CUSTOM_FILE_PATH" ]; then
