@@ -289,28 +289,6 @@ services:
     profiles:
       - greptile
 
-  greptile_llmproxy_service:
-    image: ${ECR_REGISTRY}/greptile/llmproxy:${TAG}
-    platform: linux/amd64
-    restart: on-failure
-    environment:
-      - PORT=4000
-      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY:-dummy-llm-proxy-key}
-      - LLM_GATEWAY_CLIENT_SECRET=${LLM_GATEWAY_CLIENT_SECRET}
-      # Map common.env variable names to what the config file expects
-      - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_KEY}
-      - OPENAI_BASE_URL=${OPENAI_API_BASE_URL}
-      - OPENAI_API_KEY=${OPENAI_KEY}
-      - AZURE_OPENAI_BASE_URL=${AZURE_OPENAI_URL}
-      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_KEY}
-      - AZURE_OPENAI_API_VERSION=${AZURE_OPENAI_SUMMARIZER_API_VERSION:-2024-07-18}
-      - DATABASE_URL="set_to_something_different"
-    ports:
-      - "4000:4000"
-    volumes:
-      - ./llmproxy-config.yaml:/app/config.yaml:ro
-
   # ===== SAML Auth Section ======
   # Deployed conditionally based on AUTH_SAML_ONLY environment variable
   greptile_jackson_service:
@@ -350,7 +328,7 @@ services:
     restart: on-failure
     environment:
       - PORT=4000
-      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY:-dummy-llm-proxy-key}
+      - LITELLM_MASTER_KEY=${LLM_PROXY_KEY}
       # Map common.env variable names to what the config file expects
       - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL}
       - ANTHROPIC_API_KEY=${ANTHROPIC_KEY}
