@@ -166,7 +166,7 @@ services:
       retries: 10
 
   greptile_db_migration_job:
-    image: ${ECR_REGISTRY}/db-migration-job:${TAG}
+    image: ${CONTAINER_REGISTRY}/db-migration-job:${GREPTILE_TAG}
     platform: linux/amd64
     depends_on:
       greptile_postgres:
@@ -179,7 +179,7 @@ services:
   # ===== GREPTILE SECTION =====
 
   greptile_web_service:
-    image: ${ECR_REGISTRY}/web:${TAG}
+    image: ${CONTAINER_REGISTRY}/web:${GREPTILE_TAG}
     platform: linux/amd64
     env_file:
       - .env
@@ -194,7 +194,7 @@ services:
       - greptile
 
   greptile_auth_service:
-    image: ${ECR_REGISTRY}/auth:${TAG}
+    image: ${CONTAINER_REGISTRY}/auth:${GREPTILE_TAG}
     platform: linux/amd64
     env_file:
       - .env
@@ -204,7 +204,7 @@ services:
       - greptile
 
   greptile_api_service:
-    image: ${ECR_REGISTRY}/api:${TAG}
+    image: ${CONTAINER_REGISTRY}/api:${GREPTILE_TAG}
     platform: linux/amd64
     restart: on-failure
     env_file:
@@ -218,7 +218,7 @@ services:
       - greptile
 
   greptile_indexer_chunker:
-    image: ${ECR_REGISTRY}/chunker:${TAG}
+    image: ${CONTAINER_REGISTRY}/chunker:${GREPTILE_TAG}
     platform: linux/amd64
     restart: on-failure
     env_file:
@@ -232,7 +232,7 @@ services:
       - greptile
 
   greptile_indexer_summarizer:
-    image: ${ECR_REGISTRY}/summarizer:${TAG}
+    image: ${CONTAINER_REGISTRY}/summarizer:${GREPTILE_TAG}
     platform: linux/amd64
     restart: on-failure
     env_file:
@@ -246,7 +246,7 @@ services:
       - greptile
 
   greptile_webhook_service:
-    image: ${ECR_REGISTRY}/webhook:${TAG}
+    image: ${CONTAINER_REGISTRY}/webhook:${GREPTILE_TAG}
     platform: linux/amd64
     restart: on-failure
     env_file:
@@ -259,7 +259,7 @@ services:
       - greptile
 
   greptile_reviews_service:
-    image: ${ECR_REGISTRY}/reviews:${TAG}
+    image: ${CONTAINER_REGISTRY}/reviews:${GREPTILE_TAG}
     platform: linux/amd64
     privileged: true
     cap_add:
@@ -277,7 +277,7 @@ services:
       - cloned_repositories:/mnt/efs
 
   greptile_jobs_service:
-    image: ${ECR_REGISTRY}/jobs:${TAG}
+    image: ${CONTAINER_REGISTRY}/jobs:${GREPTILE_TAG}
     platform: linux/amd64
     restart: on-failure
     env_file:
@@ -288,6 +288,31 @@ services:
       - "8086:8080"
     profiles:
       - greptile
+
+  greptile_llmproxy_service:
+    image: ${CONTAINER_REGISTRY}/llmproxy:${GREPTILE_TAG}
+    platform: linux/amd64
+    restart: on-failure
+    environment:
+      - PORT=4000
+      - LITELLM_MASTER_KEY=${LLM_PROXY_KEY}
+      # Map common.env variable names to what the config file expects
+      - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_KEY}
+      - OPENAI_BASE_URL=${OPENAI_API_BASE_URL}
+      - OPENAI_API_KEY=${OPENAI_KEY}
+      - AZURE_OPENAI_BASE_URL=${AZURE_OPENAI_URL}
+      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_KEY}
+      - AZURE_OPENAI_API_VERSION=${AZURE_OPENAI_API_VERSION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION_NAME=${AWS_REGION}
+    ports:
+      - "4000:4000"
+    profiles:
+      - greptile
+    volumes:
+      - ./llmproxy-config.yaml:/app/config.yaml:ro
 
   # ===== SAML Auth Section ======
   # Deployed conditionally based on AUTH_SAML_ONLY environment variable
@@ -321,30 +346,6 @@ services:
       - DO_NOT_TRACK=1
     ports:
       - "5225:5225"
-
-  greptile_llmproxy_service:
-    image: ${ECR_REGISTRY}/llmproxy:${TAG}
-    platform: linux/amd64
-    restart: on-failure
-    environment:
-      - PORT=4000
-      - LITELLM_MASTER_KEY=${LLM_PROXY_KEY}
-      # Map common.env variable names to what the config file expects
-      - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_KEY}
-      - OPENAI_BASE_URL=${OPENAI_API_BASE_URL}
-      - OPENAI_API_KEY=${OPENAI_KEY}
-      - AZURE_OPENAI_BASE_URL=${AZURE_OPENAI_URL}
-      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_KEY}
-      - AZURE_OPENAI_API_VERSION=${AZURE_OPENAI_SUMMARIZER_API_VERSION:-2024-07-18}
-      - DATABASE_URL=postgresql://postgres:postgres@greptile_postgres:5432/litellm
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_REGION_NAME=${AWS_REGION_NAME}
-    ports:
-      - "4000:4000"
-    volumes:
-      - ./llmproxy-config.yaml:/app/config.yaml:ro
 
 volumes:
   pgdata: {}
