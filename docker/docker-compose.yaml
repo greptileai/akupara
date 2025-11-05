@@ -269,6 +269,7 @@ services:
       - .env
     environment:
       - PORT=3005
+      - NFS_WORKING_DIR=/mnt/efs
     ports:
       - "3005:3005"
     profiles:
