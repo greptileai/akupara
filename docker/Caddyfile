@@ -20,8 +20,6 @@ http://:3007 {
 	}
 }
 
-// Optional Jackson SAML service
-// Jackson requires a HTTPS connection unless you are running locally
 http://127.0.0.1:5225 {
 	handle /* {
 		reverse_proxy greptile_jackson_service:5225
