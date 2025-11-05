@@ -47,6 +47,7 @@ GREPTILE_SERVICES=(
     greptile_webhook_service
     greptile_reviews_service
     greptile_jobs_service
+    greptile_llmproxy_service
 )
 
 # Check if Docker is accessible

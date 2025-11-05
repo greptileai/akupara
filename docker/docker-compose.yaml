@@ -1,4 +1,4 @@
-services:  
+services:
   # ===== HATCHET SECTION ======
   postgres-hatchet:
     image: postgres:15.6
@@ -14,14 +14,6 @@ services:
       - "5436:5432"
     volumes:
       - hatchet_postgres_data:/var/lib/postgresql/data
-    deploy:
-      resources:
-        limits:
-          cpus: '4'
-          memory: 8G
-        reservations:
-          cpus: '4'
-          memory: 8G
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d hatchet -U hatchet"]
       interval: 10s
@@ -53,7 +45,7 @@ services:
       - hatchet
 
   migration:
-    image: ghcr.io/hatchet-dev/hatchet/hatchet-migrate:v0.67.8
+    image: ghcr.io/hatchet-dev/hatchet/hatchet-migrate:${HATCHET_TAG}
     platform: linux/amd64
     environment:
       DATABASE_URL: ${HATCHET_DATABASE_URL}
@@ -64,7 +56,7 @@ services:
       - hatchet
 
   setup-config:
-    image: ghcr.io/hatchet-dev/hatchet/hatchet-admin:v0.67.8
+    image: ghcr.io/hatchet-dev/hatchet/hatchet-admin:${HATCHET_TAG}
     platform: linux/amd64
     command: /hatchet/hatchet-admin quickstart --skip certs --generated-config-dir /hatchet/config --overwrite=false
     environment:
@@ -91,7 +83,7 @@ services:
       - hatchet
 
   hatchet-engine:
-    image: ghcr.io/hatchet-dev/hatchet/hatchet-engine:v0.67.8
+    image: ghcr.io/hatchet-dev/hatchet/hatchet-engine:${HATCHET_TAG}
     platform: linux/amd64
     command: /hatchet/hatchet-engine --config /hatchet/config
     restart: on-failure
@@ -113,7 +105,7 @@ services:
       - hatchet
 
   hatchet-api:
-    image: ghcr.io/hatchet-dev/hatchet/hatchet-api:v0.67.8
+    image: ghcr.io/hatchet-dev/hatchet/hatchet-api:${HATCHET_TAG}
     platform: linux/amd64
     command: /hatchet/hatchet-api --config /hatchet/config
     restart: on-failure
@@ -131,7 +123,7 @@ services:
       - hatchet
 
   hatchet-frontend:
-    image: ghcr.io/hatchet-dev/hatchet/hatchet-frontend:v0.67.8
+    image: ghcr.io/hatchet-dev/hatchet/hatchet-frontend:${HATCHET_TAG}
     platform: linux/amd64
     restart: on-failure
     profiles:
@@ -269,6 +261,9 @@ services:
   greptile_reviews_service:
     image: ${ECR_REGISTRY}/reviews:${TAG}
     platform: linux/amd64
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
     restart: on-failure
     env_file:
       - .env
@@ -278,6 +273,8 @@ services:
       - "3005:3005"
     profiles:
       - greptile
+    volumes:
+      - cloned_repositories:/mnt/efs
 
   greptile_jobs_service:
     image: ${ECR_REGISTRY}/jobs:${TAG}
@@ -347,6 +344,30 @@ services:
     ports:
       - "5225:5225"
 
+  greptile_llmproxy_service:
+    image: ${ECR_REGISTRY}/llmproxy:${TAG}
+    platform: linux/amd64
+    restart: on-failure
+    environment:
+      - PORT=4000
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY:-dummy-llm-proxy-key}
+      # Map common.env variable names to what the config file expects
+      - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_KEY}
+      - OPENAI_BASE_URL=${OPENAI_API_BASE_URL}
+      - OPENAI_API_KEY=${OPENAI_KEY}
+      - AZURE_OPENAI_BASE_URL=${AZURE_OPENAI_URL}
+      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_KEY}
+      - AZURE_OPENAI_API_VERSION=${AZURE_OPENAI_SUMMARIZER_API_VERSION:-2024-07-18}
+      - DATABASE_URL=postgresql://postgres:postgres@greptile_postgres:5432/litellm
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION_NAME=${AWS_REGION_NAME}
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./llmproxy-config.yaml:/app/config.yaml:ro
+
 volumes:
   pgdata: {}
   shared-mnt: {}
@@ -357,3 +378,4 @@ volumes:
   hatchet_certs: {}
   caddy_data: {}
   caddy_config: {}
+  cloned_repositories: {}

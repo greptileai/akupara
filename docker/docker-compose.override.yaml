@@ -1,0 +1,30 @@
+  # ===== SAML Auth Section ======
+  # [OPTIONAL] Comment out if needed
+  # greptile_jackson_service:
+  #   image: boxyhq/jackson
+  #   hostname: greptile_jackson_service
+  #   platform: linux/amd64
+  #   restart: on-failure
+  #   environment:
+  #     - DB_ENCRYPTION_KEY=${JACKSON_DB_ENCRYPTION_KEY}
+  #     - HOST_URL=${JACKSON_HOST_URL}
+  #     - EXTERNAL_URL=${AUTH_BOXYHQ_URL}
+  #     - JACKSON_API_KEYS=${AUTH_BOXYHQ_API_KEY}
+  #     - SAML_AUDIENCE=${AUTH_BOXYHQ_SAML_ID}
+  #     - CLIENT_SECRET_VERIFIER=${AUTH_BOXYHQ_SAML_SECRET}
+  #     - NEXTAUTH_ADMIN_CREDENTIALS=${JACKSON_ADMIN_CREDENTIALS}
+  #     - PUBLIC_KEY=${JACKSON_PUBLIC_KEY}
+  #     - PRIVATE_KEY=${JACKSON_PRIVATE_KEY}
+  #     - NEXTAUTH_URL=${AUTH_BOXYHQ_URL}
+  #     - NEXTAUTH_SECRET=${JWT_SECRET}
+  #     - IDP_ENABLED=${JACKSON_IDP_ENABLED:-true}
+  #     - DB_URL=${DATABASE_URL}
+  #     - DB_ENGINE=sql
+  #     - DB_TYPE=postgres
+  #     - DB_SSL_REJECT_UNAUTHORIZED=false
+  #     - DB_SSL=true
+  #     - PORT=5225
+  #     - AWS_REGION=${AWS_REGION}
+  #     - DO_NOT_TRACK=1
+  #   ports:
+  #     - "5225:5225"
