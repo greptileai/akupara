@@ -12,7 +12,7 @@ fi
 echo "Starting Hatchet services..."
 
 # Start only Hatchet-related services using the hatchet profile
-docker compose up -d --force-recreate --profile hatchet
+docker compose --profile hatchet up -d --force-recreate
 
 echo "Waiting for services to be healthy..."
 
