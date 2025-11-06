@@ -165,7 +165,7 @@ services:
       timeout: 5s
       retries: 10
     profiles:
-      - with-db
+      - greptile
 
   greptile_db_migration_job:
     image: ${CONTAINER_REGISTRY}/db-migration-job:${GREPTILE_TAG}

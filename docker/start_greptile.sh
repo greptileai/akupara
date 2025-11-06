@@ -59,22 +59,18 @@ if ! grep -q "^LLM_PROXY_KEY=.\+" .env; then
     fi
 fi
 
-echo "Starting Greptile services..."
+COMPOSE_PROFILES="--profile greptile"
 
-# Start database migrations first
+echo "Starting Database..."
+docker compose $COMPOSE_PROFILES up -d greptile_postgres
+
 echo "Running database migrations..."
-docker compose up -d greptile_postgres
-
-# Check if migrations were successful
-docker compose up greptile_db_migration_job --wait || { echo "DB migration failed"; exit 1; }
-
+docker compose $COMPOSE_PROFILES up greptile_db_migration_job --wait || { echo "DB migration failed"; exit 1; }
 echo "Database migrations completed successfully."
 
-# Start the core services
-echo "Starting core services..."
+echo "Starting Greptile services..."
 
 # Check if SAML authentication should be enabled
-COMPOSE_PROFILES="--profile greptile"
 if [ "${AUTH_SAML_ONLY:-false}" = "true" ]; then
     echo "SAML authentication enabled - starting Jackson service..."
     COMPOSE_PROFILES="$COMPOSE_PROFILES --profile saml"
