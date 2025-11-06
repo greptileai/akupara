@@ -93,6 +93,11 @@ if [ "${AUTH_SAML_ONLY:-false}" = "true" ]; then
     COMPOSE_PROFILES="$COMPOSE_PROFILES --profile saml"
 fi
 
+# Only add --profile  with-db if the env var DB_HOST equals greptile-postgres
+if [ "${DB_HOST:-greptile-postgres}" = "greptile-postgres" ]; then
+    COMPOSE_PROFILES="$COMPOSE_PROFILES --profile with-db"
+fi
+
 # Prefer using the greptile profile to start all app services together
 docker compose $COMPOSE_PROFILES up -d --force-recreate
 
