@@ -177,6 +177,8 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - DIRECT_URL=${DATABASE_URL}
       - VECTOR_DB_URL=${VECTOR_DB_URL}
+    profiles:
+      - greptile
 
   # ===== GREPTILE SECTION =====
 
