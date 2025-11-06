@@ -9,6 +9,30 @@ if ! docker info > /dev/null 2>&1; then
     exit 1
 fi
 
+# Check if .env exists, if not create from .env.example
+if [ ! -f ".env" ]; then
+    if [ -f ".env.example" ]; then
+        echo "Creating .env from .env.example..."
+        cp .env.example .env
+        echo ".env file created successfully"
+    else
+        echo "Error: .env.example file not found"
+        exit 1
+    fi
+fi
+
+# Check if Caddyfile exists, if not create from Caddyfile.example
+if [ ! -f "Caddyfile" ]; then
+    if [ -f "Caddyfile.example" ]; then
+        echo "Creating Caddyfile from Caddyfile.example..."
+        cp Caddyfile.example Caddyfile
+        echo "Caddyfile created successfully"
+    else
+        echo "Error: Caddyfile.example file not found"
+        exit 1
+    fi
+fi
+
 echo "Starting Hatchet services..."
 
 # Start only Hatchet-related services using the hatchet profile
@@ -35,11 +59,7 @@ echo "You can access the Hatchet UI at http://localhost:8080"
 
 echo "Preparing to set Hatchet token"
 
-# Check if .env file exists - secrets should never be written to .env.example
-if [ ! -f ".env" ]; then
-    echo "Error: .env file not found. Please create one from .env.example before running Hatchet."
-    exit 1
-fi
+# Set the env file path - it should exist at this point since we created it earlier if needed
 env_file=".env"
 
 # If HATCHET_CLIENT_TOKEN already exists and has a non-empty value, do not change it

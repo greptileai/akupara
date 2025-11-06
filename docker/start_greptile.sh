@@ -1,15 +1,24 @@
 #!/bin/bash
 
+# Function to generate random 32-character string
+generate_random_string() {
+    LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 32
+}
+
+# Check if Docker is accessible
+if ! docker info > /dev/null 2>&1; then
+    echo "Error: Cannot access Docker. Please check that:"
+    echo "1. Docker is installed and running"
+    echo "2. Your user has permission to access Docker (try running 'docker ps')"
+    echo "3. You are a member of the 'docker' group (you can add yourself with 'sudo usermod -aG docker $USER')"
+    exit 1
+fi
+
 # Check if .env file exists
 if [ ! -f .env ]; then
     echo "Error: .env file not found in docker directory. Please create one from .env.example"
     exit 1
 fi
-
-# Function to generate random 32-character string
-generate_random_string() {
-    LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 32
-}
 
 # Populate JWT_SECRET if not already set or empty
 if ! grep -q "^JWT_SECRET=.\+" .env; then
@@ -50,28 +59,6 @@ if ! grep -q "^LLM_PROXY_KEY=.\+" .env; then
     fi
 fi
 
-# Define the list of services (kept for explicit starts, default to profile)
-GREPTILE_SERVICES=(
-    greptile_api_service
-    greptile_auth_service
-    greptile_indexer_chunker
-    greptile_indexer_summarizer
-    greptile_web_service
-    greptile_webhook_service
-    greptile_reviews_service
-    greptile_jobs_service
-    greptile_llmproxy_service
-)
-
-# Check if Docker is accessible
-if ! docker info > /dev/null 2>&1; then
-    echo "Error: Cannot access Docker. Please check that:"
-    echo "1. Docker is installed and running"
-    echo "2. Your user has permission to access Docker (try running 'docker ps')"
-    echo "3. You are a member of the 'docker' group (you can add yourself with 'sudo usermod -aG docker $USER')"
-    exit 1
-fi
-
 echo "Starting Greptile services..."
 
 # Start database migrations first
@@ -100,23 +87,6 @@ fi
 
 # Prefer using the greptile profile to start all app services together
 docker compose $COMPOSE_PROFILES up -d --force-recreate
-
-# Copy SSL certificates to all services if CUSTOM_FILE_PATH is set
-if [ -n "$CUSTOM_FILE_PATH" ]; then
-    echo "Copying SSL certificates to services..."
-    for service in "${GREPTILE_SERVICES[@]}"
-    do
-        # Get the container ID for the service
-        container_id=$(docker compose ps -q $service 2>/dev/null)
-        if [ -n "$container_id" ]; then
-            echo "Copying to $service (container: $container_id)..."
-            docker exec $container_id mkdir -p /app/custom_data
-            docker cp $CUSTOM_FILE_PATH $container_id:/app/custom_data/
-        else
-            echo "Warning: Could not find container for service $service"
-        fi
-    done
-fi
 
 echo "All Greptile services have been started."
 echo "You can check service status with: docker compose ps"
