@@ -45,56 +45,6 @@ cd /opt/akupara/docker/
 
 **Note**: The `Caddyfile` is used to reverse proxy the hatchet frontend to the EC2 instance. You can use this to reverse proxy custom domain names to the EC2 instance as well. See `/docker/docs/CustomDomains.md` for more details. 
 
-Create a `common.env` file based on the template provided by `common.env.example` file. For this step - you will need to register a new **Github App**.
-
-### Step 4: Register a GitHub App.
-1. Go to your GitHub organization settings > Developer Settings > GitHub Apps > New GitHub App. If you have problems finding it, refer to the [official guide](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app#registering-a-github-app)
-2. Set the following values:
-    - GitHub App name: `Greptile` (or your preferred name)
-    - Homepage URL: You can just write `https://greptile.com`
-    - Callback URL: `http://<ip_address>:3000/api/auth/callback/github-enterprise` (for self-hosted) or `http://<ip_address>:3000/api/auth/callback/github` (for cloud github)
-    - Setup URL: `http://<ip_address>:3000/auth/github`
-      - Make sure to select "Redirect on update".
-    - Webhook URL: `http://<ip_address>:3010/webhook`
-    - Webhook secret: Generate a secure random string
-      - On unix environments, you can use `openssl rand -hex 32` to generate the secure random string.
-3. Under "Permissions", ensure the following are enabled:
-    - Repository permissions:
-      - Contents: `Read-only`
-      - Metadata: `Read-only`
-      - Issues: `Read & Write`
-      - Checks: `Read & Write`
-      - Pull requests: `Read & Write`
-      - Commit statuses: `Read & Write`
-    - Organization permissions:  
-      - Members: `Read-only`
-    - Account permissions
-      - Email Addresses: `Read-only` (Only required if using this GitHub App to sign in to Greptile (sign in with GitHub))
-4. Under "Where can this GitHub App be installed?" make sure to select `Any account`
-5. Click "Create GitHub App"
-6. After having created the GitHub App, click on "General" in the left menu bar.
-    - Create a Client Secret by clicking on "Generate a new client secret"
-      - Ensure to make a copy of this client secret and store it for later
-    - Scroll down to "Private keys" and click on "Generate a private key".
-      - This will download a file containing a private key required further below.
-7. Click on "Permissions & events" in the left menu bar.
-    - Select the following events:
-      - Issues
-      - Issue Comment
-      - Pull Request
-      - Pull Request Review
-      - Pull Request Review Comment
-      - Pull Request Review Thread
-8. Click on "Optional features" in the left menu bar.
-    - Ensure to `Opt-out` of "User-to-server token expiration"
-9. Gather the following values below to populate the relevant fields in the `common.env` file:
-    - App ID
-    - App URL 
-    - App Name 
-    - Client ID
-    - Client secret (generated above)
-    - Webhook secret (generated above)
-    - Private key (generated above)
 
 The following variables should be filled using the values we got from the terraform output.
 
@@ -108,7 +58,7 @@ The `DB_PASSWORD` should be the password we set for the RDS database in the `ter
 
 The rest of the variables should be filled based on the `common.env.example` file. You will notice fields for BOXYHQ/SAML that do not need to be changed if you do not want to set up SSO. If you do want to set up SSO, refer to `docker/docs/SSO.md` for more information. 
 
-### Step 5: Start the services
+### Step 4: Start the services
 
 First start the hatchet services
 ```bash
@@ -144,6 +94,7 @@ greptile_indexer_summarizer
 greptile_web_service
 greptile_reviews_service
 greptile_webhook_service
+greptile_llmproxy_service
 greptile_jobs_service
 hatchet-api
 hatchet-engine
