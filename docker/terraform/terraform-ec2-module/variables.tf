@@ -39,3 +39,27 @@ variable "iam_instance_profile" {
   type        = string
   default     = null
 }
+
+variable "root_volume_size" {
+  type        = number
+  default     = 40
+  description = "Size in GiB for the root volume."
+}
+
+variable "root_volume_type" {
+  type        = string
+  default     = "gp3"
+  description = "EBS volume type for the root volume (used when root_volume_size is set)."
+}
+
+variable "root_volume_delete_on_termination" {
+  type        = bool
+  default     = true
+  description = "Whether the root volume should be deleted when the instance is terminated."
+}
+
+variable "root_volume_encrypted" {
+  type        = bool
+  default     = true
+  description = "Whether the root volume should be encrypted."
+}

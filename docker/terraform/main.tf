@@ -60,18 +60,47 @@ variable "instance_type" {
   description = "Instance type for EC2"
 }
 
+variable "ec2_root_volume_size" {
+  type        = number
+  default     = 40
+  description = "Size in GiB for the EC2 root volume."
+}
+
+variable "ec2_root_volume_type" {
+  type        = string
+  default     = "gp3"
+  description = "EBS volume type for the EC2 root volume (applied when ec2_root_volume_size is set)."
+}
+
+variable "ec2_root_volume_delete_on_termination" {
+  type        = bool
+  default     = true
+  description = "Whether the root volume is deleted when the instance terminates."
+}
+
+variable "ec2_root_volume_encrypted" {
+  type        = bool
+  default     = true
+  description = "Whether the root volume uses encryption."
+}
+
 ###################################################
 # 1) EC2 INSTANCE (via module)
 ###################################################
 
 module "greptile_ec2" {
-  source     = "./terraform-ec2-module"
-  vpc_id     = var.vpc_id
-  subnet_id  = var.ec2_subnet_id
-  ami_id     = var.ami_id
-  key_name   = var.key_name
-  name_prefix    = "greptile"
-  instance_type  = var.instance_type
+  source        = "./terraform-ec2-module"
+  vpc_id        = var.vpc_id
+  subnet_id     = var.ec2_subnet_id
+  ami_id        = var.ami_id
+  key_name      = var.key_name
+  name_prefix   = "greptile"
+  instance_type = var.instance_type
+
+  root_volume_size                  = var.ec2_root_volume_size
+  root_volume_type                  = var.ec2_root_volume_type
+  root_volume_delete_on_termination = var.ec2_root_volume_delete_on_termination
+  root_volume_encrypted             = var.ec2_root_volume_encrypted
 
   # This module is associated_public_ip_address = true in its code
   # so it will have a public IP in that subnet if it's a public subnet
@@ -91,7 +120,7 @@ output "ec2_public_ip" {
 # Create IAM role for EC2
 resource "aws_iam_role" "ec2_bedrock_role" {
   name = "greptile-ec2-bedrock-role"
-  
+
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -141,10 +170,10 @@ resource "aws_security_group" "rds_sg" {
   vpc_id      = var.vpc_id
 
   ingress {
-    description     = "Allow Postgres from the EC2 SG"
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
+    description = "Allow Postgres from the EC2 SG"
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
     # reference the SG from the EC2 module
     security_groups = [module.greptile_ec2.security_group_id]
   }
@@ -162,32 +191,32 @@ resource "aws_security_group" "rds_sg" {
 }
 
 resource "aws_db_instance" "postgres" {
-  identifier               = "greptile-postgres-db"
-  engine                   = "postgres"
-  engine_version           = "16.3"
-  instance_class           = "db.m5.large" 
-  allocated_storage        = 400
-  max_allocated_storage    = 1000            # Maximum storage threshold 1000 GiB
-  username                = "postgres"
-  password                = var.db_password
-  db_subnet_group_name     = aws_db_subnet_group.rds_subnets.name
-  vpc_security_group_ids   = [aws_security_group.rds_sg.id]
-  
+  identifier             = "greptile-postgres-db"
+  engine                 = "postgres"
+  engine_version         = "16.10"
+  instance_class         = "db.m5.large"
+  allocated_storage      = 400
+  max_allocated_storage  = 1000 # Maximum storage threshold 1000 GiB
+  username               = "postgres"
+  password               = var.db_password
+  db_subnet_group_name   = aws_db_subnet_group.rds_subnets.name
+  vpc_security_group_ids = [aws_security_group.rds_sg.id]
+
   # Storage configuration
-  storage_type            = "io1"           # Provisioned IOPS SSD
-  iops                    = 3000            # Provisioned IOPS value
-  storage_encrypted       = true            # Encryption enabled
-  
+  storage_type      = "io1" # Provisioned IOPS SSD
+  iops              = 3000  # Provisioned IOPS value
+  storage_encrypted = true  # Encryption enabled
+
   # Additional settings
-  deletion_protection     = false            # Set to true if needed
-  multi_az               = false            # Multi-AZ set to No
-  parameter_group_name    = "default.postgres16"
-  
+  deletion_protection  = false # Set to true if needed
+  multi_az             = false # Multi-AZ set to No
+  parameter_group_name = "default.postgres16"
+
   # Performance Insights
-  performance_insights_enabled = false      # Turned off
-  
+  performance_insights_enabled = false # Turned off
+
   # Skip final snapshot when destroying
-  skip_final_snapshot     = true
+  skip_final_snapshot = true
 
   tags = {
     Name = "greptile-rds-instance"
@@ -244,13 +273,13 @@ resource "aws_security_group" "redis_sg" {
 
 resource "aws_elasticache_replication_group" "redis" {
   replication_group_id = "greptile-redis"
-  description         = "Redis cluster for Greptile"
-  engine             = "redis"
-  engine_version     = "6.2"
-  node_type          = "cache.t3.micro"
-  num_cache_clusters = 1
-  subnet_group_name  = aws_elasticache_subnet_group.redis_subnets.name
-  security_group_ids = [aws_security_group.redis_sg.id]
+  description          = "Redis cluster for Greptile"
+  engine               = "redis"
+  engine_version       = "6.2"
+  node_type            = "cache.t3.micro"
+  num_cache_clusters   = 1
+  subnet_group_name    = aws_elasticache_subnet_group.redis_subnets.name
+  security_group_ids   = [aws_security_group.redis_sg.id]
 
   at_rest_encryption_enabled = false
   transit_encryption_enabled = false

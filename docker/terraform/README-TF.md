@@ -20,6 +20,8 @@
 
 `instance_type`: This should be the instance type that will be used for the EC2 instance. We recommend using a `t3.2xlarge` for most use cases.
 
+`ec2_root_volume_size`: Size of the root filesystem in GiB. The default is 40 GiB to leave room for Docker images and logs.
+
 
 ### Step 2: Run the following commands to launch the infrastructure.
 ```bash
@@ -104,4 +106,3 @@ rabbitmq
 ```
 
 You can now access the greptile frontend at `http://<ec2-public-ip>:3000`!
-
