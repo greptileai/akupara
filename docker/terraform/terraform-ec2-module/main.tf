@@ -21,7 +21,7 @@ resource "aws_security_group" "this" {
     from_port   = 3000
     to_port     = 3000
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # Open to the "world" (your vpc)
+    cidr_blocks = ["0.0.0.0/0"] # Open to the "world" (your vpc)
   }
 
   ingress {
@@ -29,7 +29,7 @@ resource "aws_security_group" "this" {
     from_port   = 3010
     to_port     = 3010
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # Open to the "world" (your vpc)
+    cidr_blocks = ["0.0.0.0/0"] # Open to the "world" (your vpc)
   }
 
   ingress {
@@ -37,7 +37,7 @@ resource "aws_security_group" "this" {
     from_port   = 8080
     to_port     = 8080
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # Open to the "world" (your vpc)
+    cidr_blocks = ["0.0.0.0/0"] # Open to the "world" (your vpc)
   }
 
   ingress {
@@ -45,7 +45,7 @@ resource "aws_security_group" "this" {
     from_port   = 7077
     to_port     = 7077
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # Open to the "world" (your vpc)
+    cidr_blocks = ["0.0.0.0/0"] # Open to the "world" (your vpc)
   }
 
   egress {
@@ -63,13 +63,19 @@ resource "aws_instance" "this" {
   vpc_security_group_ids = [aws_security_group.this.id]
   key_name               = var.key_name
 
-  iam_instance_profile   = var.iam_instance_profile
+  iam_instance_profile = var.iam_instance_profile
 
   # Optionally associate a public IP (only works if subnet is in a public subnet)
   associate_public_ip_address = true
+
+  root_block_device {
+    volume_size           = var.root_volume_size
+    volume_type           = var.root_volume_type
+    delete_on_termination = var.root_volume_delete_on_termination
+    encrypted             = var.root_volume_encrypted
+  }
 
   tags = {
     Name = "${var.name_prefix}-ec2"
   }
 }
-

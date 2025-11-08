@@ -1,0 +1,27 @@
+http://:8080 {
+	handle /api/* {
+		reverse_proxy hatchet-api:8080
+	}
+
+	handle /* {
+		reverse_proxy hatchet-frontend:80
+	}
+}
+
+http://:3000 {
+	handle /* {
+		reverse_proxy greptile_web_service:3000
+	}
+}
+
+http://:3007 {
+	handle /* {
+		reverse_proxy greptile_webhook_service:3007
+	}
+}
+
+http://127.0.0.1:5225 {
+	handle /* {
+		reverse_proxy greptile_jackson_service:5225
+	}
+}

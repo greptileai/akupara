@@ -1,40 +1,161 @@
 ## Setting up Greptile using Docker Compose
 
-The greptile app requires running an EC2 instance. The docker compose includes the greptile services as well as the dependencies required by Greptile - these dependencies are: Postgres, Hatchet (consisting of multiple services) and optionally Redis. We also have a terraform script that spins up Postgres and Redis in the `docker/terraform` directory as AWS managed services instead of running containers.
-Please follow [this](https://github.com/greptileai/akupara/blob/main/docker/terraform/README-TF.md) doc as a guide to bring up Greptile.
+The easiest way to deploy Greptile is on a single VM using Docker Compose. This approach is ideal for teams with ≤100 members. For larger teams or higher scalability requirements, we recommend checking out the [Kubernetes deployment](/greptile-helm/README.md).
 
+### Requirements
 
-Networking items to verify once the EC2 is set up
+#### Hardware & Infrastructure
+* One Linux server (we recommend an EC2 instance on AWS) with the following specifications:
+  * 16-32GB RAM
+  * 4-8 CPUs
+  * Disk space: 20GB + size of the repositories you want to use Greptile on
+  * (Optional but recommended) A managed Postgres database (e.g., AWS RDS) with 20GB storage
 
-- The following ports are open to inbound traffic
-    - `3000` - this is to allow access to the greptile front-end
-    - `3007` - this is to allow github webhooks to hit our github service
-    - `8080` - this is for hatchet front end (useful for debugging the repository indexing process)
-    - `80` and `443` - required for HTTP and HTTPS traffic
-    - `5225` - Optional but required for BoxyHQ if using SAML/SSO sign in
- 
-- The EC2 machine has the following IAM role: `AmazonBedrockFullAccess`. This can be added under `EC2 > Instances > Security > IAM role`. This is needed for the application to make calls to the LLM
+#### Software
+* Docker 23.x or newer
+* Docker Compose v2.5.0 or newer
 
-## Troubleshooting Checklist
-Here are some things that can cause failed PR reviews
-- One or more required services isn't running. `docker ps` should be used to verify that the following 7 services are running
-   - `greptile_api_service`
-   - `greptile_auth_service`
-   - `greptile_indexer_chunker`
-   - `greptile_indexer_summarizer`
-   - `greptile_web_service`
-   - `greptile_webhook_service`
-   - `greptile_reviews_service`
-   - `greptile_jobs_service`
-   - Note: if a service is down you can spin it back up using `docker-compose up -d --force-recreate <service_name>`
-- The Github token that is in the DB is expired/invalid. You can see the github token on file by entering the postgres db and running `select * from "Integration";`. This token can be updated in-place if invalid.
-- Amazon Bedrock quota is too low, causing llm errors in the `greptile_api_service` logs. Here is what you can use to check quotas. We recommend at least 100 requests per minute and 800,000 tokens per minute.
+#### LLM Access
+* Access to the following LLM models:
+  * Latest Anthropic models or latest AWS Bedrock models
+  * (Recommended but not required) Latest OpenAI models
+  * Recommended rate limits: At least 100 requests per minute and 800,000 tokens per minute
 
+#### Container Registry
+* Access to Greptile's container images (shared with you by Greptile)
+
+### Networking Requirements 
+The following ports should be open to inbound traffic:
+- `80` and `443` - Required for HTTP and HTTPS traffic
+- `3000` - Default port to access the Greptile front-end
+- `3007` - Default port Greptile listens on for GitHub/GitLab webhook events
+- `8080` - Default port for the Hatchet front-end (useful for debugging and checking system health)
+- `5225` - Default port for SAML/SSO portal (only required if using SSO)
+
+## Quickstart
+
+### 1. Clone the Repository
+Clone or copy this repository (akupara) onto your Linux server and navigate to the docker directory:
+```bash
+cd docker
 ```
-For Sonnet V2:
-# Requests per minute
-aws service-quotas get-service-quota --quota-code L-1D3E59A3 --service-code bedrock --region us-east-1
 
-# Tokens per minute
-aws service-quotas get-service-quota --quota-code L-FF8B4E28 --service-code bedrock --region us-east-1
+### 2. Start Hatchet
+Hatchet is the internal task queue used by Greptile.
+
+1. Run the Hatchet startup script:
+   ```bash
+   ./start_hatchet.sh
+   ```
+   This will download the public images for Hatchet.
+
+2. Once Hatchet has started, verify it's running by accessing the Hatchet admin portal at:
+   ```
+   http://<your_server_ip>:8080
+   ```
+
+3. Log in with the default credentials:
+   - **Username:** `admin@example.com`
+   - **Password:** `Admin123!!`
+
+4. **Important:** Go to **Settings > General > Members** and change the default admin password.
+
+### 3. Authenticate with Container Registry
+Ensure you can pull Greptile's images by logging in to the appropriate container registry:
+
+**Option A: Docker Hub**
+```bash
+echo "<TOKEN>" | docker login --username <DOCKERHUB_USERNAME> --password-stdin
+```
+
+**Option B: AWS ECR**
+1. Share your AWS account ID with the Greptile team
+2. Log in to AWS ECR:
+   ```bash
+   aws ecr get-login-password --region us-east-1 \
+   | docker login --username AWS --password-stdin <greptile_ecr_registry>
+   ```
+
+### 4. Configure Environment Variables
+Open the `.env` file, which contains all the environment variables to configure Greptile and Hatchet.
+
+1. **Required:** Search for all lines containing `TODO:` - these environment variables must be updated before starting Greptile.
+
+2. **If using AWS Bedrock:** Create an access key ID and secret access key under **AWS Bedrock > API Keys > Long-term API Keys** first.
+
+3. **If using your own self-managed Postgres:**
+   - Double-check all environment variables starting with `DB_` and update them accordingly.
+
+4. **If using self-hosted GitHub:**
+   - You will need to create a GitHub App on your instance and copy some values into the `.env` file.
+   - For a detailed guide, see [GitHubApp.md](docs/GitHubApp.md).
+
+### 5. Start Greptile Services
+Once you have filled out the environment variables in `.env`, start the Greptile services:
+```bash
+./start_greptile.sh
+```
+
+### 6. Verify Services
+Check if all containers started successfully:
+```bash
+docker compose ps
+```
+
+You should see the following services running:
+* caddy
+* greptile_api_service
+* greptile_auth_service
+* greptile_indexer_chunker
+* greptile_indexer_summarizer
+* greptile_jobs_service
+* greptile_llmproxy_service
+* greptile_reviews_service
+* greptile_web_service
+* greptile_webhook_service
+* hatchet-api
+* hatchet-engine
+* hatchet-frontend
+* postgres-hatchet
+* rabbitmq
+* greptile_postgres_db
+
+## Further Configuration
+
+### Custom Domains
+To set up custom domains and DNS, please refer to the guide: [CustomDomains.md](docs/CustomDomains.md)
+
+### Single Sign-On (SSO)
+To set up SSO, please refer to the guide: [SSO.md](docs/SSO.md)
+
+## Troubleshooting
+
+Here is a checklist of steps to follow when troubleshooting Greptile:
+
+### 1. Check Service Status
+Verify that all services are running successfully:
+```bash
+docker compose ps
+```
+
+### 2. Inspect Service Logs
+If a service is restarting periodically, check its logs:
+```bash
+docker compose logs <service_name>
+```
+
+Example:
+```bash
+docker compose logs greptile_web_service
+```
+
+Share any error messages with the Greptile support team.
+
+### 3. Monitor Workflow Health
+Open the Hatchet portal at `http://<your_server_ip>:8080` and check if certain workflows are failing at a higher rate (e.g., reviews workflow).
+
+### 4. Debug LLM Issues
+When debugging errors related to LLM calls, check the logs of the LLM proxy service that routes all LLM calls to the providers:
+```bash
+docker compose logs greptile_llmproxy_service
 ```
