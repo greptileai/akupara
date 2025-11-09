@@ -8,12 +8,13 @@ Root module that deploys the Greptile Docker-based experience on a single EC2 in
 - Exposes standard outputs consumed by helm/helmfile stages
 
 ## Usage
+### Backend conventions
+S3 bucket names are globally unique, so each customer must supply their own state bucket and (optionally) DynamoDB lock table. We standardize only the object key: `tf/org/<team>/<stack>.tfstate`. Populate the placeholders in `backend.conf.example` to follow this structure:
+
 ```bash
 cd terraform/stacks/aws-ec2
-terraform init \
-  -backend-config="bucket=<state-bucket>" \
-  -backend-config="key=customers/acme/aws-ec2.tfstate" \
-  -backend-config="region=us-east-1"
+cp backend.conf.example backend.conf # fill in bucket/region/profile/table
+terraform init -backend-config=backend.conf
 terraform apply -var-file="terraform.tfvars"
 ```
 

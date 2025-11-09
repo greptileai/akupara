@@ -1,0 +1,6 @@
+# Copy to backend.conf and fill in with real values before running terraform init
+bucket         = "<customer>-tf-state"
+key            = "tf/org/<team>/<stack>.tfstate"
+region         = "us-east-1"
+dynamodb_table = "<customer>-tf-locks"
+profile        = "default"
