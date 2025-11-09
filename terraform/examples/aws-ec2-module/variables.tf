@@ -47,6 +47,30 @@ variable "instance_type" {
   default     = "t3.large"
 }
 
+variable "ec2_root_volume_size" {
+  description = "Root volume size (GiB) for the EC2 instance."
+  type        = number
+  default     = 40
+}
+
+variable "ec2_root_volume_type" {
+  description = "Root volume EBS type."
+  type        = string
+  default     = "gp3"
+}
+
+variable "ec2_root_volume_delete_on_termination" {
+  description = "Delete the root volume when the instance is terminated."
+  type        = bool
+  default     = true
+}
+
+variable "ec2_root_volume_encrypted" {
+  description = "Encrypt the EC2 root volume."
+  type        = bool
+  default     = true
+}
+
 variable "associate_public_ip" {
   description = "Assign a public IP to the EC2 instance."
   type        = bool
@@ -134,7 +158,7 @@ variable "db_instance_class" {
 variable "db_engine_version" {
   description = "PostgreSQL version."
   type        = string
-  default     = "16.3"
+  default     = "16.10"
 }
 
 variable "db_storage_type" {

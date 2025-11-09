@@ -42,6 +42,30 @@ variable "associate_public_ip" {
   default     = true
 }
 
+variable "root_volume_size" {
+  description = "Size of the EC2 root volume in GiB."
+  type        = number
+  default     = 40
+}
+
+variable "root_volume_type" {
+  description = "EBS volume type for the root volume."
+  type        = string
+  default     = "gp3"
+}
+
+variable "root_volume_delete_on_termination" {
+  description = "Whether the root volume should be deleted when the instance is terminated."
+  type        = bool
+  default     = true
+}
+
+variable "root_volume_encrypted" {
+  description = "Whether to encrypt the root volume."
+  type        = bool
+  default     = true
+}
+
 variable "ingress_rules" {
   description = "Ingress rules applied to the security group. When null, sensible defaults are used."
   type = list(object({

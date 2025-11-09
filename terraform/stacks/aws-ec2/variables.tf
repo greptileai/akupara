@@ -47,6 +47,30 @@ variable "instance_type" {
   default     = "t3.large"
 }
 
+variable "ec2_root_volume_size" {
+  description = "Root volume size for the EC2 instance (GiB)."
+  type        = number
+  default     = 40
+}
+
+variable "ec2_root_volume_type" {
+  description = "Root volume EBS type."
+  type        = string
+  default     = "gp3"
+}
+
+variable "ec2_root_volume_delete_on_termination" {
+  description = "Whether to delete the root volume when the instance terminates."
+  type        = bool
+  default     = true
+}
+
+variable "ec2_root_volume_encrypted" {
+  description = "Whether to encrypt the EC2 root volume."
+  type        = bool
+  default     = true
+}
+
 variable "associate_public_ip" {
   description = "Whether the EC2 instance should receive a public IP."
   type        = bool
