@@ -40,17 +40,21 @@ resource "aws_iam_role_policy_attachment" "bedrock_full_access" {
 # EC2 host running Docker compose
 ############################################################
 module "ec2_app" {
-  source               = "../../modules/ec2-app"
-  vpc_id               = var.vpc_id
-  subnet_id            = var.ec2_subnet_id
-  ami_id               = var.ami_id
-  instance_type        = var.instance_type
-  key_name             = var.key_name
-  name_prefix          = var.name_prefix
-  iam_instance_profile = aws_iam_instance_profile.ec2.name
-  associate_public_ip  = var.associate_public_ip
-  ingress_rules        = var.ingress_rules
-  tags                 = local.tags
+  source                            = "../../modules/ec2-app"
+  vpc_id                            = var.vpc_id
+  subnet_id                         = var.ec2_subnet_id
+  ami_id                            = var.ami_id
+  instance_type                     = var.instance_type
+  key_name                          = var.key_name
+  name_prefix                       = var.name_prefix
+  iam_instance_profile              = aws_iam_instance_profile.ec2.name
+  associate_public_ip               = var.associate_public_ip
+  root_volume_size                  = var.ec2_root_volume_size
+  root_volume_type                  = var.ec2_root_volume_type
+  root_volume_delete_on_termination = var.ec2_root_volume_delete_on_termination
+  root_volume_encrypted             = var.ec2_root_volume_encrypted
+  ingress_rules                     = var.ingress_rules
+  tags                              = local.tags
 }
 
 ############################################################
