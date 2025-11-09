@@ -15,6 +15,11 @@ db_password        = "CHANGEME"
 redis_node_type    = "cache.t3.micro"
 redis_engine_version = "6.2"
 redis_auth_token   = "PLEASE-GENERATE-A-SECURE-TOKEN"
+db_backup_retention_period = 14
+# db_backup_window = "03:00-04:00"
+# db_maintenance_window = "Mon:04:00-Mon:05:00"
+# db_copy_tags_to_snapshot = true
+# db_delete_automated_backups = false
 # Optional custom ingress rules example:
 # ingress_rules = [
 #   {

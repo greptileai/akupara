@@ -38,6 +38,11 @@ module "greptile_aws_ec2" {
   db_engine_version                     = var.db_engine_version
   db_storage_type                       = var.db_storage_type
   db_iops                               = var.db_iops
+  db_backup_retention_period            = var.db_backup_retention_period
+  db_backup_window                      = var.db_backup_window
+  db_maintenance_window                 = var.db_maintenance_window
+  db_copy_tags_to_snapshot              = var.db_copy_tags_to_snapshot
+  db_delete_automated_backups           = var.db_delete_automated_backups
   db_skip_final_snapshot                = var.db_skip_final_snapshot
   db_final_snapshot_identifier          = var.db_final_snapshot_identifier
   redis_node_type                       = var.redis_node_type

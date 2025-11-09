@@ -119,7 +119,7 @@ variable "kms_key_id" {
 variable "backup_retention_period" {
   description = "Backup retention in days."
   type        = number
-  default     = 7
+  default     = 14
 }
 
 variable "backup_window" {
@@ -132,6 +132,18 @@ variable "maintenance_window" {
   description = "Preferred maintenance window."
   type        = string
   default     = "Mon:04:00-Mon:05:00"
+}
+
+variable "copy_tags_to_snapshot" {
+  description = "Copy resource tags to automated snapshots."
+  type        = bool
+  default     = true
+}
+
+variable "delete_automated_backups" {
+  description = "Delete automated backups immediately when the instance is removed. Set to false to retain them for the retention period."
+  type        = bool
+  default     = false
 }
 
 variable "performance_insights_enabled" {
