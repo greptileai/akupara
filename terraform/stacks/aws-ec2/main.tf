@@ -76,8 +76,13 @@ module "rds" {
   max_allocated_storage      = var.db_max_allocated_storage
   storage_type               = var.db_storage_type
   iops                       = var.db_iops
+  backup_retention_period    = var.db_backup_retention_period
+  backup_window              = var.db_backup_window
+  maintenance_window         = var.db_maintenance_window
   skip_final_snapshot        = var.db_skip_final_snapshot
   final_snapshot_identifier  = var.db_final_snapshot_identifier
+  copy_tags_to_snapshot      = var.db_copy_tags_to_snapshot
+  delete_automated_backups   = var.db_delete_automated_backups
   tags                       = local.tags
 }
 

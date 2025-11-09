@@ -75,6 +75,8 @@ resource "aws_db_instance" "this" {
   performance_insights_enabled = var.performance_insights_enabled
   skip_final_snapshot          = var.skip_final_snapshot
   final_snapshot_identifier    = var.skip_final_snapshot ? null : coalesce(var.final_snapshot_identifier, "${var.db_identifier}-final")
+  copy_tags_to_snapshot        = var.copy_tags_to_snapshot
+  delete_automated_backups     = var.delete_automated_backups
   port                         = 5432
 
   tags = merge({

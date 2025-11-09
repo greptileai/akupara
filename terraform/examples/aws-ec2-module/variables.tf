@@ -173,6 +173,36 @@ variable "db_iops" {
   default     = 3000
 }
 
+variable "db_backup_retention_period" {
+  description = "Number of days to retain automated RDS backups."
+  type        = number
+  default     = 14
+}
+
+variable "db_backup_window" {
+  description = "Preferred RDS backup window."
+  type        = string
+  default     = "03:00-04:00"
+}
+
+variable "db_maintenance_window" {
+  description = "Preferred RDS maintenance window."
+  type        = string
+  default     = "Mon:04:00-Mon:05:00"
+}
+
+variable "db_copy_tags_to_snapshot" {
+  description = "Copy tags to automated RDS snapshots."
+  type        = bool
+  default     = true
+}
+
+variable "db_delete_automated_backups" {
+  description = "Delete automated backups immediately when destroying the DB instance."
+  type        = bool
+  default     = false
+}
+
 variable "db_skip_final_snapshot" {
   description = "Skip the final snapshot when destroying the DB."
   type        = bool
