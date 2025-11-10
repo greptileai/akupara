@@ -77,6 +77,12 @@ variable "associate_public_ip" {
   default     = true
 }
 
+variable "enable_greptile_bootstrap" {
+  description = "Render Amazon Linux user data that installs Docker Compose and systemd units for the Greptile stack."
+  type        = bool
+  default     = true
+}
+
 variable "ingress_rules" {
   description = "Ingress rules for the EC2 security group."
   type = list(object({

@@ -88,3 +88,9 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "user_data" {
+  description = "Optional user data script to run on instance launch."
+  type        = string
+  default     = null
+}
