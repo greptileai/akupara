@@ -1,0 +1,312 @@
+services:
+  # ===== HATCHET SECTION ======
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    platform: linux/amd64
+    hostname: "rabbitmq"
+    ports:
+      - "5673:5672" # RabbitMQ
+      - "15673:15672" # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    volumes:
+      - "hatchet_rabbitmq_data:/var/lib/rabbitmq"
+      - "hatchet_rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf"
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    profiles:
+      - hatchet
+
+  migration:
+    image: ghcr.io/hatchet-dev/hatchet/hatchet-migrate:${HATCHET_TAG}
+    platform: linux/amd64
+    environment:
+      DATABASE_URL: ${HATCHET_DATABASE_URL}
+    profiles:
+      - hatchet
+
+  setup-config:
+    image: ghcr.io/hatchet-dev/hatchet/hatchet-admin:${HATCHET_TAG}
+    platform: linux/amd64
+    command: /hatchet/hatchet-admin quickstart --skip certs --generated-config-dir /hatchet/config --overwrite=false
+    environment:
+      DATABASE_URL: ${HATCHET_DATABASE_URL}
+      DATABASE_POSTGRES_PORT: "${HATCHET_DATABASE_PORT}"
+      DATABASE_POSTGRES_HOST: "${HATCHET_DATABASE_HOST}"
+      SERVER_TASKQUEUE_RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/
+      SERVER_AUTH_COOKIE_DOMAIN: localhost:8080
+      SERVER_AUTH_COOKIE_INSECURE: "t"
+      SERVER_GRPC_BIND_ADDRESS: "0.0.0.0"
+      SERVER_GRPC_INSECURE: "t"
+      SERVER_GRPC_BROADCAST_ADDRESS: "hatchet-engine:7070"
+    volumes:
+      - hatchet_certs:/hatchet/certs
+      - hatchet_config:/hatchet/config
+    depends_on:
+      migration:
+        condition: service_completed_successfully
+      rabbitmq:
+        condition: service_healthy
+    profiles:
+      - hatchet
+
+  hatchet-engine:
+    image: ghcr.io/hatchet-dev/hatchet/hatchet-engine:${HATCHET_TAG}
+    platform: linux/amd64
+    command: /hatchet/hatchet-engine --config /hatchet/config
+    restart: on-failure
+    depends_on:
+      setup-config:
+        condition: service_completed_successfully
+      migration:
+        condition: service_completed_successfully
+    ports:
+      - "7077:7070"
+    environment:
+      DATABASE_URL: ${HATCHET_DATABASE_URL}
+      SERVER_GRPC_BIND_ADDRESS: "0.0.0.0"
+      SERVER_GRPC_INSECURE: "t"
+    volumes:
+      - hatchet_certs:/hatchet/certs
+      - hatchet_config:/hatchet/config
+    profiles:
+      - hatchet
+
+  hatchet-api:
+    image: ghcr.io/hatchet-dev/hatchet/hatchet-api:${HATCHET_TAG}
+    platform: linux/amd64
+    command: /hatchet/hatchet-api --config /hatchet/config
+    restart: on-failure
+    depends_on:
+      setup-config:
+        condition: service_completed_successfully
+      migration:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: ${HATCHET_DATABASE_URL}
+    volumes:
+      - hatchet_certs:/hatchet/certs
+      - hatchet_config:/hatchet/config
+    profiles:
+      - hatchet
+
+  hatchet-frontend:
+    image: ghcr.io/hatchet-dev/hatchet/hatchet-frontend:${HATCHET_TAG}
+    platform: linux/amd64
+    restart: on-failure
+    profiles:
+      - hatchet
+
+  caddy:
+    image: caddy:2.7.6-alpine
+    platform: linux/amd64
+    restart: on-failure
+    ports:
+      - 8080:8080
+      - 443:443
+      - 80:80
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - hatchet-api
+      - hatchet-frontend
+    profiles:
+      - hatchet
+
+  greptile_db_migration_job:
+    image: ${CONTAINER_REGISTRY}/db-migration-job:${GREPTILE_TAG}
+    platform: linux/amd64
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - DIRECT_URL=${DATABASE_URL}
+      - VECTOR_DB_URL=${VECTOR_DB_URL}
+    profiles:
+      - greptile
+
+  # ===== GREPTILE SECTION =====
+
+  greptile_web_service:
+    image: ${CONTAINER_REGISTRY}/web:${GREPTILE_TAG}
+    platform: linux/amd64
+    env_file:
+      - .env
+    environment:
+      - AUTH_BOXYHQ_SAML_ISSUER=${AUTH_BOXYHQ_URL}
+      - BILLING_ENABLED=${BILLING}
+      - NEXT_PUBLIC_BILLING=${BILLING}
+      - NEXT_PUBLIC_ANALYTICS=${ANALYTICS}
+    ports:
+      - "3000:3000"
+    profiles:
+      - greptile
+
+  greptile_auth_service:
+    image: ${CONTAINER_REGISTRY}/auth:${GREPTILE_TAG}
+    platform: linux/amd64
+    env_file:
+      - .env
+    ports:
+      - "3001:3001"
+    profiles:
+      - greptile
+
+  greptile_api_service:
+    image: ${CONTAINER_REGISTRY}/api:${GREPTILE_TAG}
+    platform: linux/amd64
+    restart: on-failure
+    env_file:
+      - .env
+    environment:
+      - URL=${API_URL}
+      - PORT=3002
+    ports:
+      - "3002:3002"
+    profiles:
+      - greptile
+
+  greptile_indexer_chunker:
+    image: ${CONTAINER_REGISTRY}/chunker:${GREPTILE_TAG}
+    platform: linux/amd64
+    restart: on-failure
+    env_file:
+      - .env
+    environment:
+      - PARENT_DIR=/mnt/data/
+      - PORT=3003
+    volumes:
+      - shared-mnt:/mnt
+    profiles:
+      - greptile
+
+  greptile_indexer_summarizer:
+    image: ${CONTAINER_REGISTRY}/summarizer:${GREPTILE_TAG}
+    platform: linux/amd64
+    restart: on-failure
+    env_file:
+      - .env
+    environment:
+      - PARENT_DIR=/mnt/data/
+      - PORT=3004
+    volumes:
+      - shared-mnt:/mnt
+    profiles:
+      - greptile
+
+  greptile_webhook_service:
+    image: ${CONTAINER_REGISTRY}/webhook:${GREPTILE_TAG}
+    platform: linux/amd64
+    restart: on-failure
+    env_file:
+      - .env
+    environment:
+      - PORT=3007
+    ports:
+      - "3007:3007"
+    profiles:
+      - greptile
+
+  greptile_reviews_service:
+    image: ${CONTAINER_REGISTRY}/reviews:${GREPTILE_TAG}
+    platform: linux/amd64
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+    restart: on-failure
+    env_file:
+      - .env
+    environment:
+      - PORT=3005
+      - NFS_WORKING_DIR=/mnt/efs
+    ports:
+      - "3005:3005"
+    profiles:
+      - greptile
+    volumes:
+      - cloned_repositories:/mnt/efs
+
+  greptile_jobs_service:
+    image: ${CONTAINER_REGISTRY}/jobs:${GREPTILE_TAG}
+    platform: linux/amd64
+    restart: on-failure
+    env_file:
+      - .env
+    environment:
+      - PORT=8080
+    ports:
+      - "8086:8080"
+    profiles:
+      - greptile
+
+  greptile_llmproxy_service:
+    image: ${CONTAINER_REGISTRY}/llmproxy:${GREPTILE_TAG}
+    platform: linux/amd64
+    restart: on-failure
+    environment:
+      - PORT=4000
+      - LITELLM_MASTER_KEY=${LLM_PROXY_KEY}
+      # Map common.env variable names to what the config file expects
+      - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_KEY}
+      - OPENAI_BASE_URL=${OPENAI_API_BASE_URL}
+      - OPENAI_API_KEY=${OPENAI_KEY}
+      - AZURE_OPENAI_BASE_URL=${AZURE_OPENAI_URL}
+      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_KEY}
+      - AZURE_OPENAI_API_VERSION=${AZURE_OPENAI_API_VERSION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION_NAME=${AWS_REGION}
+    ports:
+      - "4000:4000"
+    profiles:
+      - greptile
+    volumes:
+      - ./llmproxy-config.yaml:/app/config.yaml:ro
+
+  # ===== SAML Auth Section ======
+  # Deployed conditionally based on AUTH_SAML_ONLY environment variable
+  greptile_jackson_service:
+    image: boxyhq/jackson
+    hostname: greptile_jackson_service
+    platform: linux/amd64
+    restart: on-failure
+    profiles:
+      - saml
+    environment:
+      - DB_ENCRYPTION_KEY=${JACKSON_DB_ENCRYPTION_KEY}
+      - HOST_URL=${JACKSON_HOST_URL}
+      - EXTERNAL_URL=${AUTH_BOXYHQ_URL}
+      - JACKSON_API_KEYS=${AUTH_BOXYHQ_API_KEY}
+      - SAML_AUDIENCE=${AUTH_BOXYHQ_SAML_ID}
+      - CLIENT_SECRET_VERIFIER=${AUTH_BOXYHQ_SAML_SECRET}
+      - NEXTAUTH_ADMIN_CREDENTIALS=${JACKSON_ADMIN_CREDENTIALS}
+      - PUBLIC_KEY=${JACKSON_PUBLIC_KEY}
+      - PRIVATE_KEY=${JACKSON_PRIVATE_KEY}
+      - NEXTAUTH_URL=${AUTH_BOXYHQ_URL}
+      - NEXTAUTH_SECRET=${JWT_SECRET}
+      - IDP_ENABLED=${JACKSON_IDP_ENABLED:-true}
+      - DB_URL=${DATABASE_URL}
+      - DB_ENGINE=sql
+      - DB_TYPE=postgres
+      - DB_SSL_REJECT_UNAUTHORIZED=false
+      - DB_SSL=${JACKSON_DB_SSL}
+      - PORT=5225
+      - AWS_REGION=${AWS_REGION}
+      - DO_NOT_TRACK=1
+    ports:
+      - "5225:5225"
+
+volumes:
+  shared-mnt: {}
+  hatchet_rabbitmq_data: {}
+  hatchet_rabbitmq.conf: {}
+  hatchet_config: {}
+  hatchet_certs: {}
+  caddy_data: {}
+  caddy_config: {}
+  cloned_repositories: {}
