@@ -83,6 +83,24 @@ variable "enable_greptile_bootstrap" {
   default     = true
 }
 
+variable "secrets_bucket" {
+  description = "S3 bucket that stores the rendered Greptile .env file (optional)."
+  type        = string
+  default     = null
+}
+
+variable "secrets_object_key" {
+  description = "Object key inside the secrets bucket that contains the .env file."
+  type        = string
+  default     = null
+}
+
+variable "secrets_kms_key_arn" {
+  description = "Optional KMS key ARN used to encrypt the secrets object (grants kms:Decrypt when set)."
+  type        = string
+  default     = null
+}
+
 variable "ingress_rules" {
   description = "Ingress rules for the EC2 security group."
   type = list(object({
