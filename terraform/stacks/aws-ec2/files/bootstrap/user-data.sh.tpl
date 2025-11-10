@@ -34,6 +34,13 @@ EOF_PULL
 chmod 750 /opt/greptile/pull-secrets.sh
 chown root:docker /opt/greptile/pull-secrets.sh
 
+cat <<EOF_BOOTSTRAP > /opt/greptile/bootstrap.env
+SECRETS_BUCKET="${secrets_bucket}"
+SECRETS_OBJECT_KEY="${secrets_object_key}"
+EOF_BOOTSTRAP
+chmod 640 /opt/greptile/bootstrap.env
+chown root:docker /opt/greptile/bootstrap.env
+
 cat <<'EOF_UNIT' | base64 -d > /etc/systemd/system/greptile-compose.service
 ${systemd_unit_b64}
 EOF_UNIT

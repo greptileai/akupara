@@ -8,6 +8,8 @@ locals {
     env_example_b64    = base64encode(file("${path.module}/files/bootstrap/.env.aws.example"))
     pull_secrets_b64   = base64encode(file("${path.module}/files/bootstrap/pull-secrets.sh"))
     systemd_unit_b64   = base64encode(file("${path.module}/files/bootstrap/greptile-compose.service"))
+    secrets_bucket     = coalesce(var.secrets_bucket, "")
+    secrets_object_key = coalesce(var.secrets_object_key, "")
   }) : null
 }
 
@@ -41,6 +43,45 @@ resource "aws_iam_instance_profile" "ec2" {
 resource "aws_iam_role_policy_attachment" "bedrock_full_access" {
   role       = aws_iam_role.ec2_bedrock.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonBedrockFullAccess"
+}
+
+resource "aws_iam_role_policy" "greptile_secrets" {
+  count = var.secrets_bucket != null && var.secrets_object_key != null ? 1 : 0
+  role  = aws_iam_role.ec2_bedrock.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = concat([
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:GetObjectVersion"
+        ]
+        Resource = "arn:aws:s3:::${var.secrets_bucket}/${var.secrets_object_key}"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:ListBucket"
+        ]
+        Resource = "arn:aws:s3:::${var.secrets_bucket}"
+      }
+      ], var.secrets_kms_key_arn != null ? [
+      {
+        Effect = "Allow"
+        Action = [
+          "kms:Decrypt"
+        ]
+        Resource = var.secrets_kms_key_arn
+        Condition = {
+          StringEquals = {
+            "kms:ViaService" = "s3.${var.aws_region}.amazonaws.com"
+          }
+        }
+      }
+    ] : [])
+  })
 }
 
 ############################################################
