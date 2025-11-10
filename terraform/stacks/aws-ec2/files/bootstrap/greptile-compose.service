@@ -1,0 +1,17 @@
+[Unit]
+Description=Greptile Docker Compose Stack
+Wants=network-online.target
+After=network-online.target docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/greptile
+ExecStartPre=/opt/greptile/pull-secrets.sh
+ExecStart=/usr/bin/docker compose --project-directory /opt/greptile up -d
+ExecStop=/usr/bin/docker compose --project-directory /opt/greptile down
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target

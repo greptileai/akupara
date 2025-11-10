@@ -2,6 +2,13 @@ locals {
   tags = merge({
     Stack = "aws-ec2"
   }, var.tags)
+
+  bootstrap_user_data = var.enable_greptile_bootstrap ? templatefile("${path.module}/files/bootstrap/user-data.sh.tpl", {
+    docker_compose_b64 = base64encode(file("${path.module}/files/bootstrap/docker-compose.aws.yml"))
+    env_example_b64    = base64encode(file("${path.module}/files/bootstrap/.env.aws.example"))
+    pull_secrets_b64   = base64encode(file("${path.module}/files/bootstrap/pull-secrets.sh"))
+    systemd_unit_b64   = base64encode(file("${path.module}/files/bootstrap/greptile-compose.service"))
+  }) : null
 }
 
 ############################################################
@@ -54,6 +61,7 @@ module "ec2_app" {
   root_volume_delete_on_termination = var.ec2_root_volume_delete_on_termination
   root_volume_encrypted             = var.ec2_root_volume_encrypted
   ingress_rules                     = var.ingress_rules
+  user_data                         = local.bootstrap_user_data
   tags                              = local.tags
 }
 
