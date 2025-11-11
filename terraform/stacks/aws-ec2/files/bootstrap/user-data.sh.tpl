@@ -56,7 +56,12 @@ echo "[greptile-bootstrap] Updating base image packages"
 dnf update -y >/dev/null
 
 echo "[greptile-bootstrap] Installing Docker Engine + Compose plugin"
-dnf install -y docker docker-compose-plugin awscli >/dev/null
+dnf install -y dnf-plugins-core awscli >/dev/null
+if ! dnf repolist | grep -q "docker-ce-stable"; then
+  dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo >/dev/null 2>&1
+fi
+dnf remove -y docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine >/dev/null 2>&1 || true
+dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin >/dev/null
 
 systemctl enable --now docker
 usermod -aG docker ec2-user || true
