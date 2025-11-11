@@ -10,6 +10,7 @@ locals {
     systemd_unit_b64   = base64encode(file("${path.module}/files/bootstrap/greptile-compose.service"))
     secrets_bucket     = coalesce(var.secrets_bucket, "")
     secrets_object_key = coalesce(var.secrets_object_key, "")
+    aws_region         = var.aws_region
   }) : null
 }
 
@@ -81,6 +82,27 @@ resource "aws_iam_role_policy" "greptile_secrets" {
         }
       }
     ] : [])
+  })
+}
+
+resource "aws_iam_role_policy" "greptile_ecr_pull" {
+  name = "${var.name_prefix}-allow-ecr-pull"
+  role = aws_iam_role.ec2_bedrock.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage"
+        ]
+        Resource = "*"
+      }
+    ]
   })
 }
 
