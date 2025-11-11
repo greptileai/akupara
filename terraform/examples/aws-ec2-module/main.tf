@@ -30,6 +30,10 @@ module "greptile_aws_ec2" {
   ec2_root_volume_delete_on_termination = var.ec2_root_volume_delete_on_termination
   ec2_root_volume_encrypted             = var.ec2_root_volume_encrypted
   ingress_rules                         = var.ingress_rules
+  enable_greptile_bootstrap             = var.enable_greptile_bootstrap
+  secrets_bucket                        = var.secrets_bucket
+  secrets_object_key                    = var.secrets_object_key
+  secrets_kms_key_arn                   = var.secrets_kms_key_arn
   db_password                           = var.db_password
   db_username                           = var.db_username
   db_allocated_storage                  = var.db_allocated_storage
