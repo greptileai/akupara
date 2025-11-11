@@ -3,6 +3,55 @@ set -euo pipefail
 exec > >(tee /var/log/greptile-bootstrap.log | logger -t greptile-bootstrap) 2>&1
 set -x
 
+login_greptile_ecr() {
+  local env_file="/opt/greptile/.env"
+  local default_region="${aws_region}"
+
+  if [[ ! -f "$env_file" ]]; then
+    echo "[greptile-bootstrap] Skipping ECR login; $env_file not present yet"
+    return 0
+  fi
+
+  local registry_line
+  registry_line=$(grep -E '^CONTAINER_REGISTRY=' "$env_file" | tail -n1 || true)
+  if [[ -z "$registry_line" ]]; then
+    echo "[greptile-bootstrap] No CONTAINER_REGISTRY defined; skipping ECR login"
+    return 0
+  fi
+
+  local registry_value
+  registry_value="${registry_line#CONTAINER_REGISTRY=}"
+  registry_value="${registry_value%$'\r'}"
+  registry_value="${registry_value%\"}"
+  registry_value="${registry_value#\"}"
+  registry_value="${registry_value%\'}"
+  registry_value="${registry_value#\'}"
+
+  local registry_host="${registry_value%%/*}"
+  if [[ -z "$registry_host" ]]; then
+    echo "[greptile-bootstrap] Could not parse registry host from CONTAINER_REGISTRY=$registry_value"
+    return 0
+  fi
+
+  if [[ $registry_host != *.dkr.ecr.*.amazonaws.com ]]; then
+    echo "[greptile-bootstrap] Registry $registry_host is not an AWS ECR endpoint; skipping ECR login"
+    return 0
+  fi
+
+  local registry_region="${registry_host#*.dkr.ecr.}"
+  registry_region="${registry_region%.amazonaws.com}"
+  if [[ -z "$registry_region" || "$registry_region" == "$registry_host" ]]; then
+    registry_region="$default_region"
+  fi
+
+  echo "[greptile-bootstrap] Logging into ECR registry $registry_host (region $registry_region)"
+  if aws ecr get-login-password --region "$registry_region" | docker login --username AWS --password-stdin "$registry_host"; then
+    echo "[greptile-bootstrap] ECR login succeeded"
+  else
+    echo "[greptile-bootstrap] WARNING: ECR login failed; Greptile images may not pull" >&2
+  fi
+}
+
 echo "[greptile-bootstrap] Updating base image packages"
 dnf update -y >/dev/null
 
@@ -47,6 +96,7 @@ EOF_UNIT
 chmod 644 /etc/systemd/system/greptile-compose.service
 
 /opt/greptile/pull-secrets.sh || true
+login_greptile_ecr || true
 
 if [[ -f /opt/greptile/.env ]]; then
   echo "[greptile-bootstrap] Attempting initial docker compose pull"
