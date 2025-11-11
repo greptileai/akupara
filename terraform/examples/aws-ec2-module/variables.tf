@@ -125,6 +125,30 @@ variable "ingress_rules" {
   ]
 }
 
+variable "enable_greptile_bootstrap" {
+  description = "Render the Amazon Linux bootstrap that installs Docker, pulls secrets, and manages docker-compose via systemd."
+  type        = bool
+  default     = true
+}
+
+variable "secrets_bucket" {
+  description = "S3 bucket that stores the rendered Greptile .env file (required when bootstrap is enabled)."
+  type        = string
+  default     = null
+}
+
+variable "secrets_object_key" {
+  description = "Key inside the secrets bucket that points to the .env payload."
+  type        = string
+  default     = null
+}
+
+variable "secrets_kms_key_arn" {
+  description = "Optional KMS key ARN if the secrets object is encrypted."
+  type        = string
+  default     = null
+}
+
 variable "db_password" {
   description = "Password for PostgreSQL."
   type        = string

@@ -15,6 +15,12 @@ db_password        = "CHANGEME"
 redis_node_type    = "cache.t3.micro"
 redis_engine_version = "6.2"
 redis_auth_token   = "PLEASE-GENERATE-A-SECURE-TOKEN"
+# Enable the Amazon Linux bootstrap (installs Docker, systemd unit, pulls secrets/ECR)
+enable_greptile_bootstrap = true
+# Point to the encrypted .env you uploaded that contains CONTAINER_REGISTRY, DB creds, Redis auth, etc.
+secrets_bucket     = "acme-greptile-secrets"
+secrets_object_key = "envs/prod/.env"
+# secrets_kms_key_arn = "arn:aws:kms:us-east-1:123456789012:key/abc12345-6789-4def-abcd-0123456789ab"
 db_backup_retention_period = 14
 # db_backup_window = "03:00-04:00"
 # db_maintenance_window = "Mon:04:00-Mon:05:00"
