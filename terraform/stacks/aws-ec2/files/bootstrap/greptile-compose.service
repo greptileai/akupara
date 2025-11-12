@@ -5,13 +5,14 @@ After=network-online.target docker.service
 Requires=docker.service
 
 [Service]
-Type=oneshot
-RemainAfterExit=yes
+Type=simple
 WorkingDirectory=/opt/greptile
 ExecStartPre=/opt/greptile/pull-secrets.sh
-ExecStart=/usr/bin/docker compose --project-directory /opt/greptile up -d
+ExecStart=/usr/bin/docker compose --project-directory /opt/greptile up
 ExecStop=/usr/bin/docker compose --project-directory /opt/greptile down
 TimeoutStartSec=0
+Restart=on-failure
+RestartSec=30
 
 [Install]
 WantedBy=multi-user.target
