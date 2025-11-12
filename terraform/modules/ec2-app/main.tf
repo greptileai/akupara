@@ -39,6 +39,7 @@ resource "aws_instance" "this" {
   iam_instance_profile        = var.iam_instance_profile
   associate_public_ip_address = var.associate_public_ip
   user_data                   = var.user_data
+  user_data_base64            = var.user_data_base64
   user_data_replace_on_change = true
 
   root_block_device {
