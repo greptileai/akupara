@@ -20,14 +20,14 @@ login_greptile_ecr() {
   fi
 
   local registry_value
-  registry_value="${registry_line#CONTAINER_REGISTRY=}"
-  registry_value="${registry_value%$'\r'}"
-  registry_value="${registry_value%\"}"
-  registry_value="${registry_value#\"}"
-  registry_value="${registry_value%\'}"
-  registry_value="${registry_value#\'}"
+  registry_value="$${registry_line#CONTAINER_REGISTRY=}"
+  registry_value="$${registry_value%$'\r'}"
+  registry_value="$${registry_value%\"}"
+  registry_value="$${registry_value#\"}"
+  registry_value="$${registry_value%\'}"
+  registry_value="$${registry_value#\'}"
 
-  local registry_host="${registry_value%%/*}"
+  local registry_host="$${registry_value%%/*}"
   if [[ -z "$registry_host" ]]; then
     echo "[greptile-bootstrap] Could not parse registry host from CONTAINER_REGISTRY=$registry_value"
     return 0
@@ -38,8 +38,8 @@ login_greptile_ecr() {
     return 0
   fi
 
-  local registry_region="${registry_host#*.dkr.ecr.}"
-  registry_region="${registry_region%.amazonaws.com}"
+  local registry_region="$${registry_host#*.dkr.ecr.}"
+  registry_region="$${registry_region%.amazonaws.com}"
   if [[ -z "$registry_region" || "$registry_region" == "$registry_host" ]]; then
     registry_region="$default_region"
   fi
