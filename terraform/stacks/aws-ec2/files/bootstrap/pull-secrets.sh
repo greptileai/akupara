@@ -23,16 +23,16 @@ if [[ -n "$BUCKET" && -n "$OBJECT" ]]; then
     chown root:docker "$ENV_FILE" || true
     downloaded=true
   else
-    echo "[greptile-bootstrap] WARNING: Failed to download s3://${BUCKET}/${OBJECT}; falling back to existing .env" >&2
+    echo "[greptile-bootstrap] ERROR: Failed to download s3://${BUCKET}/${OBJECT}" >&2
     rm -f "$TMP_FILE"
   fi
+else
+  echo "[greptile-bootstrap] WARNING: SECRETS_BUCKET/SECRETS_OBJECT_KEY not set; relying on existing /opt/greptile/.env" >&2
 fi
 
 if [[ ! -f "$ENV_FILE" ]]; then
-  echo "[greptile-bootstrap] No .env found; copying placeholder example so systemd has a file to bind." >&2
-  cp "$EXAMPLE_FILE" "$ENV_FILE"
-  chmod 640 "$ENV_FILE"
-  chown root:docker "$ENV_FILE" || true
+  echo "[greptile-bootstrap] FATAL: /opt/greptile/.env does not exist. Upload secrets to S3 and rerun." >&2
+  exit 1
 elif [[ $downloaded == false ]]; then
   echo "[greptile-bootstrap] Reusing existing /opt/greptile/.env"
 fi
