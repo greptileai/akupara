@@ -12,6 +12,8 @@ locals {
     secrets_object_key = coalesce(var.secrets_object_key, "")
     aws_region         = var.aws_region
   }) : null
+
+  bootstrap_user_data_base64 = local.bootstrap_user_data != null ? base64gzip(local.bootstrap_user_data) : null
 }
 
 ############################################################
@@ -124,7 +126,7 @@ module "ec2_app" {
   root_volume_delete_on_termination = var.ec2_root_volume_delete_on_termination
   root_volume_encrypted             = var.ec2_root_volume_encrypted
   ingress_rules                     = var.ingress_rules
-  user_data                         = local.bootstrap_user_data
+  user_data_base64                  = local.bootstrap_user_data_base64
   tags                              = local.tags
 }
 

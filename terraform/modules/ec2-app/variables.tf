@@ -94,3 +94,9 @@ variable "user_data" {
   type        = string
   default     = null
 }
+
+variable "user_data_base64" {
+  description = "Base64-encoded user data (useful for pre-compressed payloads). Overrides user_data when set."
+  type        = string
+  default     = null
+}
