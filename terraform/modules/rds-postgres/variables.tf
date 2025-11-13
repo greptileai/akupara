@@ -36,6 +36,11 @@ variable "db_name" {
   description = "Initial database name."
   type        = string
   default     = "greptile"
+
+  validation {
+    condition     = can(regex("^[A-Za-z][A-Za-z0-9]{0,62}$", var.db_name))
+    error_message = "db_name must start with a letter, contain only alphanumeric characters, and be at most 63 characters long."
+  }
 }
 
 variable "db_username" {
