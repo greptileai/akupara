@@ -12,6 +12,7 @@ ec2_root_volume_size = 40
 # ec2_root_volume_delete_on_termination = true
 # ec2_root_volume_encrypted = true
 db_password        = "CHANGEME"
+db_name            = "acmegreptile"
 redis_node_type    = "cache.t3.micro"
 redis_engine_version = "6.2"
 redis_auth_token   = "PLEASE-GENERATE-A-SECURE-TOKEN"

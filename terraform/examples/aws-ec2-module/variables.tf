@@ -161,6 +161,12 @@ variable "db_username" {
   default     = "postgres"
 }
 
+variable "db_name" {
+  description = "Initial PostgreSQL database name."
+  type        = string
+  default     = "greptile"
+}
+
 variable "db_allocated_storage" {
   description = "Initial DB storage (GiB)."
   type        = number
