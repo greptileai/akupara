@@ -140,7 +140,7 @@ module "rds" {
   subnet_ids                 = var.private_subnet_ids
   allowed_security_group_ids = [module.ec2_app.security_group_id]
   db_identifier              = "${var.name_prefix}-postgres-db"
-  db_name                    = var.name_prefix
+  db_name                    = var.db_name
   db_username                = var.db_username
   db_password                = var.db_password
   engine_version             = var.db_engine_version

@@ -36,6 +36,7 @@ module "greptile_aws_ec2" {
   secrets_kms_key_arn                   = var.secrets_kms_key_arn
   db_password                           = var.db_password
   db_username                           = var.db_username
+  db_name                               = var.db_name
   db_allocated_storage                  = var.db_allocated_storage
   db_max_allocated_storage              = var.db_max_allocated_storage
   db_instance_class                     = var.db_instance_class
