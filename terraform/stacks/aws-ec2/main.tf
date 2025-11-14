@@ -6,6 +6,7 @@ locals {
   bootstrap_user_data = var.enable_greptile_bootstrap ? templatefile("${path.module}/files/bootstrap/user-data.sh.tpl", {
     docker_compose_b64 = base64encode(file("${path.module}/files/bootstrap/docker-compose.aws.yml"))
     env_example_b64    = base64encode(file("${path.module}/files/bootstrap/.env.aws.example"))
+    caddyfile_b64      = base64encode(file("${path.module}/files/bootstrap/Caddyfile"))
     pull_secrets_b64   = base64encode(file("${path.module}/files/bootstrap/pull-secrets.sh"))
     systemd_unit_b64   = base64encode(file("${path.module}/files/bootstrap/greptile-compose.service"))
     secrets_bucket     = coalesce(var.secrets_bucket, "")
