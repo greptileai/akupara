@@ -93,6 +93,12 @@ EOF_CADDY
 chmod 640 /opt/greptile/Caddyfile
 chown root:docker /opt/greptile/Caddyfile
 
+cat <<'EOF_LLMPROXY' | base64 -d > /opt/greptile/llmproxy-config.yaml
+${llmproxy_config_b64}
+EOF_LLMPROXY
+chmod 640 /opt/greptile/llmproxy-config.yaml
+chown root:docker /opt/greptile/llmproxy-config.yaml
+
 cat <<'EOF_PULL' | base64 -d > /opt/greptile/pull-secrets.sh
 ${pull_secrets_b64}
 EOF_PULL
