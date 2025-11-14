@@ -59,6 +59,11 @@ echo "[greptile-bootstrap] Installing Docker Engine + Compose plugin"
 dnf install -y dnf-plugins-core awscli >/dev/null
 if ! dnf repolist | grep -q "docker-ce-stable"; then
   dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo >/dev/null 2>&1
+  if [[ -f /etc/yum.repos.d/docker-ce.repo ]]; then
+    # Amazon Linux 2023 reports a releasever like 2023.9.20251110, which Docker does not publish.
+    # Force every docker-ce repo stanza to reference the CentOS 9 path instead.
+    sed -i 's|\$releasever|9|g' /etc/yum.repos.d/docker-ce.repo
+  fi
 fi
 dnf remove -y docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine >/dev/null 2>&1 || true
 dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin >/dev/null
