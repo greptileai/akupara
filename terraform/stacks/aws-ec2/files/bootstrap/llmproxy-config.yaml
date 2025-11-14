@@ -1,0 +1,69 @@
+model_list:
+  - model_name: claude-*
+    litellm_params:
+      model: anthropic/claude-*
+      api_base: "os.environ/ANTHROPIC_BASE_URL"
+      api_key: "os.environ/ANTHROPIC_API_KEY"
+  - model_name: gpt-*
+    litellm_params:
+      model: openai/gpt-*
+      api_base: "os.environ/OPENAI_BASE_URL"
+      api_key: "os.environ/OPENAI_API_KEY"
+  - model_name: o*
+    litellm_params:
+      model: openai/o*
+      api_base: "os.environ/OPENAI_BASE_URL"
+      api_key: "os.environ/OPENAI_API_KEY"
+  - model_name: summarizer-pool
+    litellm_params:
+      model: openai/gpt-5-nano
+      api_base: "os.environ/OPENAI_BASE_URL"
+      api_key: "os.environ/OPENAI_API_KEY"
+  - model_name: text-embedding-*
+    litellm_params:
+      model: openai/text-embedding-*
+      api_base: "os.environ/OPENAI_BASE_URL"
+      api_key: "os.environ/OPENAI_API_KEY"
+  - model_name: bedrock/*
+    litellm_params:
+      model: bedrock/*
+      aws_access_key_id: "os.environ/AWS_ACCESS_KEY_ID"
+      aws_secret_access_key: "os.environ/AWS_SECRET_ACCESS_KEY"
+      aws_region_name: "os.environ/AWS_REGION_NAME"
+  # Example of Azure OpenAI models
+  # - model_name: summarizer-pool
+  #   litellm_params:
+  #     model: azure/gpt-4o-mini
+  #     api_base: "os.environ/AZURE_OPENAI_BASE_URL"
+  #     api_key: "os.environ/AZURE_OPENAI_API_KEY"
+  #     api_version: "os.environ/AZURE_OPENAI_API_VERSION"
+  #   model_info:
+  #     base_model: gpt-4o-mini
+
+litellm_settings:
+  drop_params: True
+  num_retries: 3 # retry call 3 times on each model_name
+  allowed_fails: 3
+  callbacks: ["custom_callbacks.proxy_handler_instance"]
+
+router_settings:
+  routing_strategy: simple-shuffle # Literal["simple-shuffle", "least-busy", "usage-based-routing","latency-based-routing"]
+  model_group_alias:
+    "memory-embeddings": "text-embedding-3-small"
+    "indexer-embeddings": "text-embedding-ada-002"
+    "similarity-embeddings": "text-embedding-3-small"
+    "jobs-summarizer": "gpt-5"
+    "memory-clustering": "claude-sonnet-4-20250514"
+    "memory-learning": "claude-sonnet-4-20250514"
+    "review": "claude-sonnet-4-20250514"
+    "refiner": "claude-sonnet-4-20250514"
+    "summarizer": "summarizer-pool"
+    "summarizer-fast": "summarizer-pool"
+    "engine-mini": "claude-sonnet-4-20250514"
+    "claude-code": "claude-sonnet-4-5"
+    "claude-haiku": "claude-haiku-4-5-20251001"
+  num_retries: 2
+  timeout: 30 # seconds
+
+general_settings:
+  forward_client_headers_to_llm_api: true

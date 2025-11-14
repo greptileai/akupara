@@ -7,6 +7,7 @@ locals {
     docker_compose_b64 = base64encode(file("${path.module}/files/bootstrap/docker-compose.aws.yml"))
     env_example_b64    = base64encode(file("${path.module}/files/bootstrap/.env.aws.example"))
     caddyfile_b64      = base64encode(file("${path.module}/files/bootstrap/Caddyfile"))
+    llmproxy_config_b64 = base64encode(file("${path.module}/files/bootstrap/llmproxy-config.yaml"))
     pull_secrets_b64   = base64encode(file("${path.module}/files/bootstrap/pull-secrets.sh"))
     systemd_unit_b64   = base64encode(file("${path.module}/files/bootstrap/greptile-compose.service"))
     secrets_bucket     = coalesce(var.secrets_bucket, "")
