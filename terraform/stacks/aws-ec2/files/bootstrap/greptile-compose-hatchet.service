@@ -1,0 +1,19 @@
+[Unit]
+Description=Greptile Hatchet Docker Compose Stack
+Wants=network-online.target
+After=network-online.target docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/greptile
+ExecStartPre=/opt/greptile/pull-secrets.sh
+ExecStart=/usr/bin/docker compose --project-directory /opt/greptile --profile hatchet up --detach
+ExecStop=/usr/bin/docker compose --project-directory /opt/greptile --profile hatchet stop
+TimeoutStartSec=0
+Restart=on-failure
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target

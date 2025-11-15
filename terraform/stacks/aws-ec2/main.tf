@@ -4,15 +4,18 @@ locals {
   }, var.tags)
 
   bootstrap_user_data = var.enable_greptile_bootstrap ? templatefile("${path.module}/files/bootstrap/user-data.sh.tpl", {
-    docker_compose_b64 = base64encode(file("${path.module}/files/bootstrap/docker-compose.aws.yml"))
-    env_example_b64    = base64encode(file("${path.module}/files/bootstrap/.env.aws.example"))
-    caddyfile_b64      = base64encode(file("${path.module}/files/bootstrap/Caddyfile"))
-    llmproxy_config_b64 = base64encode(file("${path.module}/files/bootstrap/llmproxy-config.yaml"))
-    pull_secrets_b64   = base64encode(file("${path.module}/files/bootstrap/pull-secrets.sh"))
-    systemd_unit_b64   = base64encode(file("${path.module}/files/bootstrap/greptile-compose.service"))
-    secrets_bucket     = coalesce(var.secrets_bucket, "")
-    secrets_object_key = coalesce(var.secrets_object_key, "")
-    aws_region         = var.aws_region
+    docker_compose_b64_gz    = base64gzip(file("${path.module}/files/bootstrap/docker-compose.aws.yml"))
+    env_example_b64_gz       = base64gzip(file("${path.module}/files/bootstrap/.env.aws.example"))
+    caddyfile_b64_gz         = base64gzip(file("${path.module}/files/bootstrap/Caddyfile"))
+    llmproxy_config_b64_gz   = base64gzip(file("${path.module}/files/bootstrap/llmproxy-config.yaml"))
+    pull_secrets_b64         = base64encode(file("${path.module}/files/bootstrap/pull-secrets.sh"))
+    systemd_greptile_b64     = base64encode(file("${path.module}/files/bootstrap/greptile-compose.service"))
+    systemd_hatchet_b64      = base64encode(file("${path.module}/files/bootstrap/greptile-compose-hatchet.service"))
+    systemd_token_b64        = base64encode(file("${path.module}/files/bootstrap/hatchet-token-setup.service"))
+    hatchet_token_script_b64 = base64encode(file("${path.module}/files/bootstrap/generate-hatchet-token.sh"))
+    secrets_bucket           = coalesce(var.secrets_bucket, "")
+    secrets_object_key       = coalesce(var.secrets_object_key, "")
+    aws_region               = var.aws_region
   }) : null
 
   bootstrap_user_data_base64 = local.bootstrap_user_data != null ? base64gzip(local.bootstrap_user_data) : null

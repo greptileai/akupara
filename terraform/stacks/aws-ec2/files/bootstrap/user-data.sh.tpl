@@ -73,28 +73,30 @@ usermod -aG docker ec2-user || true
 
 echo "[greptile-bootstrap] Preparing /opt/greptile"
 install -d -m 0750 /opt/greptile
+install -d -m 0750 /opt/greptile/bin
 chown root:docker /opt/greptile
+chown root:docker /opt/greptile/bin
 
-cat <<'EOF_COMPOSE' | base64 -d > /opt/greptile/docker-compose.yml
-${docker_compose_b64}
+cat <<'EOF_COMPOSE' | base64 -d | gzip -d > /opt/greptile/docker-compose.yml
+${docker_compose_b64_gz}
 EOF_COMPOSE
 chmod 640 /opt/greptile/docker-compose.yml
 chown root:docker /opt/greptile/docker-compose.yml
 
-cat <<'EOF_ENV' | base64 -d > /opt/greptile/.env.example
-${env_example_b64}
+cat <<'EOF_ENV' | base64 -d | gzip -d > /opt/greptile/.env.example
+${env_example_b64_gz}
 EOF_ENV
 chmod 640 /opt/greptile/.env.example
 chown root:docker /opt/greptile/.env.example
 
-cat <<'EOF_CADDY' | base64 -d > /opt/greptile/Caddyfile
-${caddyfile_b64}
+cat <<'EOF_CADDY' | base64 -d | gzip -d > /opt/greptile/Caddyfile
+${caddyfile_b64_gz}
 EOF_CADDY
 chmod 640 /opt/greptile/Caddyfile
 chown root:docker /opt/greptile/Caddyfile
 
-cat <<'EOF_LLMPROXY' | base64 -d > /opt/greptile/llmproxy-config.yaml
-${llmproxy_config_b64}
+cat <<'EOF_LLMPROXY' | base64 -d | gzip -d > /opt/greptile/llmproxy-config.yaml
+${llmproxy_config_b64_gz}
 EOF_LLMPROXY
 chmod 640 /opt/greptile/llmproxy-config.yaml
 chown root:docker /opt/greptile/llmproxy-config.yaml
@@ -105,6 +107,12 @@ EOF_PULL
 chmod 750 /opt/greptile/pull-secrets.sh
 chown root:docker /opt/greptile/pull-secrets.sh
 
+cat <<'EOF_TOKEN' | base64 -d > /opt/greptile/bin/generate-hatchet-token.sh
+${hatchet_token_script_b64}
+EOF_TOKEN
+chmod 750 /opt/greptile/bin/generate-hatchet-token.sh
+chown root:docker /opt/greptile/bin/generate-hatchet-token.sh
+
 cat <<EOF_BOOTSTRAP > /opt/greptile/bootstrap.env
 SECRETS_BUCKET="${secrets_bucket}"
 SECRETS_OBJECT_KEY="${secrets_object_key}"
@@ -112,10 +120,20 @@ EOF_BOOTSTRAP
 chmod 640 /opt/greptile/bootstrap.env
 chown root:docker /opt/greptile/bootstrap.env
 
-cat <<'EOF_UNIT' | base64 -d > /etc/systemd/system/greptile-compose.service
-${systemd_unit_b64}
-EOF_UNIT
+cat <<'EOF_UNIT_GREPTILE' | base64 -d > /etc/systemd/system/greptile-compose.service
+${systemd_greptile_b64}
+EOF_UNIT_GREPTILE
 chmod 644 /etc/systemd/system/greptile-compose.service
+
+cat <<'EOF_UNIT_HATCHET' | base64 -d > /etc/systemd/system/greptile-compose-hatchet.service
+${systemd_hatchet_b64}
+EOF_UNIT_HATCHET
+chmod 644 /etc/systemd/system/greptile-compose-hatchet.service
+
+cat <<'EOF_UNIT_TOKEN' | base64 -d > /etc/systemd/system/hatchet-token-setup.service
+${systemd_token_b64}
+EOF_UNIT_TOKEN
+chmod 644 /etc/systemd/system/hatchet-token-setup.service
 
 /opt/greptile/pull-secrets.sh || true
 login_greptile_ecr || true
@@ -126,6 +144,8 @@ if [[ -f /opt/greptile/.env ]]; then
 fi
 
 systemctl daemon-reload
-systemctl enable --now greptile-compose.service || true
+systemctl enable --now greptile-compose-hatchet.service || true
+systemctl enable --now hatchet-token-setup.service || true
+systemctl enable greptile-compose.service || true
 
 echo "[greptile-bootstrap] Completed"
