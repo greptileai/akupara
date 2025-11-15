@@ -1,18 +1,17 @@
 [Unit]
 Description=Greptile Docker Compose Stack
 Wants=network-online.target
-After=network-online.target docker.service
-Requires=docker.service
+After=network-online.target docker.service hatchet-token-setup.service
+Requires=docker.service greptile-compose-hatchet.service
+ConditionPathExists=/opt/greptile/.hatchet-token-ready
 
 [Service]
-Type=simple
+Type=oneshot
+RemainAfterExit=yes
 WorkingDirectory=/opt/greptile
-ExecStartPre=/opt/greptile/pull-secrets.sh
-ExecStart=/usr/bin/docker compose --project-directory /opt/greptile up
-ExecStop=/usr/bin/docker compose --project-directory /opt/greptile down
+ExecStart=/usr/bin/docker compose --project-directory /opt/greptile --profile greptile up --detach
+ExecStop=/usr/bin/docker compose --project-directory /opt/greptile --profile greptile stop
 TimeoutStartSec=0
-Restart=on-failure
-RestartSec=30
 
 [Install]
 WantedBy=multi-user.target
