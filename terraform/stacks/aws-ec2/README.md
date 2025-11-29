@@ -16,7 +16,7 @@ When `enable_greptile_bootstrap = true` (default) the stack renders a cloud-init
 Make sure the `.env` you upload contains the image registry (e.g. `123456789012.dkr.ecr.us-east-1.amazonaws.com/greptile`), Redis auth token, RDS credentials, and any SaaS secrets the stack expects.
 
 ### Preparing secrets in S3
-1. Create (or reuse) an encrypted bucket that your EC2 instance profile can read. The helper module at `terraform/modules/config-bucket` provisions a hardened bucket + optional KMS key if you do not already have one.
+1. Create (or reuse) an encrypted bucket that your EC2 instance profile can read. The helper module at `terraform/modules/aws/config-bucket` provisions a hardened bucket + optional KMS key if you do not already have one.
 2. Render `.env` from `.env.aws.example`, fill in customer-specific values, and upload it: `aws s3 cp .env s3://<bucket>/<key>`.
 3. Set `secrets_bucket` and `secrets_object_key` (plus `secrets_kms_key_arn` if the object is KMS-encrypted) either via `terraform.tfvars` or CLI flags.
 4. Terraform grants `s3:GetObject` + `kms:Decrypt` automatically; no manual IAM edits are required.
