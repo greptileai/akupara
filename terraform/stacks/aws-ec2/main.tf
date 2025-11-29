@@ -117,7 +117,7 @@ resource "aws_iam_role_policy" "greptile_ecr_pull" {
 # EC2 host running Docker compose
 ############################################################
 module "ec2_app" {
-  source                            = "../../modules/ec2-app"
+  source                            = "../../modules/aws/ec2-app"
   vpc_id                            = var.vpc_id
   subnet_id                         = var.ec2_subnet_id
   ami_id                            = var.ami_id
@@ -139,7 +139,7 @@ module "ec2_app" {
 # PostgreSQL database
 ############################################################
 module "rds" {
-  source                     = "../../modules/rds-postgres"
+  source                     = "../../modules/aws/rds-postgres"
   name_prefix                = "${var.name_prefix}-rds"
   vpc_id                     = var.vpc_id
   subnet_ids                 = var.private_subnet_ids
@@ -168,7 +168,7 @@ module "rds" {
 # Redis cache
 ############################################################
 module "redis" {
-  source                     = "../../modules/redis-cluster"
+  source                     = "../../modules/aws/redis-cluster"
   name_prefix                = "${var.name_prefix}-redis"
   vpc_id                     = var.vpc_id
   subnet_ids                 = var.private_subnet_ids

@@ -10,7 +10,7 @@ Provision a locked-down S3 bucket (and optional KMS key) for storing Greptile bo
 ## Example
 ```hcl
 module "greptile_config_bucket" {
-  source = "https://github.com/greptileai/akupara//terraform/modules/config-bucket?ref=main"
+  source = "https://github.com/greptileai/akupara//terraform/modules/aws/config-bucket?ref=main"
 
   bucket_name             = "acme-greptile-config-prod"
   create_kms_key          = true

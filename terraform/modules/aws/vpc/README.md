@@ -34,7 +34,7 @@ Create the shared VPC once in its own root module / backend:
 
 ```hcl
 module "shared_vpc" {
-  source      = "https://github.com/greptileai/akupara//terraform/modules/vpc?ref=TAG"
+  source      = "https://github.com/greptileai/akupara//terraform/modules/aws/vpc?ref=TAG"
   name_prefix = "greptile-fabric"
   azs         = ["us-west-2a", "us-west-2b"]
 }

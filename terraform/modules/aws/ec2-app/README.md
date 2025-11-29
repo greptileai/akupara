@@ -21,7 +21,7 @@ Provisions a single EC2 instance plus its security group for running the Greptil
 ## Example
 ```hcl
 module "ec2_app" {
-  source               = "../../modules/ec2-app"
+  source               = "../../modules/aws/ec2-app"
   vpc_id               = var.vpc_id
   subnet_id            = var.ec2_subnet_id
   ami_id               = var.ami_id
