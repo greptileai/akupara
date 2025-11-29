@@ -82,7 +82,7 @@ wait_for_service "hatchet-engine"
 
 log "Generating Hatchet token for tenant $tenant_id"
 set +o pipefail
-new_token=$(docker compose --project-directory "$PROJECT_DIR" run --rm --no-deps --profile hatchet setup-config \
+new_token=$(docker compose --profile hatchet --project-directory "$PROJECT_DIR" run --rm --no-deps setup-config \
   /hatchet/hatchet-admin token create \
   --config /hatchet/config \
   --tenant-id "$tenant_id" \
