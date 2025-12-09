@@ -68,6 +68,12 @@ variable "transit_encryption_enabled" {
   default     = true
 }
 
+variable "apply_immediately" {
+  description = "Apply changes immediately instead of during the next maintenance window."
+  type        = bool
+  default     = true
+}
+
 variable "auth_token" {
   description = "Redis AUTH token (required when transit encryption is enabled)."
   type        = string
