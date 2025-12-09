@@ -60,5 +60,5 @@ resource "aws_elasticache_replication_group" "this" {
   auth_token                 = var.transit_encryption_enabled ? var.auth_token : null
   auto_minor_version_upgrade = true
   maintenance_window         = "sun:05:00-sun:06:00"
-  apply_immediately          = true
+  apply_immediately          = var.apply_immediately
 }
