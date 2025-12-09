@@ -1,8 +1,16 @@
-.PHONY: test-tf test-tf-modules test-tf-stacks
+.PHONY: fmt-tf fmt-tf-check test-tf test-tf-modules test-tf-stacks
 
-# Terraform test targets - discovers all modules under any provider (aws, gcp, azure, etc.)
+# Terraform formatting
 TF_MODULES := $(wildcard terraform/modules/*/*)
 TF_STACKS := $(wildcard terraform/stacks/*)
+
+# Format all Terraform files
+fmt-tf:
+	terraform fmt -recursive terraform/
+
+# Check Terraform formatting (CI-friendly, fails if unformatted)
+fmt-tf-check:
+	terraform fmt -recursive -check terraform/
 
 # Run all Terraform tests (modules + stacks)
 test-tf: test-tf-modules test-tf-stacks
