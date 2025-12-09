@@ -67,7 +67,7 @@ variable "root_volume_encrypted" {
 }
 
 variable "ingress_rules" {
-  description = "Ingress rules applied to the security group. When null, sensible defaults are used."
+  description = "Ingress rules applied to the security group. When unset, no ingress rules are created."
   type = list(object({
     description = string
     from_port   = number
@@ -75,12 +75,7 @@ variable "ingress_rules" {
     protocol    = string
     cidr_blocks = list(string)
   }))
-  default = null
-
-  validation {
-    condition     = var.ingress_rules != null && length(var.ingress_rules) > 0
-    error_message = "Provide at least one ingress rule with corporate CIDR blocks (e.g., 10.0.0.0/8)."
-  }
+  default = []
 }
 
 variable "tags" {
