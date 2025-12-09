@@ -11,7 +11,7 @@ Provisions a single EC2 instance plus its security group for running the Greptil
 - `associate_public_ip` – Toggle public IP
 - `user_data` – Optional user-data script rendered by the caller (e.g., Amazon Linux bootstrap)
 - `root_volume_size`, `root_volume_type`, `root_volume_delete_on_termination`, `root_volume_encrypted` – Root disk configuration
-- `ingress_rules` – List of ingress definitions (protocol/ports/CIDRs)
+- `ingress_rules` – List of ingress definitions (protocol/ports/CIDRs). Defaults to an empty list (no inbound access).
 
 ## Outputs
 - `instance_id`
