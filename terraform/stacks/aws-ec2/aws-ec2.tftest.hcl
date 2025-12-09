@@ -211,4 +211,16 @@ run "bootstrap_user_data_disabled" {
   }
 }
 
+run "default_webhook_port_matches_compose" {
+  command = plan
+
+  # The default ingress rule for webhooks must match the port exposed in
+  # docker-compose.aws.yml (greptile_webhook_service: ports "3007:3007").
+  # If this test fails, ensure the SG rule and compose file are aligned.
+  assert {
+    condition     = contains([for r in var.ingress_rules : r.from_port if r.description == "GitHub Webhooks"], 3007)
+    error_message = "Default webhook ingress port should be 3007 to match docker-compose.aws.yml"
+  }
+}
+
 

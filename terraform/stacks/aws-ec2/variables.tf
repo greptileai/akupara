@@ -127,8 +127,8 @@ variable "ingress_rules" {
     },
     {
       description = "GitHub Webhooks"
-      from_port   = 3010
-      to_port     = 3010
+      from_port   = 3007
+      to_port     = 3007
       protocol    = "tcp"
       cidr_blocks = ["10.0.0.0/8"]
     },
