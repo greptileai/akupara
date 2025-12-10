@@ -1,0 +1,18 @@
+[Unit]
+Description=Greptile Hatchet Services
+Requires=docker.service greptile-images.service
+After=docker.service greptile-images.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/greptile
+ExecStart=/opt/greptile/start_hatchet.sh
+ExecStop=/usr/bin/docker compose --profile hatchet down
+TimeoutStartSec=300
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -62,23 +62,23 @@ fi
 COMPOSE_PROFILES="--profile greptile"
 
 echo "Starting Database..."
-docker compose $COMPOSE_PROFILES up -d greptile_postgres
+docker compose $COMPOSE_PROFILES up -d greptile-postgres
 
 echo "Running database migrations..."
-docker compose $COMPOSE_PROFILES up greptile_db_migration_job --wait || { echo "DB migration failed"; exit 1; }
+docker compose $COMPOSE_PROFILES up greptile-db-migration --wait || { echo "DB migration failed"; exit 1; }
 echo "Database migrations completed successfully."
 
 echo "Starting Greptile services..."
+
+# Source .env to get AUTH_SAML_ONLY value
+if [ -f .env ]; then
+    AUTH_SAML_ONLY=$(grep -E "^AUTH_SAML_ONLY=" .env | cut -d'=' -f2 | tr -d '"' | tr -d "'")
+fi
 
 # Check if SAML authentication should be enabled
 if [ "${AUTH_SAML_ONLY:-false}" = "true" ]; then
     echo "SAML authentication enabled - starting Jackson service..."
     COMPOSE_PROFILES="$COMPOSE_PROFILES --profile saml"
-fi
-
-# Only add --profile  with-db if the env var DB_HOST equals greptile-postgres
-if [ "${DB_HOST:-greptile-postgres}" = "greptile-postgres" ]; then
-    COMPOSE_PROFILES="$COMPOSE_PROFILES --profile with-db"
 fi
 
 # Prefer using the greptile profile to start all app services together

@@ -5,11 +5,14 @@ The easiest way to deploy Greptile is on a single VM using Docker Compose. This 
 ### Requirements
 
 #### Hardware & Infrastructure
-* One Linux server (we recommend an EC2 instance on AWS) with the following specifications:
+* One Linux server with the following specifications:
   * 16-32GB RAM
   * 4-8 CPUs
-  * Disk space: 20GB + size of the repositories you want to use Greptile on
-  * (Optional but recommended) A managed Postgres database (e.g., AWS RDS) with 20GB storage
+  * **Disk space requirements:**
+    * **Minimum 30GB** for Docker images (~15GB) and system overhead
+    * Additional space for repository checkouts during code reviews (varies by repo sizes)
+    * Recommended: 50-100GB root volume for comfortable operation
+  * (Optional) A managed Postgres database (stores metadata only, minimal storage needed)
 
 #### Software
 * Docker 23.x or newer
@@ -24,13 +27,21 @@ The easiest way to deploy Greptile is on a single VM using Docker Compose. This 
 #### Container Registry
 * Access to Greptile's container images (shared with you by Greptile)
 
-### Networking Requirements 
-The following ports should be open to inbound traffic:
-- `80` and `443` - Required for HTTP and HTTPS traffic
-- `3000` - Default port to access the Greptile front-end
-- `3007` - Default port Greptile listens on for GitHub/GitLab webhook events
-- `8080` - Default port for the Hatchet front-end (useful for debugging and checking system health)
-- `5225` - Default port for SAML/SSO portal (only required if using SSO)
+### Networking Requirements
+
+#### Ports to Expose Externally
+Only these ports should be exposed externally:
+- `3000` - Greptile web application
+- `3007` - Webhook receiver (GitHub/GitLab)
+- `8080` - Hatchet admin UI (optional, restrict access)
+- `5225` - SAML portal (only if using SSO)
+
+#### Keep Internal Only
+These ports should NOT be exposed externally:
+- `5432` - PostgreSQL databases
+- `5672/5673` - RabbitMQ AMQP
+- `7077` - Hatchet gRPC
+- `15672/15673` - RabbitMQ Management UI
 
 ## Quickstart
 
@@ -61,14 +72,28 @@ Hatchet is the internal task queue used by Greptile.
 4. **Important:** Go to **Settings > General > Members** and change the default admin password.
 
 ### 3. Authenticate with Container Registry
-Ensure you can pull Greptile's images by logging in to the appropriate container registry:
+Ensure you can pull Greptile's images by logging in to the appropriate container registry.
 
-**Option A: Docker Hub**
+First, configure your registry provider in `.env`:
+```bash
+# Set to 'ecr' or 'dockerhub'
+REGISTRY_PROVIDER=dockerhub
+CONTAINER_REGISTRY=<your_registry_url_from_greptile>
+```
+
+Then run the registry login helper:
+```bash
+./login_registry.sh
+```
+
+#### Manual Authentication (Alternative)
+
+**Docker Hub:**
 ```bash
 echo "<TOKEN>" | docker login --username <DOCKERHUB_USERNAME> --password-stdin
 ```
 
-**Option B: AWS ECR**
+**AWS ECR:**
 1. Share your AWS account ID with the Greptile team
 2. Log in to AWS ECR:
    ```bash
@@ -103,22 +128,29 @@ docker compose ps
 ```
 
 You should see the following services running:
-* caddy
-* greptile_api_service
-* greptile_auth_service
-* greptile_indexer_chunker
-* greptile_indexer_summarizer
-* greptile_jobs_service
-* greptile_llmproxy_service
-* greptile_reviews_service
-* greptile_web_service
-* greptile_webhook_service
-* hatchet-api
+
+**Hatchet services:**
+* hatchet-postgres
+* hatchet-rabbitmq
+* hatchet-migration
+* hatchet-setup-config
 * hatchet-engine
+* hatchet-api
 * hatchet-frontend
-* postgres-hatchet
-* rabbitmq
-* greptile_postgres_db
+* hatchet-caddy
+
+**Greptile services:**
+* greptile-postgres
+* greptile-db-migration
+* greptile-web
+* greptile-auth
+* greptile-api
+* greptile-indexer-chunker
+* greptile-indexer-summarizer
+* greptile-webhook
+* greptile-reviews
+* greptile-jobs
+* greptile-llmproxy
 
 ## Further Configuration
 
@@ -146,7 +178,7 @@ docker compose logs <service_name>
 
 Example:
 ```bash
-docker compose logs greptile_web_service
+docker compose logs greptile-web
 ```
 
 Share any error messages with the Greptile support team.
@@ -157,5 +189,61 @@ Open the Hatchet portal at `http://<your_server_ip>:8080` and check if certain w
 ### 4. Debug LLM Issues
 When debugging errors related to LLM calls, check the logs of the LLM proxy service that routes all LLM calls to the providers:
 ```bash
-docker compose logs greptile_llmproxy_service
+docker compose logs greptile-llmproxy
+```
+
+## SystemD Installation (Optional)
+
+For automatic startup on boot, you can install the provided SystemD service files.
+
+### Prerequisites
+- Copy the Greptile files to `/opt/greptile`
+- Ensure `.env` is configured in `/opt/greptile/.env`
+
+### Installation
+
+1. Copy service files:
+   ```bash
+   sudo cp /opt/greptile/systemd/*.service /etc/systemd/system/
+   sudo systemctl daemon-reload
+   ```
+
+2. Enable services for automatic startup:
+   ```bash
+   sudo systemctl enable greptile-images greptile-hatchet greptile-app
+   ```
+
+3. Start services:
+   ```bash
+   sudo systemctl start greptile-hatchet
+   sudo systemctl start greptile-app
+   ```
+
+### Optional: Automatic Image Updates
+
+To enable daily image pulls:
+```bash
+sudo cp /opt/greptile/systemd/greptile-images.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now greptile-images.timer
+```
+
+### Service Management
+
+Check service status:
+```bash
+sudo systemctl status greptile-hatchet
+sudo systemctl status greptile-app
+```
+
+View logs:
+```bash
+sudo journalctl -u greptile-hatchet
+sudo journalctl -u greptile-app
+```
+
+Restart services:
+```bash
+sudo systemctl restart greptile-hatchet
+sudo systemctl restart greptile-app
 ```

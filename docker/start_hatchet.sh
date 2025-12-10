@@ -40,16 +40,30 @@ docker compose --profile hatchet up -d --force-recreate
 
 echo "Waiting for services to be healthy..."
 
+MAX_WAIT=120
+WAITED=0
+
 # Wait for PostgreSQL to be healthy
-while ! docker compose ps postgres-hatchet | grep "healthy" > /dev/null; do
-    echo "Waiting for PostgreSQL..."
+while ! docker compose --profile hatchet ps hatchet-postgres 2>/dev/null | grep -q "healthy"; do
+    if [ $WAITED -ge $MAX_WAIT ]; then
+        echo "Error: PostgreSQL did not become healthy within ${MAX_WAIT}s"
+        exit 1
+    fi
+    echo "Waiting for Hatchet PostgreSQL... (${WAITED}s)"
     sleep 5
+    WAITED=$((WAITED + 5))
 done
 
 # Wait for RabbitMQ to be healthy
-while ! docker compose ps rabbitmq | grep "healthy" > /dev/null; do
-    echo "Waiting for RabbitMQ..."
+WAITED=0
+while ! docker compose --profile hatchet ps hatchet-rabbitmq 2>/dev/null | grep -q "healthy"; do
+    if [ $WAITED -ge $MAX_WAIT ]; then
+        echo "Error: RabbitMQ did not become healthy within ${MAX_WAIT}s"
+        exit 1
+    fi
+    echo "Waiting for RabbitMQ... (${WAITED}s)"
     sleep 5
+    WAITED=$((WAITED + 5))
 done
 
 echo "All Hatchet services are up and running!"
@@ -80,7 +94,7 @@ if awk -F'=' '
 fi
 
 echo "Generating Hatchet Token"
-token_value="$(docker compose run --rm --no-deps setup-config /hatchet/hatchet-admin token create --config /hatchet/config --tenant-id 707d0855-80ab-4e1f-a156-f1c4546cbf52 --name auto-generated-by-greptile --expiresIn 876000h | tr -d '\r')"
+token_value="$(docker compose run --rm --no-deps hatchet-setup-config /hatchet/hatchet-admin token create --config /hatchet/config --tenant-id 707d0855-80ab-4e1f-a156-f1c4546cbf52 --name auto-generated-by-greptile --expiresIn 876000h | tr -d '\r')"
 
 if [ -z "$token_value" ]; then
     echo "Error: Failed to generate Hatchet token"
