@@ -1,8 +1,9 @@
 [Unit]
 Description=Greptile Application Services
-Requires=docker.service greptile-hatchet.service
-After=docker.service greptile-hatchet.service
+Requires=docker.service greptile-hatchet.service greptile-hatchet-token.service
+After=docker.service greptile-hatchet.service greptile-hatchet-token.service
 ConditionPathExists=/opt/greptile/.env
+ConditionPathExists=/opt/greptile/.hatchet-token-ready
 
 [Service]
 Type=oneshot
@@ -10,7 +11,7 @@ RemainAfterExit=yes
 WorkingDirectory=/opt/greptile
 # Health check for Hatchet API before starting
 ExecStartPre=/bin/bash -c 'until curl -sf http://localhost:8080/api/ready; do sleep 5; done'
-ExecStart=/opt/greptile/start_greptile.sh
+ExecStart=/opt/greptile/bin/start-greptile.sh
 ExecStop=/usr/bin/docker compose --profile greptile down
 TimeoutStartSec=600
 StandardOutput=journal
