@@ -56,20 +56,26 @@ Hatchet is the internal task queue used by Greptile.
 
 1. Run the Hatchet startup script:
    ```bash
-   ./start_hatchet.sh
+   ./bin/start-hatchet.sh
    ```
-   This will download the public images for Hatchet.
+   This will download the public images for Hatchet and start the services.
 
-2. Once Hatchet has started, verify it's running by accessing the Hatchet admin portal at:
+2. Generate the Hatchet authentication token:
+   ```bash
+   ./bin/generate-hatchet-token.sh
+   ```
+   This token allows Greptile services to communicate with Hatchet.
+
+3. Once Hatchet has started, verify it's running by accessing the Hatchet admin portal at:
    ```
    http://<your_server_ip>:8080
    ```
 
-3. Log in with the default credentials:
+4. Log in with the default credentials:
    - **Username:** `admin@example.com`
    - **Password:** `Admin123!!`
 
-4. **Important:** Go to **Settings > General > Members** and change the default admin password.
+5. **Important:** Go to **Settings > General > Members** and change the default admin password.
 
 ### 3. Authenticate with Container Registry
 Ensure you can pull Greptile's images by logging in to the appropriate container registry.
@@ -83,7 +89,7 @@ CONTAINER_REGISTRY=<your_registry_url_from_greptile>
 
 Then run the registry login helper:
 ```bash
-./login_registry.sh
+./bin/login-registry.sh
 ```
 
 #### Manual Authentication (Alternative)
@@ -118,7 +124,7 @@ Open the `.env` file, which contains all the environment variables to configure 
 ### 5. Start Greptile Services
 Once you have filled out the environment variables in `.env`, start the Greptile services:
 ```bash
-./start_greptile.sh
+./bin/start-greptile.sh
 ```
 
 ### 6. Verify Services
@@ -192,6 +198,32 @@ When debugging errors related to LLM calls, check the logs of the LLM proxy serv
 docker compose logs greptile-llmproxy
 ```
 
+## Scripts
+
+All scripts are located in the `bin/` directory:
+
+| Script | Purpose |
+|--------|---------|
+| `bin/start-hatchet.sh` | Start Hatchet task queue services |
+| `bin/start-greptile.sh` | Start Greptile application services |
+| `bin/login-registry.sh` | Authenticate with container registry (ECR/Docker Hub) |
+| `bin/generate-hatchet-token.sh` | Generate Hatchet authentication token |
+| `bin/generate-secrets.sh` | Generate JWT_SECRET, TOKEN_ENCRYPTION_KEY, LLM_PROXY_KEY |
+| `bin/setup-env.sh` | Create `.env` and `Caddyfile` from example templates |
+| `bin/wait-for-service.sh` | Wait for a Docker Compose service to be healthy |
+
+### Example Usage
+
+Check if secrets are set:
+```bash
+./bin/generate-secrets.sh --check-only
+```
+
+Wait for a specific service:
+```bash
+./bin/wait-for-service.sh greptile-postgres 60 --profile greptile
+```
+
 ## SystemD Installation (Optional)
 
 For automatic startup on boot, you can install the provided SystemD service files.
@@ -210,12 +242,13 @@ For automatic startup on boot, you can install the provided SystemD service file
 
 2. Enable services for automatic startup:
    ```bash
-   sudo systemctl enable greptile-images greptile-hatchet greptile-app
+   sudo systemctl enable greptile-images greptile-hatchet greptile-hatchet-token greptile-app
    ```
 
 3. Start services:
    ```bash
    sudo systemctl start greptile-hatchet
+   sudo systemctl start greptile-hatchet-token
    sudo systemctl start greptile-app
    ```
 
@@ -233,17 +266,32 @@ sudo systemctl enable --now greptile-images.timer
 Check service status:
 ```bash
 sudo systemctl status greptile-hatchet
+sudo systemctl status greptile-hatchet-token
 sudo systemctl status greptile-app
 ```
 
 View logs:
 ```bash
 sudo journalctl -u greptile-hatchet
+sudo journalctl -u greptile-hatchet-token
 sudo journalctl -u greptile-app
 ```
 
 Restart services:
 ```bash
 sudo systemctl restart greptile-hatchet
+sudo systemctl restart greptile-hatchet-token
 sudo systemctl restart greptile-app
+```
+
+### SystemD Service Dependency Chain
+
+```
+greptile-images.service
+    ↓
+greptile-hatchet.service (starts Hatchet containers)
+    ↓
+greptile-hatchet-token.service (generates auth token)
+    ↓
+greptile-app.service (starts Greptile containers)
 ```

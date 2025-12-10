@@ -7,7 +7,7 @@ Wants=network-online.target
 [Service]
 Type=oneshot
 WorkingDirectory=/opt/greptile
-ExecStartPre=/opt/greptile/login_registry.sh
+ExecStartPre=/opt/greptile/bin/login-registry.sh
 ExecStart=/usr/bin/docker compose --profile hatchet --profile greptile pull
 RemainAfterExit=yes
 StandardOutput=journal
