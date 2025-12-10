@@ -176,7 +176,10 @@ services:
   greptile-web:
     image: ${CONTAINER_REGISTRY}/web:${GREPTILE_TAG}
     platform: linux/amd64
-    env_file: .env
+    env_file:
+      - .env.greptile-generated
+      - .env.hatchet-generated
+      - .env  # User config last (takes precedence)
     environment:
       - AUTH_BOXYHQ_SAML_ISSUER=${AUTH_BOXYHQ_URL}
       - BILLING_ENABLED=${BILLING}
@@ -190,7 +193,10 @@ services:
   greptile-auth:
     image: ${CONTAINER_REGISTRY}/auth:${GREPTILE_TAG}
     platform: linux/amd64
-    env_file: .env
+    env_file:
+      - .env.greptile-generated
+      - .env.hatchet-generated
+      - .env
     ports:
       - "3001:3001"
     profiles:
@@ -200,7 +206,10 @@ services:
     image: ${CONTAINER_REGISTRY}/api:${GREPTILE_TAG}
     platform: linux/amd64
     restart: on-failure
-    env_file: .env
+    env_file:
+      - .env.greptile-generated
+      - .env.hatchet-generated
+      - .env
     environment:
       - URL=${API_URL}
       - PORT=3002
@@ -213,7 +222,10 @@ services:
     image: ${CONTAINER_REGISTRY}/chunker:${GREPTILE_TAG}
     platform: linux/amd64
     restart: on-failure
-    env_file: .env
+    env_file:
+      - .env.greptile-generated
+      - .env.hatchet-generated
+      - .env
     environment:
       - PARENT_DIR=/mnt/data/
       - PORT=3003
@@ -226,7 +238,10 @@ services:
     image: ${CONTAINER_REGISTRY}/summarizer:${GREPTILE_TAG}
     platform: linux/amd64
     restart: on-failure
-    env_file: .env
+    env_file:
+      - .env.greptile-generated
+      - .env.hatchet-generated
+      - .env
     environment:
       - PARENT_DIR=/mnt/data/
       - PORT=3004
@@ -239,7 +254,10 @@ services:
     image: ${CONTAINER_REGISTRY}/webhook:${GREPTILE_TAG}
     platform: linux/amd64
     restart: on-failure
-    env_file: .env
+    env_file:
+      - .env.greptile-generated
+      - .env.hatchet-generated
+      - .env
     environment:
       - PORT=3007
     ports:
@@ -254,7 +272,10 @@ services:
     cap_add:
       - SYS_ADMIN
     restart: on-failure
-    env_file: .env
+    env_file:
+      - .env.greptile-generated
+      - .env.hatchet-generated
+      - .env
     environment:
       - PORT=3005
       - NFS_WORKING_DIR=/mnt/efs
@@ -269,7 +290,10 @@ services:
     image: ${CONTAINER_REGISTRY}/jobs:${GREPTILE_TAG}
     platform: linux/amd64
     restart: on-failure
-    env_file: .env
+    env_file:
+      - .env.greptile-generated
+      - .env.hatchet-generated
+      - .env
     environment:
       - PORT=8080
     ports:
@@ -281,7 +305,9 @@ services:
     image: ${CONTAINER_REGISTRY}/llmproxy:${GREPTILE_TAG}
     platform: linux/amd64
     restart: on-failure
-    env_file: .env
+    env_file:
+      - .env.greptile-generated
+      - .env
     environment:
       - PORT=4000
       - LITELLM_MASTER_KEY=${LLM_PROXY_KEY}
@@ -312,7 +338,9 @@ services:
     restart: on-failure
     profiles:
       - saml
-    env_file: .env
+    env_file:
+      - .env.greptile-generated
+      - .env
     environment:
       - DB_ENCRYPTION_KEY=${JACKSON_DB_ENCRYPTION_KEY}
       - HOST_URL=${JACKSON_HOST_URL}
