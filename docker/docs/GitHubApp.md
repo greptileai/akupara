@@ -6,7 +6,7 @@
     - Callback URL: `http://<ip_address>:3000/api/auth/callback/github-enterprise` (for self-hosted) or `http://<ip_address>:3000/api/auth/callback/github` (for cloud github)
     - Setup URL: `http://<ip_address>:3000/auth/github`
       - Make sure to select "Redirect on update".
-    - Webhook URL: `http://<ip_address>:3010/webhook`
+    - Webhook URL: `http://<ip_address>:3007/webhook`
     - Webhook secret: Generate a secure random string
       - On unix environments, you can use `openssl rand -hex 32` to generate the secure random string.
 3. Under "Permissions", ensure the following are enabled:
