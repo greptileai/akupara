@@ -2,7 +2,7 @@
 
 We use a reverse proxy service [Caddy](https://caddyserver.com/docs/) to route requests to the correct services on our application. The entire Caddy configuration lives in `docker/Caddyfile`. 
 
-According to the instructions in `docker/terraform/README-TF.md` your Caddyfile should look something like 
+Your Caddyfile should look something like 
 
 ```
 http://<your_ip_address>:8080 {
@@ -23,11 +23,11 @@ If you want to add a custom domain to this configuration
 ```
 https://CustomGreptileDomain.com {
         handle /* {
-                reverse_proxy greptile_web_service:3000
+                reverse_proxy greptile-web:3000
         }
 }
 ```
-- Restart the caddy service via `docker compose up --force-recreate -d caddy`
+- Restart the caddy service via `docker compose --profile hatchet up --force-recreate -d hatchet-caddy`
 
 This will correctly route your requests to the greptile web service. 
 
@@ -35,12 +35,12 @@ This will correctly route your requests to the greptile web service.
 
 
 ## Custom Domain for SSO set up page
-We support SSO sign in via [BOXYHQ](https://boxyhq.com/docs/jackson/overview) running in the `greptile_jackson_service`. Signing into the Jackson admin console requires a `HTTPS` connection so we will need to set up a custom domain similar to above. Add the following block to your `Caddyfile`
+We support SSO sign in via [BOXYHQ](https://boxyhq.com/docs/jackson/overview) running in the `saml-jackson` service. Signing into the Jackson admin console requires a `HTTPS` connection so we will need to set up a custom domain similar to above. Add the following block to your `Caddyfile`
 
 ```
 https://customJacksonDomain.com {
         handle /* {
-                reverse_proxy greptile_jackson_service:5225
+                reverse_proxy saml-jackson:5225
         }
 }
 ```

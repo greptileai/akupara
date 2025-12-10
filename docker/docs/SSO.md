@@ -10,9 +10,9 @@ AUTH_SAML_ONLY="false" #should be set to true if using BoxyHQ/SAML
 SAML_ID="" # (can be left blank - otherwise set to some string like my_company_name)
 SAML_SECRET="" # (can be left blank if not using SSO, otherwise openssl rand -base64 32)
 BOXYHQ_API_KEY="" # (can be left blank if not using SSO, otherwise openssl rand -base64 32)
-BOXYHQ_URL="http://jackson:5225" # This cannot be a blank string. Leave unchanged if not using SAML. 
-AUTH_BOXYHQ_URL="http://jackson:5225" # This cannot be a blank string. Leave unchanged if not using SAML. 
-AUTH_BOXYHQ_SAML_ISSUER="http://jackson:5225" # This cannot be a blank string. Leave unchanged if not using SAML. 
+BOXYHQ_URL="http://saml-jackson:5225" # This cannot be a blank string. Leave unchanged if not using SAML.
+AUTH_BOXYHQ_URL="http://saml-jackson:5225" # This cannot be a blank string. Leave unchanged if not using SAML.
+AUTH_BOXYHQ_SAML_ISSUER="http://saml-jackson:5225" # This cannot be a blank string. Leave unchanged if not using SAML. 
 
 # (Optional - do not need to be set if not using SAML)
 JACKSON_DB_ENCRYPTION_KEY=<generate with: openssl rand -base64 32>
