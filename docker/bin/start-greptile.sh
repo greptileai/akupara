@@ -10,7 +10,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR"
+cd "$SCRIPT_DIR/.."
 
 # Check if Docker is accessible
 if ! docker info > /dev/null 2>&1; then
@@ -29,7 +29,7 @@ if [[ ! -f .env ]]; then
 fi
 
 # Generate application secrets if not already set
-"${SCRIPT_DIR}/bin/generate-secrets.sh"
+"${SCRIPT_DIR}/generate-secrets.sh"
 
 COMPOSE_PROFILES="--profile greptile"
 
