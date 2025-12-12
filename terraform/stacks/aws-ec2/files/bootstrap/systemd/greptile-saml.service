@@ -1,0 +1,16 @@
+[Unit]
+Description=Greptile SAML Service (Jackson)
+Requires=greptile-app.service
+After=greptile-app.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/greptile
+ExecStart=/usr/bin/docker compose --project-directory /opt/greptile --profile saml up -d
+ExecStop=/usr/bin/docker compose --project-directory /opt/greptile --profile saml down
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

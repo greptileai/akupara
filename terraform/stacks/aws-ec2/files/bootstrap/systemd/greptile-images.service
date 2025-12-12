@@ -1,0 +1,19 @@
+[Unit]
+Description=Pull Greptile Docker images
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/greptile
+ExecStartPre=/opt/greptile/bin/pull-secrets.sh
+ExecStartPre=/opt/greptile/bin/login-registry.sh
+ExecStart=/usr/bin/docker compose --project-directory /opt/greptile --profile hatchet --profile greptile pull
+RemainAfterExit=yes
+TimeoutStartSec=0
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -3,60 +3,11 @@ set -euo pipefail
 exec > >(tee /var/log/greptile-bootstrap.log | logger -t greptile-bootstrap) 2>&1
 set -x
 
-login_greptile_ecr() {
-  local env_file="/opt/greptile/.env"
-  local default_region="${aws_region}"
-
-  if [[ ! -f "$env_file" ]]; then
-    echo "[greptile-bootstrap] Skipping ECR login; $env_file not present yet"
-    return 0
-  fi
-
-  local registry_line
-  registry_line=$(grep -E '^CONTAINER_REGISTRY=' "$env_file" | tail -n1 || true)
-  if [[ -z "$registry_line" ]]; then
-    echo "[greptile-bootstrap] No CONTAINER_REGISTRY defined; skipping ECR login"
-    return 0
-  fi
-
-  local registry_value
-  registry_value="$${registry_line#CONTAINER_REGISTRY=}"
-  registry_value="$${registry_value%$'\r'}"
-  registry_value="$${registry_value%\"}"
-  registry_value="$${registry_value#\"}"
-  registry_value="$${registry_value%\'}"
-  registry_value="$${registry_value#\'}"
-
-  local registry_host="$${registry_value%%/*}"
-  if [[ -z "$registry_host" ]]; then
-    echo "[greptile-bootstrap] Could not parse registry host from CONTAINER_REGISTRY=$registry_value"
-    return 0
-  fi
-
-  if [[ $registry_host != *.dkr.ecr.*.amazonaws.com ]]; then
-    echo "[greptile-bootstrap] Registry $registry_host is not an AWS ECR endpoint; skipping ECR login"
-    return 0
-  fi
-
-  local registry_region="$${registry_host#*.dkr.ecr.}"
-  registry_region="$${registry_region%.amazonaws.com}"
-  if [[ -z "$registry_region" || "$registry_region" == "$registry_host" ]]; then
-    registry_region="$default_region"
-  fi
-
-  echo "[greptile-bootstrap] Logging into ECR registry $registry_host (region $registry_region)"
-  if aws ecr get-login-password --region "$registry_region" | docker login --username AWS --password-stdin "$registry_host"; then
-    echo "[greptile-bootstrap] ECR login succeeded"
-  else
-    echo "[greptile-bootstrap] WARNING: ECR login failed; Greptile images may not pull" >&2
-  fi
-}
-
 echo "[greptile-bootstrap] Updating base image packages"
 dnf update -y >/dev/null
 
 echo "[greptile-bootstrap] Installing Docker Engine + Compose plugin"
-dnf install -y dnf-plugins-core awscli >/dev/null
+dnf install -y dnf-plugins-core awscli curl >/dev/null
 if ! dnf repolist | grep -q "docker-ce-stable"; then
   dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo >/dev/null 2>&1
   if [[ -f /etc/yum.repos.d/docker-ce.repo ]]; then
@@ -101,17 +52,23 @@ EOF_LLMPROXY
 chmod 640 /opt/greptile/llmproxy-config.yaml
 chown root:docker /opt/greptile/llmproxy-config.yaml
 
-cat <<'EOF_PULL' | base64 -d > /opt/greptile/pull-secrets.sh
+cat <<'EOF_PULL' | base64 -d | gzip -d > /opt/greptile/bin/pull-secrets.sh
 ${pull_secrets_b64}
 EOF_PULL
-chmod 750 /opt/greptile/pull-secrets.sh
-chown root:docker /opt/greptile/pull-secrets.sh
+chmod 750 /opt/greptile/bin/pull-secrets.sh
+chown root:docker /opt/greptile/bin/pull-secrets.sh
 
-cat <<'EOF_TOKEN' | base64 -d > /opt/greptile/bin/generate-hatchet-token.sh
+cat <<'EOF_TOKEN' | base64 -d | gzip -d > /opt/greptile/bin/generate-hatchet-token.sh
 ${hatchet_token_script_b64}
 EOF_TOKEN
 chmod 750 /opt/greptile/bin/generate-hatchet-token.sh
 chown root:docker /opt/greptile/bin/generate-hatchet-token.sh
+
+cat <<'EOF_LOGIN' | base64 -d | gzip -d > /opt/greptile/bin/login-registry.sh
+${login_registry_b64}
+EOF_LOGIN
+chmod 750 /opt/greptile/bin/login-registry.sh
+chown root:docker /opt/greptile/bin/login-registry.sh
 
 cat <<EOF_BOOTSTRAP > /opt/greptile/bootstrap.env
 SECRETS_BUCKET="${secrets_bucket}"
@@ -120,32 +77,45 @@ EOF_BOOTSTRAP
 chmod 640 /opt/greptile/bootstrap.env
 chown root:docker /opt/greptile/bootstrap.env
 
-cat <<'EOF_UNIT_GREPTILE' | base64 -d > /etc/systemd/system/greptile-compose.service
-${systemd_greptile_b64}
-EOF_UNIT_GREPTILE
-chmod 644 /etc/systemd/system/greptile-compose.service
+touch /opt/greptile/.env.hatchet-generated
+chmod 640 /opt/greptile/.env.hatchet-generated
+chown root:docker /opt/greptile/.env.hatchet-generated || true
 
-cat <<'EOF_UNIT_HATCHET' | base64 -d > /etc/systemd/system/greptile-compose-hatchet.service
+cat <<'EOF_UNIT_IMAGES' | base64 -d | gzip -d > /etc/systemd/system/greptile-images.service
+${systemd_images_b64}
+EOF_UNIT_IMAGES
+chmod 644 /etc/systemd/system/greptile-images.service
+
+cat <<'EOF_UNIT_IMAGES_TIMER' | base64 -d | gzip -d > /etc/systemd/system/greptile-images.timer
+${systemd_images_timer_b64}
+EOF_UNIT_IMAGES_TIMER
+chmod 644 /etc/systemd/system/greptile-images.timer
+
+cat <<'EOF_UNIT_HATCHET' | base64 -d | gzip -d > /etc/systemd/system/greptile-hatchet.service
 ${systemd_hatchet_b64}
 EOF_UNIT_HATCHET
-chmod 644 /etc/systemd/system/greptile-compose-hatchet.service
+chmod 644 /etc/systemd/system/greptile-hatchet.service
 
-cat <<'EOF_UNIT_TOKEN' | base64 -d > /etc/systemd/system/hatchet-token-setup.service
-${systemd_token_b64}
-EOF_UNIT_TOKEN
-chmod 644 /etc/systemd/system/hatchet-token-setup.service
+cat <<'EOF_UNIT_HATCHET_TOKEN' | base64 -d | gzip -d > /etc/systemd/system/greptile-hatchet-token.service
+${systemd_hatchet_token_b64}
+EOF_UNIT_HATCHET_TOKEN
+chmod 644 /etc/systemd/system/greptile-hatchet-token.service
 
-/opt/greptile/pull-secrets.sh || true
-login_greptile_ecr || true
+cat <<'EOF_UNIT_APP' | base64 -d | gzip -d > /etc/systemd/system/greptile-app.service
+${systemd_app_b64}
+EOF_UNIT_APP
+chmod 644 /etc/systemd/system/greptile-app.service
 
-if [[ -f /opt/greptile/.env ]]; then
-  echo "[greptile-bootstrap] Attempting initial docker compose pull"
-  cd /opt/greptile && /usr/bin/docker compose pull || true
-fi
+cat <<'EOF_UNIT_SAML' | base64 -d | gzip -d > /etc/systemd/system/greptile-saml.service
+${systemd_saml_b64}
+EOF_UNIT_SAML
+chmod 644 /etc/systemd/system/greptile-saml.service
+
+/opt/greptile/bin/pull-secrets.sh || true
 
 systemctl daemon-reload
-systemctl enable --now greptile-compose-hatchet.service || true
-systemctl enable --now hatchet-token-setup.service || true
-systemctl enable greptile-compose.service || true
+systemctl enable --now greptile-images.timer || true
+systemctl enable --now greptile-app.service || true
+systemctl enable --now greptile-saml.service || true
 
 echo "[greptile-bootstrap] Completed"
