@@ -1,9 +1,9 @@
 services:
   # ===== HATCHET SECTION ======
-  rabbitmq:
+  hatchet-rabbitmq:
     image: "rabbitmq:3-management"
     platform: linux/amd64
-    hostname: "rabbitmq"
+    hostname: "hatchet-rabbitmq"
     ports:
       - "5673:5672" # RabbitMQ
       - "15673:15672" # Management UI
@@ -21,7 +21,7 @@ services:
     profiles:
       - hatchet
 
-  migration:
+  hatchet-migration:
     image: ghcr.io/hatchet-dev/hatchet/hatchet-migrate:${HATCHET_TAG}
     platform: linux/amd64
     environment:
@@ -29,7 +29,7 @@ services:
     profiles:
       - hatchet
 
-  setup-config:
+  hatchet-setup-config:
     image: ghcr.io/hatchet-dev/hatchet/hatchet-admin:${HATCHET_TAG}
     platform: linux/amd64
     command: /hatchet/hatchet-admin quickstart --skip certs --generated-config-dir /hatchet/config --overwrite=false
@@ -37,7 +37,7 @@ services:
       DATABASE_URL: ${HATCHET_DATABASE_URL}
       DATABASE_POSTGRES_PORT: "${HATCHET_DATABASE_PORT}"
       DATABASE_POSTGRES_HOST: "${HATCHET_DATABASE_HOST}"
-      SERVER_TASKQUEUE_RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/
+      SERVER_TASKQUEUE_RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@hatchet-rabbitmq:5672/
       SERVER_AUTH_COOKIE_DOMAIN: localhost:8080
       SERVER_AUTH_COOKIE_INSECURE: "t"
       SERVER_GRPC_BIND_ADDRESS: "0.0.0.0"
@@ -47,9 +47,9 @@ services:
       - hatchet_certs:/hatchet/certs
       - hatchet_config:/hatchet/config
     depends_on:
-      migration:
+      hatchet-migration:
         condition: service_completed_successfully
-      rabbitmq:
+      hatchet-rabbitmq:
         condition: service_healthy
     profiles:
       - hatchet
@@ -60,9 +60,9 @@ services:
     command: /hatchet/hatchet-engine --config /hatchet/config
     restart: on-failure
     depends_on:
-      setup-config:
+      hatchet-setup-config:
         condition: service_completed_successfully
-      migration:
+      hatchet-migration:
         condition: service_completed_successfully
     ports:
       - "7077:7070"
@@ -82,9 +82,9 @@ services:
     command: /hatchet/hatchet-api --config /hatchet/config
     restart: on-failure
     depends_on:
-      setup-config:
+      hatchet-setup-config:
         condition: service_completed_successfully
-      migration:
+      hatchet-migration:
         condition: service_completed_successfully
     environment:
       DATABASE_URL: ${HATCHET_DATABASE_URL}
@@ -101,7 +101,7 @@ services:
     profiles:
       - hatchet
 
-  caddy:
+  hatchet-caddy:
     image: caddy:2.7.6-alpine
     platform: linux/amd64
     restart: on-failure
@@ -119,7 +119,7 @@ services:
     profiles:
       - hatchet
 
-  greptile_db_migration_job:
+  greptile-db-migration:
     image: ${CONTAINER_REGISTRY}/db-migration-job:${GREPTILE_TAG}
     platform: linux/amd64
     environment:
@@ -131,10 +131,11 @@ services:
 
   # ===== GREPTILE SECTION =====
 
-  greptile_web_service:
+  greptile-web:
     image: ${CONTAINER_REGISTRY}/web:${GREPTILE_TAG}
     platform: linux/amd64
     env_file:
+      - .env.hatchet-generated
       - .env
     environment:
       - AUTH_BOXYHQ_SAML_ISSUER=${AUTH_BOXYHQ_URL}
@@ -146,21 +147,23 @@ services:
     profiles:
       - greptile
 
-  greptile_auth_service:
+  greptile-auth:
     image: ${CONTAINER_REGISTRY}/auth:${GREPTILE_TAG}
     platform: linux/amd64
     env_file:
+      - .env.hatchet-generated
       - .env
     ports:
       - "3001:3001"
     profiles:
       - greptile
 
-  greptile_api_service:
+  greptile-api:
     image: ${CONTAINER_REGISTRY}/api:${GREPTILE_TAG}
     platform: linux/amd64
     restart: on-failure
     env_file:
+      - .env.hatchet-generated
       - .env
     environment:
       - URL=${API_URL}
@@ -170,11 +173,12 @@ services:
     profiles:
       - greptile
 
-  greptile_indexer_chunker:
+  greptile-indexer-chunker:
     image: ${CONTAINER_REGISTRY}/chunker:${GREPTILE_TAG}
     platform: linux/amd64
     restart: on-failure
     env_file:
+      - .env.hatchet-generated
       - .env
     environment:
       - PARENT_DIR=/mnt/data/
@@ -184,11 +188,12 @@ services:
     profiles:
       - greptile
 
-  greptile_indexer_summarizer:
+  greptile-indexer-summarizer:
     image: ${CONTAINER_REGISTRY}/summarizer:${GREPTILE_TAG}
     platform: linux/amd64
     restart: on-failure
     env_file:
+      - .env.hatchet-generated
       - .env
     environment:
       - PARENT_DIR=/mnt/data/
@@ -198,11 +203,12 @@ services:
     profiles:
       - greptile
 
-  greptile_webhook_service:
+  greptile-webhook:
     image: ${CONTAINER_REGISTRY}/webhook:${GREPTILE_TAG}
     platform: linux/amd64
     restart: on-failure
     env_file:
+      - .env.hatchet-generated
       - .env
     environment:
       - PORT=3007
@@ -211,7 +217,7 @@ services:
     profiles:
       - greptile
 
-  greptile_reviews_service:
+  greptile-reviews:
     image: ${CONTAINER_REGISTRY}/reviews:${GREPTILE_TAG}
     platform: linux/amd64
     privileged: true
@@ -219,6 +225,7 @@ services:
       - SYS_ADMIN
     restart: on-failure
     env_file:
+      - .env.hatchet-generated
       - .env
     environment:
       - PORT=3005
@@ -230,11 +237,12 @@ services:
     volumes:
       - cloned_repositories:/mnt/efs
 
-  greptile_jobs_service:
+  greptile-jobs:
     image: ${CONTAINER_REGISTRY}/jobs:${GREPTILE_TAG}
     platform: linux/amd64
     restart: on-failure
     env_file:
+      - .env.hatchet-generated
       - .env
     environment:
       - PORT=8080
@@ -243,7 +251,7 @@ services:
     profiles:
       - greptile
 
-  greptile_llmproxy_service:
+  greptile-llmproxy:
     image: ${CONTAINER_REGISTRY}/llmproxy:${GREPTILE_TAG}
     platform: linux/amd64
     restart: on-failure
@@ -270,9 +278,9 @@ services:
 
   # ===== SAML Auth Section ======
   # Deployed conditionally based on AUTH_SAML_ONLY environment variable
-  greptile_jackson_service:
+  saml-jackson:
     image: boxyhq/jackson
-    hostname: greptile_jackson_service
+    hostname: saml-jackson
     platform: linux/amd64
     restart: on-failure
     profiles:

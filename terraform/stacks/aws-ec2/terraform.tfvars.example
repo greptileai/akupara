@@ -16,7 +16,7 @@ db_name            = "acmegreptile"
 redis_node_type    = "cache.t3.micro"
 redis_engine_version = "6.2"
 redis_auth_token   = "PLEASE-GENERATE-A-SECURE-TOKEN"
-# Enable the Amazon Linux bootstrap (installs Docker, systemd unit, pulls secrets/ECR)
+# Enable the Amazon Linux bootstrap (installs Docker, systemd units, pulls secrets, logs into registry, and starts the stack)
 enable_greptile_bootstrap = true
 # Point to the encrypted .env you uploaded that contains CONTAINER_REGISTRY, DB creds, Redis auth, etc.
 secrets_bucket     = "acme-greptile-secrets"

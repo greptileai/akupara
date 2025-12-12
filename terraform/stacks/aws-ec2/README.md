@@ -8,10 +8,14 @@ Root module that deploys the Greptile Docker-based experience on a single EC2 in
 - Exposes standard outputs consumed by helm/helmfile stages
 
 ## Bootstrap workflow
-When `enable_greptile_bootstrap = true` (default) the stack renders a cloud-init script that installs Docker/Compose, writes the production compose bundle to `/opt/greptile`, and enables a systemd unit that runs `docker compose up -d` on every boot. The script also:
+When `enable_greptile_bootstrap = true` (default) the stack renders a cloud-init script that installs Docker/Compose, writes the production compose bundle to `/opt/greptile`, and installs systemd units that match the `docker/` reference orchestration:
+
+Pull Images → Start Hatchet → Generate Hatchet Token → Start Greptile → Start SAML
+
+The bootstrap script also:
 - pulls `/opt/greptile/.env` from S3 using `secrets_bucket` + `secrets_object_key`
-- runs `aws ecr get-login-password | docker login …` using the `CONTAINER_REGISTRY` value in `.env`
-- executes `docker compose pull` once so every image is present before the unit starts
+- authenticates to the container registry via `/opt/greptile/bin/login-registry.sh` (ECR supported)
+- enables `greptile-images.timer`, `greptile-app.service`, and `greptile-saml.service`
 
 Make sure the `.env` you upload contains the image registry (e.g. `123456789012.dkr.ecr.us-east-1.amazonaws.com/greptile`), Redis auth token, RDS credentials, and any SaaS secrets the stack expects.
 
