@@ -1,0 +1,22 @@
+[Unit]
+Description=Greptile Application Services
+Requires=docker.service greptile-hatchet.service greptile-hatchet-token.service
+After=docker.service greptile-hatchet.service greptile-hatchet-token.service
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=/opt/greptile/.env
+ConditionPathExists=/opt/greptile/.hatchet-token-ready
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/greptile
+ExecStartPre=/bin/bash -c 'until curl -sf http://localhost:8080/api/ready; do sleep 5; done'
+ExecStart=/usr/bin/docker compose --project-directory /opt/greptile --profile greptile up --detach
+ExecStop=/usr/bin/docker compose --project-directory /opt/greptile --profile greptile down
+TimeoutStartSec=600
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

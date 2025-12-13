@@ -10,18 +10,18 @@ http://:8080 {
 
 http://:3000 {
 	handle /* {
-		reverse_proxy greptile_web_service:3000
+		reverse_proxy greptile-web:3000
 	}
 }
 
 http://:3007 {
 	handle /* {
-		reverse_proxy greptile_webhook_service:3007
+		reverse_proxy greptile-webhook:3007
 	}
 }
 
 http://127.0.0.1:5225 {
 	handle /* {
-		reverse_proxy greptile_jackson_service:5225
+		reverse_proxy saml-jackson:5225
 	}
 }

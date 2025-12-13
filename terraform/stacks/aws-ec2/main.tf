@@ -3,20 +3,43 @@ locals {
     Stack = "aws-ec2"
   }, var.tags)
 
-  bootstrap_user_data = var.enable_greptile_bootstrap ? templatefile("${path.module}/files/bootstrap/user-data.sh.tpl", {
-    docker_compose_b64_gz    = base64gzip(file("${path.module}/files/bootstrap/docker-compose.aws.yml"))
-    env_example_b64_gz       = base64gzip(file("${path.module}/files/bootstrap/.env.aws.example"))
-    caddyfile_b64_gz         = base64gzip(file("${path.module}/files/bootstrap/Caddyfile"))
-    llmproxy_config_b64_gz   = base64gzip(file("${path.module}/files/bootstrap/llmproxy-config.yaml"))
-    pull_secrets_b64         = base64encode(file("${path.module}/files/bootstrap/pull-secrets.sh"))
-    systemd_greptile_b64     = base64encode(file("${path.module}/files/bootstrap/greptile-compose.service"))
-    systemd_hatchet_b64      = base64encode(file("${path.module}/files/bootstrap/greptile-compose-hatchet.service"))
-    systemd_token_b64        = base64encode(file("${path.module}/files/bootstrap/hatchet-token-setup.service"))
-    hatchet_token_script_b64 = base64encode(file("${path.module}/files/bootstrap/generate-hatchet-token.sh"))
-    secrets_bucket           = coalesce(var.secrets_bucket, "")
-    secrets_object_key       = coalesce(var.secrets_object_key, "")
-    aws_region               = var.aws_region
-  }) : null
+  # Cloud-init user-data for the Greptile EC2 host.
+  #
+  # Size limits:
+  # - EC2 UserData is size-limited (treat 16 KiB as the hard cap for the payload delivered to the instance).
+  #   This is the binding constraint for this stack because we embed files directly in the user-data script.
+  #
+  # Current footprint (update if you change embedded files):
+  # - `local.bootstrap_user_data_base64`: 14,916 bytes (~14.57 KiB), headroom: 1,468 bytes to 16 KiB.
+  # - base64-decoded gzip payload:        11,187 bytes (~10.92 KiB), headroom: 5,197 bytes to 16 KiB.
+  #   (Measured 2025-12-12.)
+  bootstrap_user_data = var.enable_greptile_bootstrap ? templatefile(
+    "${path.module}/files/bootstrap/user-data.sh.tpl",
+    {
+      # Large files (base64gzip)
+      docker_compose_b64_gz  = base64gzip(file("${path.module}/files/bootstrap/docker-compose.aws.yml"))
+      env_example_b64_gz     = base64gzip(file("${path.module}/files/bootstrap/.env.aws.example"))
+      caddyfile_b64_gz       = base64gzip(file("${path.module}/files/bootstrap/Caddyfile"))
+      llmproxy_config_b64_gz = base64gzip(file("${path.module}/files/bootstrap/llmproxy-config.yaml"))
+
+      # Helper scripts (base64gzip)
+      pull_secrets_b64         = base64gzip(file("${path.module}/files/bootstrap/bin/pull-secrets.sh"))
+      login_registry_b64       = base64gzip(file("${path.module}/files/bootstrap/bin/login-registry.sh"))
+      hatchet_token_script_b64 = base64gzip(file("${path.module}/files/bootstrap/bin/generate-hatchet-token.sh"))
+
+      # Systemd units (base64gzip)
+      systemd_images_b64        = base64gzip(file("${path.module}/files/bootstrap/systemd/greptile-images.service"))
+      systemd_images_timer_b64  = base64gzip(file("${path.module}/files/bootstrap/systemd/greptile-images.timer"))
+      systemd_hatchet_b64       = base64gzip(file("${path.module}/files/bootstrap/systemd/greptile-hatchet.service"))
+      systemd_hatchet_token_b64 = base64gzip(file("${path.module}/files/bootstrap/systemd/greptile-hatchet-token.service"))
+      systemd_app_b64           = base64gzip(file("${path.module}/files/bootstrap/systemd/greptile-app.service"))
+      systemd_saml_b64          = base64gzip(file("${path.module}/files/bootstrap/systemd/greptile-saml.service"))
+
+      # Runtime parameters (plain strings)
+      secrets_bucket     = coalesce(var.secrets_bucket, "")
+      secrets_object_key = coalesce(var.secrets_object_key, "")
+    }
+  ) : null
 
   bootstrap_user_data_base64 = local.bootstrap_user_data != null ? base64gzip(local.bootstrap_user_data) : null
 }

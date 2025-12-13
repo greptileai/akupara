@@ -1,15 +1,18 @@
 [Unit]
 Description=Generate Hatchet client token for Greptile
-Wants=network-online.target
-After=network-online.target docker.service greptile-compose-hatchet.service
-Requires=docker.service greptile-compose-hatchet.service
+Requires=greptile-hatchet.service
+After=greptile-hatchet.service
 ConditionPathExists=/opt/greptile/.env
+ConditionPathExists=!/opt/greptile/.hatchet-token-ready
 
 [Service]
 Type=oneshot
+RemainAfterExit=yes
 WorkingDirectory=/opt/greptile
 ExecStart=/opt/greptile/bin/generate-hatchet-token.sh
-RemainAfterExit=yes
+TimeoutStartSec=300
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
