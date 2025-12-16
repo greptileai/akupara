@@ -1,0 +1,35 @@
+# Values injected by Terraform (see terraform/stacks/aws-eks/helm-values.yaml.tpl)
+
+global:
+  region: ""
+  environment: ""
+
+ssm:
+  prefix: ""
+  kmsKeyArn: ""
+
+ecr:
+  registry: ""
+
+greptile:
+  tag: ""
+
+irsa:
+  externalSecrets: ""
+  indexer: ""
+  query: ""
+  github: ""
+  gitlab: ""
+  cloudwatch: ""
+
+database:
+  host: ""
+
+redis:
+  host: ""
+
+cloudwatchLogs:
+  enabled: true
+  logGroupName: ""
+  retentionInDays: 731
+
