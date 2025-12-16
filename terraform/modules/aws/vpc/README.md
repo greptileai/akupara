@@ -62,3 +62,18 @@ module "aws_ec2_stack" {
   ec2_subnet_id      = data.terraform_remote_state.shared_vpc.outputs.public_subnet_sets["slot1"].a.id
 }
 ```
+
+## EKS / Kubernetes subnet tags
+
+EKS and AWS load balancer controllers discover eligible subnets via `kubernetes.io/*` tags. In Akupara, these tags are applied and owned by the deployment stack (for example, `aws-eks`) using `aws_ec2_tag` resources so they are created with the stack and removed on stack destroy.
+
+If you manage this shared VPC in its own Terraform state, configure the AWS provider in the VPC root module to ignore Kubernetes tag prefixes so a rare VPC re-apply doesn’t attempt to remove stack-managed tags:
+
+```hcl
+provider "aws" {
+  # ...
+  ignore_tags {
+    key_prefixes = ["kubernetes.io/"]
+  }
+}
+```
