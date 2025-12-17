@@ -6,8 +6,8 @@ The easiest way to deploy Greptile is on a single VM using Docker Compose. This 
 
 #### Hardware & Infrastructure
 * One Linux server with the following specifications:
-  * 16-32GB RAM
-  * 4-8 CPUs
+  * 32-64GB RAM
+  * 8-16 CPUs
   * **Disk space requirements:**
     * **Minimum 30GB** for Docker images (~15GB) and system overhead
     * Additional space for repository checkouts during code reviews (varies by repo sizes)
@@ -16,7 +16,7 @@ The easiest way to deploy Greptile is on a single VM using Docker Compose. This 
 
 #### Software
 * Docker 23.x or newer
-* Docker Compose v2.5.0 or newer
+* Docker Compose v2.20.0 or newer
 
 #### LLM Access
 * Access to the following LLM models:

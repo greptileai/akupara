@@ -89,21 +89,21 @@ kubectl create secret docker-registry regcred \
   * [OPTIONAL] If you are using an Oauth endpoint for LLM token generation, enter the `oauthGatewayClientSecret` here
   * [OPTIONAL] If you are using jackson for SAML auth, fill out the secrets `jacksonApiKeys` and `nextauthAdminCredentials`
 * [OPTIONAL] `tolerations` and `nodeSelector` can be commented out in values.yaml
-* [OPTIONAL] Depending on your node resources, you might want to allocate more or less resources. As a reference this is what a Greptile hosted on production system should use:
+* [OPTIONAL] Depending on your node resources, you might want to allocate more or less resources:
 
-| Service Name              | CPU Request | CPU Limit | Memory Request | Memory Limit | Replicas | Disk    |
-  |---------------------------|-------------|-----------|----------------|--------------|----------|---------|
-  | API                       | 100m        | 2000m     | 2Gi            | 4Gi          | 20       | -       |
-  | Auth                      | 63m         | 250m      | 256Mi          | 512Mi        | 1        | -       |
-  | Chunker                   | 4000m       | 8000m     | 24Gi           | 48Gi         | 10       | -       |
-  | Summarizer                | 1000m       | 2000m     | 2Gi            | 4Gi          | 50       | -       |
-  | Reviews                   | 500m        | 1000m     | 1Gi            | 2Gi          | 36       | -       |
-  | Webhook                   | 500m        | 1000m     | 1Gi            | 2Gi          | 5        | -       |
-  | Web                       | 500m        | 1000m     | 512Mi          | 1Gi          | 3        | -       |
-  | Jobs                      | 63m         | 250m      | 256Mi          | 512Mi        | 1        | -       |
-  | Postgres                  | 4000m       | 4000m     | 8Gi            | 8Gi          | 1        | 64Gi    |
-  | Hatchet                   | 4000m       | 4000m     | 8Gi            | 8Gi          | 1        | -       |
-  | Redis                     | 1000m       | 2000m     | 2Gi            | 2Gi          | 1        | -       |
+  | Service Name              | CPU Request | CPU Limit | Memory Request | Memory Limit | Disk    |
+  |---------------------------|-------------|-----------|----------------|--------------|---------|
+  | API                       | 100m        | 2000m     | 2Gi            | 4Gi          |  -      |
+  | Auth                      | 50m         | 250m      | 256Mi          | 512Mi        |  -      |
+  | Chunker                   | 4000m       | 8000m     | 6Gi            | 12Gi         |  -      |
+  | LLM Proxy                 | 2000m       | 4000m     | 4Gi            | 8Gi          |  -      |
+  | Summarizer                | 1000m       | 2000m     | 2Gi            | 4Gi          |  -      |
+  | Reviews                   | 1000m       | 2000m     | 2Gi            | 4Gi          |  -      |
+  | Webhook                   | 500m        | 1000m     | 1Gi            | 2Gi          |  -      |
+  | Web                       | 500m        | 1000m     | 512Mi          | 1Gi          |  -      |
+  | Jobs                      | 50m         | 250m      | 256Mi          | 512Mi        |  -      |
+  | Postgres                  | 4000m       | 4000m     | 8Gi            | 8Gi          |  64Gi   |
+  | Hatchet                   | 4000m       | 4000m     | 8Gi            | 8Gi          |  -      |
             
 
 6. Also take a look at `templates/configmap-common-env.yaml`. This file contains environment variables that are shared across Greptile's services. In most cases, none of these env vars should be modified and hardcoded env vars should keep their value to support Greptile as an on premise solution.
