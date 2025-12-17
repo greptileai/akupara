@@ -329,3 +329,20 @@ variable "tags" {
   default     = {}
 }
 
+variable "hatchet_ingress_enabled" {
+  description = "Whether to expose Hatchet UI/API via an internal ALB Ingress (ops-only)."
+  type        = bool
+  default     = true
+}
+
+variable "hatchet_ingress_host" {
+  description = "Optional host for the Hatchet ALB Ingress (leave empty to match all hosts)."
+  type        = string
+  default     = ""
+}
+
+variable "hatchet_ingress_annotations" {
+  description = "Additional annotations to add to the Hatchet Ingresses (e.g., Cognito auth, TLS cert ARN)."
+  type        = map(string)
+  default     = {}
+}

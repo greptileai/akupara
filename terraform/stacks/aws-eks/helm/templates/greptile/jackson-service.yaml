@@ -1,0 +1,21 @@
+{{/*
+Purpose:
+- Service for the optional Jackson Deployment.
+- Internal ClusterIP endpoint (not exposed externally).
+*/}}
+
+{{- if .Values.jackson.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: jackson
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: {{ .Values.jackson.service.type }}
+  selector:
+    app: jackson
+  ports:
+    - name: http
+      port: {{ .Values.jackson.service.port }}
+      targetPort: http
+{{- end }}

@@ -1,0 +1,86 @@
+{{/*
+Purpose:
+- Internal (ops-only) AWS ALB Ingress for Hatchet UI/API.
+- Routes /api -> Hatchet API and / -> Hatchet frontend, sharing a single ALB via an IngressGroup.
+- Uses two Ingresses so each target group can have an appropriate health check path.
+*/}}
+
+{{- $hatchetStack := index .Values "hatchet-stack" -}}
+{{- if and $hatchetStack.enabled .Values.hatchet.ingress.enabled }}
+{{- $groupName := printf "%s-hatchet" .Release.Name -}}
+{{- $baseAnnotations := dict
+  "kubernetes.io/ingress.class" "alb"
+  "alb.ingress.kubernetes.io/scheme" "internal"
+  "alb.ingress.kubernetes.io/target-type" "ip"
+  "alb.ingress.kubernetes.io/group.name" $groupName
+-}}
+{{- $userAnnotations := .Values.hatchet.ingress.annotations | default dict -}}
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hatchet-api
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    {{- $apiAnnotations := merge (deepCopy $baseAnnotations) (dict "alb.ingress.kubernetes.io/healthcheck-path" "/api/ready" "alb.ingress.kubernetes.io/group.order" "10") $userAnnotations -}}
+    {{- toYaml $apiAnnotations | nindent 4 }}
+spec:
+  ingressClassName: alb
+  rules:
+    {{- if .Values.hatchet.ingress.host }}
+    - host: {{ .Values.hatchet.ingress.host | quote }}
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ printf "%s-api" .Release.Name }}
+                port:
+                  number: 8080
+    {{- else }}
+    - http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ printf "%s-api" .Release.Name }}
+                port:
+                  number: 8080
+    {{- end }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hatchet-frontend
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    {{- $frontendAnnotations := merge (deepCopy $baseAnnotations) (dict "alb.ingress.kubernetes.io/healthcheck-path" "/" "alb.ingress.kubernetes.io/group.order" "20") $userAnnotations -}}
+    {{- toYaml $frontendAnnotations | nindent 4 }}
+spec:
+  ingressClassName: alb
+  rules:
+    {{- if .Values.hatchet.ingress.host }}
+    - host: {{ .Values.hatchet.ingress.host | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ printf "%s-frontend" .Release.Name }}
+                port:
+                  number: 8080
+    {{- else }}
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ printf "%s-frontend" .Release.Name }}
+                port:
+                  number: 8080
+    {{- end }}
+{{- end }}

@@ -1,0 +1,31 @@
+{{/*
+Purpose:
+- Release notes shown after `helm install/upgrade` (and via `helm status`).
+- Provides quick operator context (endpoints, ExternalSecrets objects, useful kubectl commands).
+*/}}
+
+SSM prefix: {{ .Values.ssm.prefix }}
+Namespace: {{ .Release.Namespace }}
+
+External endpoints (LoadBalancer Services):
+- Hatchet UI/API:
+{{- if .Values.hatchet.ingress.enabled }}
+  - Internal ALB via Ingresses `hatchet-frontend` and `hatchet-api`
+{{- else if (index .Values "hatchet-stack").caddy.enabled }}
+  - Service `caddy` on port 8080
+{{- else }}
+  - Not exposed (use `kubectl port-forward` to Services `{{ .Release.Name }}-frontend` and `{{ .Release.Name }}-api`)
+{{- end }}
+- Greptile Web: Service `web` on port {{ .Values.web.service.port }}
+{{- if .Values.webhook.enabled }}
+- Greptile Webhook: Service `webhook` on port {{ .Values.webhook.service.port }}
+{{- end }}
+
+Useful commands:
+- ExternalSecrets status:
+  kubectl get secretstore,externalsecret -n {{ .Release.Namespace }}
+- Synced env secrets:
+  kubectl get secret greptile-env -n {{ .Release.Namespace }}
+  kubectl get secret hatchet-shared-config -n {{ .Release.Namespace }}
+- Hatchet client token:
+  kubectl get secret hatchet-client-config -n {{ .Release.Namespace }}

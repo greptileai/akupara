@@ -1,0 +1,71 @@
+{{/*
+Purpose:
+- Primary ExternalSecret for Greptile services.
+- Reads config/secrets from SSM Parameter Store and outputs `greptile-env` with env-var keys.
+- Uses ExternalSecrets templating to derive connection URLs (DATABASE_URL, VECTOR_DB_URL, etc).
+*/}}
+
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: greptile-env
+  namespace: {{ .Release.Namespace }}
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: greptile-ssm
+    kind: SecretStore
+  target:
+    name: greptile-env
+    creationPolicy: Owner
+    template:
+      engineVersion: v2
+      data:
+        NODE_ENV: {{ .Values.global.environment | quote }}
+        HATCHET_CLIENT_TLS_STRATEGY: "none"
+        REDIS_USE_TLS: {{ ternary "true" "false" .Values.redis.useTls | quote }}
+        DATABASE_URL: 'postgresql://{{ `{{ .DB_USER }}` }}:{{ `{{ urlquery .DB_PASSWORD }}` }}@{{ `{{ .DB_HOST }}` }}:{{ `{{ .DB_PORT }}` }}/{{ `{{ .DB_NAME }}` }}'
+        DIRECT_URL: 'postgresql://{{ `{{ .DB_USER }}` }}:{{ `{{ urlquery .DB_PASSWORD }}` }}@{{ `{{ .DB_HOST }}` }}:{{ `{{ .DB_PORT }}` }}/{{ `{{ .DB_NAME }}` }}'
+        VECTOR_DB_HOST: '{{ `{{ .DB_HOST }}` }}'
+        VECTOR_DB_PORT: '{{ `{{ .DB_PORT }}` }}'
+        VECTOR_DB_USER: '{{ `{{ .DB_USER }}` }}'
+        VECTOR_DB_PASSWORD: '{{ `{{ .DB_PASSWORD }}` }}'
+        VECTOR_DB_NAME: "vector"
+        VECTOR_DB_PROVIDER: "pgvector"
+        VECTOR_EMBEDDINGS_TABLE_NAME: "embeddings"
+        VECTOR_DB_URL: 'postgresql://{{ `{{ .DB_USER }}` }}:{{ `{{ urlquery .DB_PASSWORD }}` }}@{{ `{{ .DB_HOST }}` }}:{{ `{{ .DB_PORT }}` }}/vector'
+        HATCHET_DATABASE_URL: 'postgresql://{{ `{{ .DB_USER }}` }}:{{ `{{ urlquery .DB_PASSWORD }}` }}@{{ `{{ .DB_HOST }}` }}:{{ `{{ .DB_PORT }}` }}/hatchet'
+  data:
+    - secretKey: DB_HOST
+      remoteRef:
+        key: {{ printf "%s/config/database-host" .Values.ssm.prefix | quote }}
+    - secretKey: DB_PORT
+      remoteRef:
+        key: {{ printf "%s/config/database-port" .Values.ssm.prefix | quote }}
+    - secretKey: DB_USER
+      remoteRef:
+        key: {{ printf "%s/config/database-username" .Values.ssm.prefix | quote }}
+    - secretKey: DB_NAME
+      remoteRef:
+        key: {{ printf "%s/config/database-name" .Values.ssm.prefix | quote }}
+    - secretKey: DB_PASSWORD
+      remoteRef:
+        key: {{ printf "%s/secrets/database-password" .Values.ssm.prefix | quote }}
+    - secretKey: REDIS_HOST
+      remoteRef:
+        key: {{ printf "%s/config/redis-host" .Values.ssm.prefix | quote }}
+    - secretKey: REDIS_PORT
+      remoteRef:
+        key: {{ printf "%s/config/redis-port" .Values.ssm.prefix | quote }}
+    - secretKey: REDIS_PASSWORD
+      remoteRef:
+        key: {{ printf "%s/secrets/redis-auth-token" .Values.ssm.prefix | quote }}
+    - secretKey: JWT_SECRET
+      remoteRef:
+        key: {{ printf "%s/secrets/jwt-secret" .Values.ssm.prefix | quote }}
+    - secretKey: TOKEN_ENCRYPTION_KEY
+      remoteRef:
+        key: {{ printf "%s/secrets/token-encryption-key" .Values.ssm.prefix | quote }}
+    - secretKey: AWS_REGION
+      remoteRef:
+        key: {{ printf "%s/config/aws-region" .Values.ssm.prefix | quote }}

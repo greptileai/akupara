@@ -29,5 +29,10 @@ redis:
 cloudwatchLogs:
   enabled: ${cloudwatch_logs_enabled}
   logGroupName: ${cloudwatch_log_group_name}
-  retentionInDays: ${cloudwatch_logs_retention_in_days}
 
+hatchet:
+  ingress:
+    enabled: ${hatchet_ingress_enabled}
+    host: ${jsonencode(hatchet_ingress_host)}
+    annotations:
+${indent(6, yamlencode(hatchet_ingress_annotations))}

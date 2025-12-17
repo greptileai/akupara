@@ -1,0 +1,55 @@
+{{/*
+Purpose:
+- Greptile Web UI Deployment.
+- Served externally via a LoadBalancer Service by default.
+*/}}
+
+{{- if .Values.web.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.web.replicaCount }}
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      initContainers:
+        - name: wait-for-db
+          image: postgres:16-alpine
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              until pg_isready -h "$DB_HOST" -p "$DB_PORT"; do
+                sleep 2
+              done
+          envFrom:
+            - secretRef:
+                name: greptile-env
+      containers:
+        - name: web
+          image: {{ printf "%s/%s:%s" .Values.ecr.registry "web" .Values.greptile.tag | quote }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: {{ .Values.web.service.port }}
+          envFrom:
+            - secretRef:
+                name: greptile-env
+            {{- if .Values.integrations.github.enabled }}
+            - secretRef:
+                name: github-env
+            {{- end }}
+          env:
+            - name: PORT
+              value: {{ .Values.web.service.port | quote }}
+          resources:
+            {{- toYaml .Values.web.resources | nindent 12 }}
+{{- end }}

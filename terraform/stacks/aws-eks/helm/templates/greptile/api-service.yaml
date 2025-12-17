@@ -1,0 +1,21 @@
+{{/*
+Purpose:
+- Service for the Greptile API Deployment.
+- Defaults to ClusterIP and is typically fronted by ingress / an edge proxy.
+*/}}
+
+{{- if .Values.api.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: {{ .Values.api.service.type }}
+  selector:
+    app: api
+  ports:
+    - name: http
+      port: {{ .Values.api.service.port }}
+      targetPort: http
+{{- end }}
