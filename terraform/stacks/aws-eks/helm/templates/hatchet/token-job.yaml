@@ -1,0 +1,96 @@
+{{/*
+Purpose:
+- Helm hook Job that generates a Hatchet client token and stores it in `hatchet-client-config`.
+- Idempotent: skips work if the Secret already exists (so upgrades are safe).
+*/}}
+
+{{- if .Values.hatchet.tokenGeneration.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: greptile-hatchet-token
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: {{ .Values.hatchet.tokenGeneration.backoffLimit }}
+  template:
+    spec:
+      restartPolicy: OnFailure
+      serviceAccountName: hatchet-token-sa
+      volumes:
+        - name: work
+          emptyDir: {}
+      initContainers:
+        - name: check-existing
+          image: bitnami/kubectl:1.31
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              if kubectl get secret hatchet-client-config -n {{ .Release.Namespace }} >/dev/null 2>&1; then
+                echo "HATCHET_CLIENT_TOKEN already exists; skipping"
+                echo "skip" > /work/skip
+              fi
+          volumeMounts:
+            - name: work
+              mountPath: /work
+        - name: wait-for-hatchet
+          image: curlimages/curl:8.5.0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              if [ -f /work/skip ]; then
+                exit 0
+              fi
+              until curl -sf http://{{ .Release.Name }}-api:8080/api/ready; do
+                echo "Waiting for Hatchet API..."
+                sleep 5
+              done
+          volumeMounts:
+            - name: work
+              mountPath: /work
+      containers:
+        - name: token-generator
+          image: ghcr.io/hatchet-dev/hatchet/hatchet-admin:v0.52.0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              if [ -f /work/skip ]; then
+                exit 0
+              fi
+              token="$(/hatchet/hatchet-admin token create \
+                --tenant-id {{ .Values.hatchet.tenantId | quote }} \
+                --name \"greptile-auto\" \
+                --expiresIn \"876000h\")"
+              printf "%s" "$token" > /work/token
+          envFrom:
+            - secretRef:
+                name: hatchet-config
+          volumeMounts:
+            - name: work
+              mountPath: /work
+        - name: secret-writer
+          image: bitnami/kubectl:1.31
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              if [ -f /work/skip ]; then
+                exit 0
+              fi
+              until [ -s /work/token ]; do
+                sleep 1
+              done
+              kubectl create secret generic hatchet-client-config \
+                --from-literal=HATCHET_CLIENT_TOKEN="$(cat /work/token)" \
+                -n {{ .Release.Namespace }} \
+                --dry-run=client -o yaml | kubectl apply -f -
+          volumeMounts:
+            - name: work
+              mountPath: /work
+{{- end }}

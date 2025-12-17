@@ -1,0 +1,21 @@
+{{/*
+Purpose:
+- Service for the Greptile Auth Deployment.
+- Internal ClusterIP endpoint (not directly exposed externally).
+*/}}
+
+{{- if .Values.auth.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: {{ .Values.auth.service.type }}
+  selector:
+    app: auth
+  ports:
+    - name: http
+      port: {{ .Values.auth.service.port }}
+      targetPort: http
+{{- end }}

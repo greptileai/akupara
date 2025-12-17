@@ -1,3 +1,6 @@
+# Purpose:
+# - Helm chart metadata + dependency wiring for the `aws-eks` Terraform stack.
+# - Pulls in `hatchet-stack` (Hatchet) and `external-secrets` (SSM -> K8s Secrets).
 apiVersion: v2
 name: greptile-eks
 description: Greptile deployment for AWS EKS with SSM Parameter Store
@@ -5,4 +8,12 @@ type: application
 version: 0.1.0
 appVersion: "0.1.0"
 
-# NOTE: Full chart implementation will be created soon.
+dependencies:
+  - name: hatchet-stack
+    version: "0.8.0"
+    repository: "https://hatchet-dev.github.io/hatchet-charts"
+    condition: hatchet-stack.enabled
+  - name: external-secrets
+    version: "1.1.1"
+    repository: "https://charts.external-secrets.io"
+    condition: external-secrets.install

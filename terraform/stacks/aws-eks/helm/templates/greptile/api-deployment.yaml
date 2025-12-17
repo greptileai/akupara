@@ -1,0 +1,70 @@
+{{/*
+Purpose:
+- Greptile API Deployment.
+- Consumes `greptile-env` + `hatchet-client-config` and waits for DB/Hatchet readiness.
+*/}}
+
+{{- if .Values.api.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.api.replicaCount }}
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      initContainers:
+        - name: wait-for-db
+          image: postgres:16-alpine
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              until pg_isready -h "$DB_HOST" -p "$DB_PORT"; do
+                sleep 2
+              done
+          envFrom:
+            - secretRef:
+                name: greptile-env
+        - name: wait-for-hatchet
+          image: curlimages/curl:8.5.0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              until curl -sf http://{{ .Release.Name }}-api:8080/api/ready; do
+                sleep 5
+              done
+      containers:
+        - name: api
+          image: {{ printf "%s/%s:%s" .Values.ecr.registry "api" .Values.greptile.tag | quote }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: {{ .Values.api.service.port }}
+          envFrom:
+            - secretRef:
+                name: greptile-env
+            {{- if .Values.llm.enabled }}
+            - secretRef:
+                name: llm-env
+            {{- end }}
+            {{- if .Values.integrations.github.enabled }}
+            - secretRef:
+                name: github-env
+            {{- end }}
+            - secretRef:
+                name: hatchet-client-config
+          env:
+            - name: PORT
+              value: {{ .Values.api.service.port | quote }}
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}
+{{- end }}

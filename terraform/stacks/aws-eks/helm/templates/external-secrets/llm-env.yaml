@@ -1,0 +1,28 @@
+{{/*
+Purpose:
+- Optional ExternalSecret for LLM provider credentials/config.
+- Pulls provider API keys from SSM and emits env-var-shaped keys used by the app.
+*/}}
+
+{{- if .Values.llm.enabled }}
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: llm-env
+  namespace: {{ .Release.Namespace }}
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: greptile-ssm
+    kind: SecretStore
+  target:
+    name: llm-env
+    creationPolicy: Owner
+  data:
+    - secretKey: ANTHROPIC_KEY
+      remoteRef:
+        key: {{ printf "%s/secrets/anthropic-key" .Values.ssm.prefix | quote }}
+    - secretKey: OPENAI_KEY
+      remoteRef:
+        key: {{ printf "%s/secrets/openai-key" .Values.ssm.prefix | quote }}
+{{- end }}

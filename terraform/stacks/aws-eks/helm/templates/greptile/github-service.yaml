@@ -1,0 +1,21 @@
+{{/*
+Purpose:
+- Service for the GitHub integration worker (when enabled).
+- Typically internal-only ClusterIP.
+*/}}
+
+{{- if .Values.integrations.github.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: github
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: {{ .Values.integrations.github.service.type }}
+  selector:
+    app: github
+  ports:
+    - name: http
+      port: {{ .Values.integrations.github.service.port }}
+      targetPort: http
+{{- end }}

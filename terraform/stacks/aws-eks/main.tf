@@ -94,6 +94,79 @@ module "eks_subnet_tags" {
   private_subnet_ids = var.private_subnet_ids
 }
 
+resource "aws_iam_policy" "aws_load_balancer_controller" {
+  name        = "${var.name_prefix}-aws-load-balancer-controller-policy"
+  description = "Permissions for AWS Load Balancer Controller (${var.name_prefix})"
+  policy      = file("${path.module}/aws-load-balancer-controller-iam-policy.json")
+  tags        = local.tags
+}
+
+module "irsa_aws_load_balancer_controller" {
+  source            = "../../modules/aws/eks-irsa"
+  role_name         = "${var.name_prefix}-aws-load-balancer-controller-role"
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  oidc_provider_url = module.eks.oidc_provider_url
+
+  namespace            = "kube-system"
+  service_account_name = "aws-load-balancer-controller"
+
+  # Use a stable ARN string so this module can be planned/tested without apply-time unknowns.
+  policy_arns = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/${aws_iam_policy.aws_load_balancer_controller.name}"]
+  tags        = local.tags
+}
+
+resource "helm_release" "aws_load_balancer_controller" {
+  name       = "aws-load-balancer-controller"
+  namespace  = "kube-system"
+  chart      = "aws-load-balancer-controller"
+  repository = "https://aws.github.io/eks-charts"
+  version    = "1.16.0"
+
+  timeout = 600
+  wait    = true
+
+  set {
+    name  = "clusterName"
+    value = module.eks.cluster_name
+  }
+
+  set {
+    name  = "region"
+    value = var.aws_region
+  }
+
+  set {
+    name  = "vpcId"
+    value = var.vpc_id
+  }
+
+  set {
+    name  = "defaultTargetType"
+    value = "ip"
+  }
+
+  set {
+    name  = "serviceAccount.create"
+    value = "true"
+  }
+
+  set {
+    name  = "serviceAccount.name"
+    value = "aws-load-balancer-controller"
+  }
+
+  set {
+    name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+    value = module.irsa_aws_load_balancer_controller.role_arn
+  }
+
+  depends_on = [
+    module.eks,
+    module.eks_subnet_tags,
+    module.irsa_aws_load_balancer_controller,
+  ]
+}
+
 resource "aws_kms_key" "ssm" {
   description             = "KMS key for SSM SecureString parameters (${var.name_prefix})"
   deletion_window_in_days = 7
@@ -294,12 +367,17 @@ resource "helm_release" "greptile" {
       cloudwatch_logs_enabled           = var.cloudwatch_logs_enabled
       cloudwatch_log_group_name         = local.cloudwatch_log_group
       cloudwatch_logs_retention_in_days = var.cloudwatch_logs_retention_in_days
+
+      hatchet_ingress_enabled     = var.hatchet_ingress_enabled
+      hatchet_ingress_host        = var.hatchet_ingress_host
+      hatchet_ingress_annotations = var.hatchet_ingress_annotations
     })
   ]
 
   depends_on = [
     module.eks,
     module.eks_subnet_tags,
+    helm_release.aws_load_balancer_controller,
     module.rds,
     module.redis,
     module.irsa_external_secrets,
