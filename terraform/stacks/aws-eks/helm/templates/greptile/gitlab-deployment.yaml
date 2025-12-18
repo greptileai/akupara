@@ -1,0 +1,52 @@
+{{/*
+Purpose:
+- Optional GitLab integration worker Deployment.
+- Uses IRSA (`gitlab-sa`) and `greptile-env` (plus GitLab-specific config when enabled).
+*/}}
+
+{{- if .Values.integrations.gitlab.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitlab
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.integrations.gitlab.replicaCount }}
+  selector:
+    matchLabels:
+      app: gitlab
+  template:
+    metadata:
+      labels:
+        app: gitlab
+    spec:
+      serviceAccountName: gitlab-sa
+      initContainers:
+        - name: wait-for-db
+          image: postgres:16-alpine
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              until pg_isready -h "$DB_HOST" -p "$DB_PORT"; do
+                sleep 2
+              done
+          envFrom:
+            - secretRef:
+                name: greptile-env
+      containers:
+        - name: gitlab
+          image: {{ printf "%s/%s:%s" .Values.ecr.registry "gitlab" .Values.greptile.tag | quote }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: {{ .Values.integrations.gitlab.service.port }}
+          envFrom:
+            - secretRef:
+                name: greptile-env
+          env:
+            - name: PORT
+              value: {{ .Values.integrations.gitlab.service.port | quote }}
+          resources:
+            {{- toYaml .Values.integrations.gitlab.resources | nindent 12 }}
+{{- end }}

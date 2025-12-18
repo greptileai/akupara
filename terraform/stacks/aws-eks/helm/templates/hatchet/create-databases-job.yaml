@@ -1,0 +1,50 @@
+{{/*
+Purpose:
+- Helm hook Job that ensures required databases exist on the shared RDS instance.
+- Fetches DB credentials from SSM at runtime and creates `vector` + `hatchet` if missing.
+*/}}
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: greptile-create-databases
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: OnFailure
+      serviceAccountName: external-secrets-sa
+      containers:
+        - name: create-databases
+          image: postgres:16-alpine
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -euo pipefail
+
+              apk add --no-cache aws-cli jq >/dev/null
+
+              export AWS_REGION={{ .Values.global.region | quote }}
+              export AWS_DEFAULT_REGION={{ .Values.global.region | quote }}
+              prefix={{ .Values.ssm.prefix | quote }}
+
+              db_host="$(aws ssm get-parameter --name "${prefix}/config/database-host" --query 'Parameter.Value' --output text)"
+	              db_port="$(aws ssm get-parameter --name "${prefix}/config/database-port" --query 'Parameter.Value' --output text)"
+	              db_user="$(aws ssm get-parameter --name "${prefix}/config/database-username" --query 'Parameter.Value' --output text)"
+	              db_password="$(aws ssm get-parameter --with-decryption --name "${prefix}/secrets/database-password" --query 'Parameter.Value' --output text)"
+
+	              export PGHOST="$db_host"
+	              export PGPORT="$db_port"
+	              export PGUSER="$db_user"
+	              export PGPASSWORD="$db_password"
+	              export PGDATABASE="postgres"
+	              export PGSSLMODE="prefer"
+	              echo "Ensuring vector + hatchet databases exist on ${db_host}:${db_port}..."
+
+	              psql -v ON_ERROR_STOP=1 -c "SELECT 'CREATE DATABASE vector' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'vector')\\gexec"
+	              psql -v ON_ERROR_STOP=1 -c "SELECT 'CREATE DATABASE hatchet' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'hatchet')\\gexec"

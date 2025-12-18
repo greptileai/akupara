@@ -1,0 +1,21 @@
+{{/*
+Purpose:
+- Service for the GitLab integration worker (when enabled).
+- Typically internal-only ClusterIP.
+*/}}
+
+{{- if .Values.integrations.gitlab.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitlab
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: {{ .Values.integrations.gitlab.service.type }}
+  selector:
+    app: gitlab
+  ports:
+    - name: http
+      port: {{ .Values.integrations.gitlab.service.port }}
+      targetPort: http
+{{- end }}

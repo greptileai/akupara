@@ -1,0 +1,21 @@
+{{/*
+Purpose:
+- Service for the Greptile Query Deployment.
+- Internal ClusterIP endpoint (typically reached via API).
+*/}}
+
+{{- if .Values.query.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: query
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: {{ .Values.query.service.type }}
+  selector:
+    app: query
+  ports:
+    - name: http
+      port: {{ .Values.query.service.port }}
+      targetPort: http
+{{- end }}

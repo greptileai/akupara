@@ -1,0 +1,37 @@
+{{/*
+Purpose:
+- RBAC for the Hatchet token generation Job.
+- Allows the Job to read/write the `hatchet-client-config` Secret in the release namespace.
+*/}}
+
+{{- if .Values.hatchet.tokenGeneration.enabled }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hatchet-token-sa
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: hatchet-token
+  namespace: {{ .Release.Namespace }}
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: hatchet-token
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: hatchet-token
+subjects:
+  - kind: ServiceAccount
+    name: hatchet-token-sa
+    namespace: {{ .Release.Namespace }}
+{{- end }}

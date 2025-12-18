@@ -1,0 +1,21 @@
+{{/*
+Purpose:
+- Service for Greptile Web UI.
+- Defaults to LoadBalancer to provide an external endpoint for the web app.
+*/}}
+
+{{- if .Values.web.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: {{ .Values.web.service.type }}
+  selector:
+    app: web
+  ports:
+    - name: http
+      port: {{ .Values.web.service.port }}
+      targetPort: http
+{{- end }}

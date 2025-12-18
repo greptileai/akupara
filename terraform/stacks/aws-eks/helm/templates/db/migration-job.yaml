@@ -1,0 +1,29 @@
+{{/*
+Purpose:
+- Helm hook Job that runs application DB migrations during install/upgrade.
+- Uses the `db-migration-job` image and imports env vars from `greptile-env`.
+*/}}
+
+{{- if .Values.migrations.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: greptile-db-migration
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-6"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: {{ .Values.migrations.backoffLimit }}
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: db-migration
+          image: {{ printf "%s/%s:%s" .Values.ecr.registry "db-migration-job" .Values.greptile.tag | quote }}
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - secretRef:
+                name: greptile-env
+{{- end }}

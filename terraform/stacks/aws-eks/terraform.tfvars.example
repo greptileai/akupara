@@ -1,0 +1,90 @@
+aws_region  = "us-east-1"
+aws_profile = "default"
+
+# Naming - use blue/green prefixes for deployment isolation (resources + SSM prefix /{name_prefix}/...)
+name_prefix  = "prod-blue"
+environment  = "production"
+k8s_namespace = "default"
+
+# Networking (replace with your VPC/subnet IDs)
+vpc_id             = "vpc-0123456789abcdef0"
+private_subnet_ids = ["subnet-private-1", "subnet-private-2"]
+# Recommended if you want internet-facing endpoints (web/webhook Services of type LoadBalancer):
+public_subnet_ids  = ["subnet-public-1", "subnet-public-2"]
+
+# EKS configuration
+kubernetes_version     = "1.31"
+endpoint_public_access = true
+
+# Container images
+# Used as: <ecr_registry>/<service>:<greptile_tag>
+ecr_registry = "123456789012.dkr.ecr.us-east-1.amazonaws.com/greptile"
+greptile_tag  = "0.1.0"
+
+# Database (RDS PostgreSQL)
+db_username            = "postgres"
+db_name                = "greptile"
+db_password            = "PLEASE_GENERATE_A_STRONG_PASSWORD"
+db_instance_class      = "db.m5.large"
+db_allocated_storage   = 400
+db_max_allocated_storage = 1000
+db_engine_version      = "16.10"
+# db_storage_type       = "io1"
+# db_iops               = 3000
+db_backup_retention_period  = 14
+# db_backup_window           = "03:00-04:00"
+# db_maintenance_window      = "Mon:04:00-Mon:05:00"
+# db_copy_tags_to_snapshot   = true
+# db_delete_automated_backups = false
+# db_skip_final_snapshot      = false
+# db_final_snapshot_identifier = null
+
+# Redis (ElastiCache)
+redis_node_type      = "cache.t3.micro"
+redis_engine_version = "6.2"
+redis_auth_token     = "PLEASE_GENERATE_A_16_CHAR_MIN_TOKEN"
+
+# Greptile required secrets (must be >= 32 chars)
+jwt_secret           = "PLEASE_GENERATE_AT_LEAST_32_CHARACTERS________"
+token_encryption_key = "PLEASE_GENERATE_AT_LEAST_32_CHARACTERS________"
+
+# Optional LLM provider API keys (stored to SSM if provided)
+anthropic_api_key = null
+openai_api_key    = null
+
+# Optional GitHub App/OAuth fields (stored to SSM if provided)
+github_client_id     = null
+github_client_secret = null
+github_webhook_secret = null
+github_private_key   = null
+
+# Optional: add extra SSM parameters under /{name_prefix}/secrets/* and /{name_prefix}/config/*
+# Keys must be kebab-case. Reserved keys are blocked by validation.
+# ssm_secrets = {
+#   "my-extra-secret" = "..."
+# }
+# ssm_config = {
+#   "my-feature-flag" = "true"
+# }
+
+# CloudWatch logs (Terraform creates the log group; Helm configures log shipping)
+cloudwatch_logs_enabled = true
+cloudwatch_logs_retention_in_days = 731
+# cloudwatch_log_group_name = "/greptile/prod-blue/application"
+
+# Hatchet UI/API exposure (internal ALB Ingress by default)
+hatchet_ingress_enabled = true
+hatchet_ingress_host    = ""
+# Example extra ALB annotations (Cognito/TLS/etc):
+# hatchet_ingress_annotations = {
+#   "alb.ingress.kubernetes.io/listen-ports" = "[{\"HTTPS\":443}]"
+#   "alb.ingress.kubernetes.io/certificate-arn" = "arn:aws:acm:us-east-1:123456789012:certificate/..."
+# }
+
+# Resource tags
+tags = {
+  Environment = "production"
+  ManagedBy   = "terraform"
+  Stack       = "aws-eks"
+}
+

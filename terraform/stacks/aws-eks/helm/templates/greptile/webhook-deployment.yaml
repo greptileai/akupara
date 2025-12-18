@@ -1,0 +1,55 @@
+{{/*
+Purpose:
+- Optional Greptile Webhook receiver Deployment.
+- Enabled only when external webhook ingestion is required.
+*/}}
+
+{{- if .Values.webhook.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webhook
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.webhook.replicaCount }}
+  selector:
+    matchLabels:
+      app: webhook
+  template:
+    metadata:
+      labels:
+        app: webhook
+    spec:
+      initContainers:
+        - name: wait-for-db
+          image: postgres:16-alpine
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              until pg_isready -h "$DB_HOST" -p "$DB_PORT"; do
+                sleep 2
+              done
+          envFrom:
+            - secretRef:
+                name: greptile-env
+      containers:
+        - name: webhook
+          image: {{ printf "%s/%s:%s" .Values.ecr.registry "webhook" .Values.greptile.tag | quote }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: {{ .Values.webhook.service.port }}
+          envFrom:
+            - secretRef:
+                name: greptile-env
+            {{- if .Values.integrations.github.enabled }}
+            - secretRef:
+                name: github-env
+            {{- end }}
+          env:
+            - name: PORT
+              value: {{ .Values.webhook.service.port | quote }}
+          resources:
+            {{- toYaml .Values.webhook.resources | nindent 12 }}
+{{- end }}

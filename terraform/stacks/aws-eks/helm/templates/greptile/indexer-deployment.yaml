@@ -1,0 +1,96 @@
+{{/*
+Purpose:
+- Greptile Indexer Deployment (Hatchet worker).
+- Uses IRSA (`indexer-sa`), `greptile-env`, and `hatchet-client-config` to run background jobs.
+*/}}
+
+{{- if .Values.indexer.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: indexer
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.indexer.replicaCount }}
+  selector:
+    matchLabels:
+      app: indexer
+  template:
+    metadata:
+      labels:
+        app: indexer
+    spec:
+      serviceAccountName: indexer-sa
+      volumes:
+        - name: shared-mnt
+          emptyDir: {}
+      initContainers:
+        - name: wait-for-db
+          image: postgres:16-alpine
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              until pg_isready -h "$DB_HOST" -p "$DB_PORT"; do
+                sleep 2
+              done
+          envFrom:
+            - secretRef:
+                name: greptile-env
+        - name: wait-for-hatchet
+          image: curlimages/curl:8.5.0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              until curl -sf http://{{ .Release.Name }}-api:8080/api/ready; do
+                sleep 5
+              done
+      containers:
+        - name: chunker
+          image: {{ printf "%s/%s:%s" .Values.ecr.registry "chunker" .Values.greptile.tag | quote }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: chunker
+              containerPort: {{ .Values.indexer.service.chunkerPort }}
+          envFrom:
+            - secretRef:
+                name: greptile-env
+            {{- if .Values.llm.enabled }}
+            - secretRef:
+                name: llm-env
+            {{- end }}
+            - secretRef:
+                name: hatchet-client-config
+          env:
+            - name: PORT
+              value: {{ .Values.indexer.service.chunkerPort | quote }}
+          volumeMounts:
+            - name: shared-mnt
+              mountPath: /mnt
+          resources:
+            {{- toYaml .Values.indexer.resources | nindent 12 }}
+        - name: summarizer
+          image: {{ printf "%s/%s:%s" .Values.ecr.registry "summarizer" .Values.greptile.tag | quote }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: summarizer
+              containerPort: {{ .Values.indexer.service.summarizerPort }}
+          envFrom:
+            - secretRef:
+                name: greptile-env
+            {{- if .Values.llm.enabled }}
+            - secretRef:
+                name: llm-env
+            {{- end }}
+            - secretRef:
+                name: hatchet-client-config
+          env:
+            - name: PORT
+              value: {{ .Values.indexer.service.summarizerPort | quote }}
+          volumeMounts:
+            - name: shared-mnt
+              mountPath: /mnt
+          resources:
+            {{- toYaml .Values.indexer.resources | nindent 12 }}
+{{- end }}

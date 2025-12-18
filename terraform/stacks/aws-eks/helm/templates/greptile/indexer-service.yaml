@@ -1,0 +1,24 @@
+{{/*
+Purpose:
+- Service for the Greptile Indexer Deployment.
+- Exposes internal ports used by indexer sub-components (e.g., chunker/summarizer).
+*/}}
+
+{{- if .Values.indexer.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: indexer
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: {{ .Values.indexer.service.type }}
+  selector:
+    app: indexer
+  ports:
+    - name: chunker
+      port: {{ .Values.indexer.service.chunkerPort }}
+      targetPort: chunker
+    - name: summarizer
+      port: {{ .Values.indexer.service.summarizerPort }}
+      targetPort: summarizer
+{{- end }}

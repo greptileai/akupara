@@ -1,0 +1,51 @@
+{{/*
+Purpose:
+- Greptile Auth Deployment.
+- Uses `greptile-env` for shared configuration and runs behind internal networking.
+*/}}
+
+{{- if .Values.auth.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.auth.replicaCount }}
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      initContainers:
+        - name: wait-for-db
+          image: postgres:16-alpine
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              until pg_isready -h "$DB_HOST" -p "$DB_PORT"; do
+                sleep 2
+              done
+          envFrom:
+            - secretRef:
+                name: greptile-env
+      containers:
+        - name: auth
+          image: {{ printf "%s/%s:%s" .Values.ecr.registry "auth" .Values.greptile.tag | quote }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: {{ .Values.auth.service.port }}
+          envFrom:
+            - secretRef:
+                name: greptile-env
+          env:
+            - name: PORT
+              value: {{ .Values.auth.service.port | quote }}
+          resources:
+            {{- toYaml .Values.auth.resources | nindent 12 }}
+{{- end }}

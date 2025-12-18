@@ -1,4 +1,6 @@
-.PHONY: fmt-tf fmt-tf-check test-tf test-tf-modules test-tf-stacks
+.PHONY: fmt-tf fmt-tf-check \
+	test-tf test-tf-modules test-tf-stacks test-tf-module test-tf-stack \
+	validate-tf validate-tf-modules validate-tf-stacks validate-tf-module validate-tf-stack
 
 # Terraform formatting
 TF_MODULES := $(wildcard terraform/modules/*/*)
@@ -40,3 +42,32 @@ test-tf-module:
 test-tf-stack:
 	terraform -chdir=terraform/stacks/$(STACK) init -backend=false -input=false
 	terraform -chdir=terraform/stacks/$(STACK) test
+
+# Run terraform validate (modules + stacks)
+validate-tf: validate-tf-modules validate-tf-stacks
+
+# Validate all modules
+validate-tf-modules:
+	@for dir in $(TF_MODULES); do \
+		echo "=== Validating $$dir ==="; \
+		terraform -chdir=$$dir init -backend=false -input=false && \
+		terraform -chdir=$$dir validate || exit 1; \
+	done
+
+# Validate all stacks
+validate-tf-stacks:
+	@for dir in $(TF_STACKS); do \
+		echo "=== Validating $$dir ==="; \
+		terraform -chdir=$$dir init -backend=false -input=false && \
+		terraform -chdir=$$dir validate || exit 1; \
+	done
+
+# Validate a specific module: make validate-tf-module PROVIDER=aws MODULE=vpc
+validate-tf-module:
+	terraform -chdir=terraform/modules/$(PROVIDER)/$(MODULE) init -backend=false -input=false
+	terraform -chdir=terraform/modules/$(PROVIDER)/$(MODULE) validate
+
+# Validate a specific stack: make validate-tf-stack STACK=aws-ec2
+validate-tf-stack:
+	terraform -chdir=terraform/stacks/$(STACK) init -backend=false -input=false
+	terraform -chdir=terraform/stacks/$(STACK) validate

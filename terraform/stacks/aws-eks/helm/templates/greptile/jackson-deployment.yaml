@@ -1,0 +1,38 @@
+{{/*
+Purpose:
+- Optional Jackson Deployment, kept internal by default.
+- Enabled only when Jackson is needed; consumes `greptile-env`.
+*/}}
+
+{{- if .Values.jackson.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jackson
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.jackson.replicaCount }}
+  selector:
+    matchLabels:
+      app: jackson
+  template:
+    metadata:
+      labels:
+        app: jackson
+    spec:
+      containers:
+        - name: jackson
+          image: boxyhq/jackson:1.29.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: {{ .Values.jackson.service.port }}
+          envFrom:
+            - secretRef:
+                name: greptile-env
+          env:
+            - name: PORT
+              value: {{ .Values.jackson.service.port | quote }}
+          resources:
+            {{- toYaml .Values.jackson.resources | nindent 12 }}
+{{- end }}
