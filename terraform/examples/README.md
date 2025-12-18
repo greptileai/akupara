@@ -4,3 +4,4 @@ This directory contains self-contained snippets that show how to consume the reu
 
 Current examples:
 - `aws-ec2-module/` – demonstrates calling `terraform/stacks/aws-ec2` as a module from another root configuration.
+- `aws-eks-module/` – demonstrates calling `terraform/stacks/aws-eks` as a module from another root configuration.
