@@ -29,12 +29,6 @@ database:
   port: 5432
   # Name/user/password are sourced from SSM via ExternalSecrets.
 
-redis:
-  host: ""
-  port: 6379
-  useTls: true
-  # Password is sourced from SSM via ExternalSecrets.
-
 cloudwatchLogs:
   enabled: true
   logGroupName: ""

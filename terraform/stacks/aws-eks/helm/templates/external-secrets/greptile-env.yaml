@@ -23,7 +23,6 @@ spec:
       data:
         NODE_ENV: {{ .Values.global.environment | quote }}
         HATCHET_CLIENT_TLS_STRATEGY: "none"
-        REDIS_USE_TLS: {{ ternary "true" "false" .Values.redis.useTls | quote }}
         {{- if .Values.llmproxy.enabled }}
         LLM_PROXY_BASE_URL: {{ printf "http://llmproxy:%d" (int .Values.llmproxy.service.port) | quote }}
         {{- end }}
@@ -54,15 +53,6 @@ spec:
     - secretKey: DB_PASSWORD
       remoteRef:
         key: {{ printf "%s/secrets/database-password" .Values.ssm.prefix | quote }}
-    - secretKey: REDIS_HOST
-      remoteRef:
-        key: {{ printf "%s/config/redis-host" .Values.ssm.prefix | quote }}
-    - secretKey: REDIS_PORT
-      remoteRef:
-        key: {{ printf "%s/config/redis-port" .Values.ssm.prefix | quote }}
-    - secretKey: REDIS_PASSWORD
-      remoteRef:
-        key: {{ printf "%s/secrets/redis-auth-token" .Values.ssm.prefix | quote }}
     - secretKey: JWT_SECRET
       remoteRef:
         key: {{ printf "%s/secrets/jwt-secret" .Values.ssm.prefix | quote }}

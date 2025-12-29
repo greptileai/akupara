@@ -35,8 +35,6 @@ variables {
   db_password = "test-password-123"
   db_username = "postgres"
 
-  redis_auth_token = "redis-token-12345678"
-
   jwt_secret           = "test-jwt-secret-32chars-minimum!!!!"
   token_encryption_key = "test-token-encryption-key-32chars!"
 }
@@ -67,11 +65,6 @@ run "ssm_secrets_use_secure_string" {
     condition     = aws_ssm_parameter.secrets["jwt-secret"].type == "SecureString"
     error_message = "JWT secret must be SecureString"
   }
-
-  assert {
-    condition     = aws_ssm_parameter.secrets["redis-auth-token"].type == "SecureString"
-    error_message = "Redis auth token must be SecureString"
-  }
 }
 
 run "ssm_paths_use_prefix_for_isolation" {
@@ -93,11 +86,6 @@ run "ssm_config_uses_string_type" {
 
   assert {
     condition     = aws_ssm_parameter.config["database-host"].type == "String"
-    error_message = "Config parameters should be String type"
-  }
-
-  assert {
-    condition     = aws_ssm_parameter.config["redis-host"].type == "String"
     error_message = "Config parameters should be String type"
   }
 }
