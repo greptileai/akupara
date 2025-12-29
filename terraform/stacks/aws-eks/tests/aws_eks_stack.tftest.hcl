@@ -111,11 +111,6 @@ run "creates_irsa_roles" {
   }
 
   assert {
-    condition     = module.irsa_query.role_name == "test-blue-query-role"
-    error_message = "Query IRSA role name must use name_prefix"
-  }
-
-  assert {
     condition     = module.irsa_indexer.role_name == "test-blue-indexer-role"
     error_message = "Indexer IRSA role name must use name_prefix"
   }

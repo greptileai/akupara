@@ -33,11 +33,6 @@ output "external_secrets_role_arn" {
   value       = module.irsa_external_secrets.role_arn
 }
 
-output "query_role_arn" {
-  description = "IRSA role ARN for query service (Bedrock)."
-  value       = module.irsa_query.role_arn
-}
-
 output "indexer_role_arn" {
   description = "IRSA role ARN for indexer service (Bedrock)."
   value       = module.irsa_indexer.role_arn
