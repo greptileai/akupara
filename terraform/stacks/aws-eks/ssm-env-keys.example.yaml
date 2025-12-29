@@ -1,0 +1,67 @@
+# Generated from wt-greptilia/packages/config/src/app-schemas.ts
+# Only includes keys present in docker/.env.example (on-prem subset).
+# Keys are kebab-case for use with ssm_config_keys / ssm_secrets_keys.
+
+ssm_config_keys:
+  - analytics
+  - anthropic-base-url
+  - app-url
+  - atlassian-enabled
+  - auth-boxyhq-url
+  - auth-github-id
+  - auth-saml-only
+  - azure-openai-api-version
+  - benchmark
+  - billing
+  - default-experiment-variant
+  - email-from
+  - email-provider
+  - github-app-id
+  - github-app-url
+  - github-client-id
+  - github-enabled
+  - github-enterprise-api-url
+  - github-enterprise-app-id
+  - github-enterprise-app-url
+  - github-enterprise-client-id
+  - github-enterprise-enabled
+  - github-enterprise-url
+  - gitlab-enabled
+  - greptile-api-url
+  - greptile-auth-server
+  - learn-procedural-memory
+  - linear-enabled
+  - notifications
+  - slack-enabled
+  - support-email
+  - use-procedural-memory
+  - vector-db-ssl-disable
+
+ssm_secrets_keys:
+  - auth-github-secret
+  - aws-access-key-id
+  - aws-secret-access-key
+  - github-client-secret
+  - github-enterprise-app-private-key
+  - github-enterprise-client-secret
+  - github-private-key
+  - greptile-webhook-url
+  - webhook-secret
+
+provided_by_helm:
+  - database-url
+  - direct-url
+  - hatchet-client-token
+  - hatchet-database-url
+  - llm-proxy-base-url
+  - node-env
+  - port
+  - redis-use-tls
+  - vector-db-host
+  - vector-db-name
+  - vector-db-password
+  - vector-db-port
+  - vector-db-provider
+  - vector-db-url
+  - vector-db-user
+  - vector-embeddings-table-name

@@ -56,7 +56,7 @@ spec:
           envFrom:
             - secretRef:
                 name: greptile-env
-            {{- if .Values.llm.enabled }}
+            {{- if .Values.llmproxy.enabled }}
             - secretRef:
                 name: llm-env
             {{- end }}
@@ -79,7 +79,7 @@ spec:
           envFrom:
             - secretRef:
                 name: greptile-env
-            {{- if .Values.llm.enabled }}
+            {{- if .Values.llmproxy.enabled }}
             - secretRef:
                 name: llm-env
             {{- end }}

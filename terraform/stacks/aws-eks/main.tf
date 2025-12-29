@@ -75,6 +75,32 @@ locals {
   )
 
   ssm_config = merge(local.ssm_config_required, local.ssm_config_optional, var.ssm_config)
+
+  ssm_config_explicit_keys = [
+    "database-host",
+    "database-port",
+    "database-username",
+    "database-name",
+    "redis-host",
+    "redis-port",
+    "aws-region",
+  ]
+
+  ssm_secrets_explicit_keys = [
+    "database-password",
+    "redis-auth-token",
+    "jwt-secret",
+    "token-encryption-key",
+  ]
+
+  ssm_config_extra_keys = sort(setsubtract(
+    setunion(toset(keys(local.ssm_config)), toset(var.ssm_config_keys)),
+    toset(local.ssm_config_explicit_keys)
+  ))
+  ssm_secrets_extra_keys = sort(setsubtract(
+    setunion(toset(keys(local.ssm_secrets)), toset(var.ssm_secrets_keys)),
+    toset(local.ssm_secrets_explicit_keys)
+  ))
 }
 
 module "eks" {
@@ -318,6 +344,8 @@ resource "helm_release" "greptile" {
 
       ssm_prefix  = local.ssm_prefix
       kms_key_arn = aws_kms_key.ssm.arn
+      ssm_config_extra_keys = local.ssm_config_extra_keys
+      ssm_secrets_extra_keys = local.ssm_secrets_extra_keys
 
       external_secrets_role_arn = module.irsa_external_secrets.role_arn
       indexer_role_arn          = module.irsa_indexer.role_arn

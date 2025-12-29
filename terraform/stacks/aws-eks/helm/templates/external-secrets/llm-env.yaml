@@ -35,4 +35,14 @@ spec:
     - secretKey: AWS_REGION_NAME
       remoteRef:
         key: {{ printf "%s/config/aws-region" .Values.ssm.prefix | quote }}
+    {{- range $key := .Values.ssm.extraConfigKeys }}
+    - secretKey: {{ $key | replace "-" "_" | upper }}
+      remoteRef:
+        key: {{ printf "%s/config/%s" $.Values.ssm.prefix $key | quote }}
+    {{- end }}
+    {{- range $key := .Values.ssm.extraSecretKeys }}
+    - secretKey: {{ $key | replace "-" "_" | upper }}
+      remoteRef:
+        key: {{ printf "%s/secrets/%s" $.Values.ssm.prefix $key | quote }}
+    {{- end }}
 {{- end }}

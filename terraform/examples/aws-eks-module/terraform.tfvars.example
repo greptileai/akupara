@@ -66,6 +66,10 @@ github_private_key    = null
 # ssm_config = {
 #   "my-feature-flag" = "true"
 # }
+# If SSM parameters are managed outside Terraform, list the keys to expose to pods:
+# ssm_secrets_keys = ["stripe-key", "slack-webhook-url"]
+# ssm_config_keys = ["app-url", "greptile-api-url"]
+# See terraform/stacks/aws-eks/ssm-env-keys.example.yaml for a generated list.
 
 # CloudWatch logs (Terraform creates the log group; Helm configures log shipping)
 cloudwatch_logs_enabled           = true

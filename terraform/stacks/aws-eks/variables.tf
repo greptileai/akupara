@@ -283,6 +283,32 @@ variable "ssm_secrets" {
   }
 }
 
+variable "ssm_secrets_keys" {
+  description = "Additional SSM SecureString parameter keys (kebab-case) that should be exposed to pods even if managed outside Terraform."
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition = alltrue([
+      for k in var.ssm_secrets_keys : can(regex("^[a-z0-9][a-z0-9-]*$", k))
+    ])
+    error_message = "ssm_secrets_keys must be kebab-case (lowercase letters, numbers, dashes)."
+  }
+
+  validation {
+    condition = length(setintersection(
+      toset(var.ssm_secrets_keys),
+      toset([
+        "database-password",
+        "redis-auth-token",
+        "jwt-secret",
+        "token-encryption-key"
+      ])
+    )) == 0
+    error_message = "ssm_secrets_keys must not include reserved keys managed by first-class variables."
+  }
+}
+
 variable "ssm_config" {
   description = "Additional SSM String parameters to create under /{name_prefix}/config/<key>. Keys should be kebab-case."
   type        = map(string)
@@ -310,6 +336,35 @@ variable "ssm_config" {
       ])
     )) == 0
     error_message = "ssm_config must not include reserved keys managed by first-class variables or derived values."
+  }
+}
+
+variable "ssm_config_keys" {
+  description = "Additional SSM String parameter keys (kebab-case) that should be exposed to pods even if managed outside Terraform."
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition = alltrue([
+      for k in var.ssm_config_keys : can(regex("^[a-z0-9][a-z0-9-]*$", k))
+    ])
+    error_message = "ssm_config_keys must be kebab-case (lowercase letters, numbers, dashes)."
+  }
+
+  validation {
+    condition = length(setintersection(
+      toset(var.ssm_config_keys),
+      toset([
+        "database-host",
+        "database-port",
+        "database-username",
+        "database-name",
+        "redis-host",
+        "redis-port",
+        "aws-region"
+      ])
+    )) == 0
+    error_message = "ssm_config_keys must not include reserved keys managed by first-class variables or derived values."
   }
 }
 

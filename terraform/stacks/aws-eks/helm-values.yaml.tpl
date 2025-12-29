@@ -5,6 +5,10 @@ global:
 ssm:
   prefix: ${ssm_prefix}
   kmsKeyArn: ${kms_key_arn}
+  extraConfigKeys:
+${indent(4, yamlencode(ssm_config_extra_keys))}
+  extraSecretKeys:
+${indent(4, yamlencode(ssm_secrets_extra_keys))}
 
 ecr:
   registry: ${ecr_registry}
