@@ -79,6 +79,8 @@ flowchart TB
 
 Important: Terraform also stores these values in **Terraform state**. Treat your state backend (local or remote) as sensitive.
 
+Tip: `ssm-env-keys.example.yaml` lists the on-prem env keys (from `docker/.env.example`) to help populate `ssm_config_keys`/`ssm_secrets_keys` when SSM parameters are managed outside Terraform.
+
 ### Network boundaries
 
 - EKS control plane and compute run in `private_subnet_ids` (EKS API endpoint is private; public access is optional via `endpoint_public_access`).
@@ -175,7 +177,7 @@ If you need to enable optional components:
 Common toggles:
 
 - Webhook receiver: `webhook.enabled: true`
-- LLM API keys via SSM/ExternalSecrets: `llm.enabled: true`
+- LLM API keys via SSM/ExternalSecrets: `llmproxy.enabled: true`
 - Jackson (SSO helper): `jackson.enabled: true`
 
 Note: setting optional Terraform variables like `github_client_secret` or `openai_api_key` will create SSM parameters, but the corresponding Kubernetes resources are only created when the chart component is enabled.
@@ -367,7 +369,9 @@ See `variables.tf` for the full source of truth. Highlights below.
 | `github_webhook_secret` | `null` | Optional; stored to SSM |
 | `github_private_key` | `null` | Optional; stored to SSM |
 | `ssm_secrets` | `{}` | Extra SSM SecureString params under `/${name_prefix}/secrets/*` |
+| `ssm_secrets_keys` | `[]` | Extra SecureString keys to expose (managed outside Terraform) |
 | `ssm_config` | `{}` | Extra SSM String params under `/${name_prefix}/config/*` |
+| `ssm_config_keys` | `[]` | Extra String keys to expose (managed outside Terraform) |
 | `cloudwatch_logs_enabled` | `true` | Create log group + ship logs |
 | `cloudwatch_logs_retention_in_days` | `731` | Log retention |
 | `cloudwatch_log_group_name` | `null` | Override log group name |

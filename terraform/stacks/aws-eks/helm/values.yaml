@@ -10,6 +10,8 @@ global:
 ssm:
   prefix: ""
   kmsKeyArn: ""
+  extraConfigKeys: []
+  extraSecretKeys: []
 
 ecr:
   registry: ""
