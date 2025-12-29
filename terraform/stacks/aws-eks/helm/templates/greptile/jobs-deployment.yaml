@@ -1,0 +1,62 @@
+{{/*
+Purpose:
+- Greptile Jobs Deployment (background job processing).
+- Uses `greptile-env` and `hatchet-client-config` for configuration.
+*/}}
+
+{{- if .Values.jobs.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jobs
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.jobs.replicaCount }}
+  selector:
+    matchLabels:
+      app: jobs
+  template:
+    metadata:
+      labels:
+        app: jobs
+    spec:
+      initContainers:
+        - name: wait-for-db
+          image: postgres:16-alpine
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              until pg_isready -h "$DB_HOST" -p "$DB_PORT"; do
+                sleep 2
+              done
+          envFrom:
+            - secretRef:
+                name: greptile-env
+        - name: wait-for-hatchet
+          image: curlimages/curl:8.5.0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              until curl -sf http://{{ .Release.Name }}-api:8080/api/ready; do
+                sleep 5
+              done
+      containers:
+        - name: jobs
+          image: {{ printf "%s/%s:%s" .Values.ecr.registry "jobs" .Values.greptile.tag | quote }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: {{ .Values.jobs.service.port }}
+          envFrom:
+            - secretRef:
+                name: greptile-env
+            - secretRef:
+                name: hatchet-client-config
+          env:
+            - name: PORT
+              value: {{ .Values.jobs.service.port | quote }}
+          resources:
+            {{- toYaml .Values.jobs.resources | nindent 12 }}
+{{- end }}

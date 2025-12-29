@@ -130,6 +130,22 @@ indexer:
     summarizerPort: 3004
   resources: {}
 
+jobs:
+  enabled: true
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 8080
+  resources: {}
+
+reviews:
+  enabled: true
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 3005
+  resources: {}
+
 integrations:
   github:
     enabled: false

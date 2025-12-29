@@ -1,0 +1,75 @@
+{{/*
+Purpose:
+- Greptile Reviews Deployment (PR review generation).
+- Requires privileged mode for git operations.
+- Uses `greptile-env` and `hatchet-client-config` for configuration.
+*/}}
+
+{{- if .Values.reviews.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reviews
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.reviews.replicaCount }}
+  selector:
+    matchLabels:
+      app: reviews
+  template:
+    metadata:
+      labels:
+        app: reviews
+    spec:
+      volumes:
+        - name: cloned-repos
+          emptyDir: {}
+      initContainers:
+        - name: wait-for-db
+          image: postgres:16-alpine
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              until pg_isready -h "$DB_HOST" -p "$DB_PORT"; do
+                sleep 2
+              done
+          envFrom:
+            - secretRef:
+                name: greptile-env
+        - name: wait-for-hatchet
+          image: curlimages/curl:8.5.0
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -euo pipefail
+              until curl -sf http://{{ .Release.Name }}-api:8080/api/ready; do
+                sleep 5
+              done
+      containers:
+        - name: reviews
+          image: {{ printf "%s/%s:%s" .Values.ecr.registry "reviews" .Values.greptile.tag | quote }}
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+            capabilities:
+              add: ["SYS_ADMIN"]
+          ports:
+            - name: http
+              containerPort: {{ .Values.reviews.service.port }}
+          envFrom:
+            - secretRef:
+                name: greptile-env
+            - secretRef:
+                name: hatchet-client-config
+          env:
+            - name: PORT
+              value: {{ .Values.reviews.service.port | quote }}
+            - name: NFS_WORKING_DIR
+              value: "/mnt/efs"
+          volumeMounts:
+            - name: cloned-repos
+              mountPath: /mnt/efs
+          resources:
+            {{- toYaml .Values.reviews.resources | nindent 12 }}
+{{- end }}
