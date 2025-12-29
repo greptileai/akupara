@@ -98,6 +98,24 @@ data:
                 "log_group_name": "{{ .Values.cloudwatchLogs.logGroupName }}",
                 "log_stream_name": "greptile-db-migration",
                 "timezone": "UTC"
+              },
+              {
+                "file_path": "/var/log/containers/llmproxy-*.log",
+                "log_group_name": "{{ .Values.cloudwatchLogs.logGroupName }}",
+                "log_stream_name": "llmproxy",
+                "timezone": "UTC"
+              },
+              {
+                "file_path": "/var/log/containers/jobs-*.log",
+                "log_group_name": "{{ .Values.cloudwatchLogs.logGroupName }}",
+                "log_stream_name": "jobs",
+                "timezone": "UTC"
+              },
+              {
+                "file_path": "/var/log/containers/reviews-*.log",
+                "log_group_name": "{{ .Values.cloudwatchLogs.logGroupName }}",
+                "log_stream_name": "reviews",
+                "timezone": "UTC"
               }
             ]
           }

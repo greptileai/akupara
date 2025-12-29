@@ -128,7 +128,7 @@ The Helm chart constructs image names as:
 
 `<ecr_registry>/<service>:<greptile_tag>`
 
-You must ensure your registry contains the required repos/images (commonly: `web`, `api`, `auth`, `query`, `chunker`, `summarizer`, `db-migration-job`; plus optional `webhook`, `github`, `gitlab`).
+You must ensure your registry contains the required repos/images (commonly: `web`, `api`, `auth`, `chunker`, `summarizer`, `db-migration-job`, `llmproxy`, `jobs`, `reviews`; plus optional `webhook`, `github`, `gitlab`).
 
 ## Consume from a root module
 
@@ -211,7 +211,7 @@ Do not expose these externally:
 - RDS PostgreSQL (5432)
 - Redis (6379)
 - Hatchet RabbitMQ (5672, 15672, etc.)
-- Internal-only services (api/auth/query/indexer)
+- Internal-only services (api/auth/indexer/llmproxy/jobs/reviews)
 
 ## Post-deploy
 
