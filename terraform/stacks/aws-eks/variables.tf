@@ -162,24 +162,6 @@ variable "db_final_snapshot_identifier" {
   default     = null
 }
 
-variable "redis_node_type" {
-  description = "ElastiCache node type."
-  type        = string
-  default     = "cache.t3.micro"
-}
-
-variable "redis_engine_version" {
-  description = "Redis engine version."
-  type        = string
-  default     = "6.2"
-}
-
-variable "redis_auth_token" {
-  description = "Redis auth token (min 16 chars)."
-  type        = string
-  sensitive   = true
-}
-
 variable "jwt_secret" {
   description = "Greptile JWT secret (>= 32 chars recommended)."
   type        = string
@@ -268,7 +250,6 @@ variable "ssm_secrets" {
       toset(keys(var.ssm_secrets)),
       toset([
         "database-password",
-        "redis-auth-token",
         "jwt-secret",
         "token-encryption-key",
         "anthropic-key",
@@ -300,7 +281,6 @@ variable "ssm_secrets_keys" {
       toset(var.ssm_secrets_keys),
       toset([
         "database-password",
-        "redis-auth-token",
         "jwt-secret",
         "token-encryption-key"
       ])
@@ -329,8 +309,6 @@ variable "ssm_config" {
         "database-port",
         "database-username",
         "database-name",
-        "redis-host",
-        "redis-port",
         "aws-region",
         "github-client-id"
       ])
@@ -359,8 +337,6 @@ variable "ssm_config_keys" {
         "database-port",
         "database-username",
         "database-name",
-        "redis-host",
-        "redis-port",
         "aws-region"
       ])
     )) == 0

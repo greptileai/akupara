@@ -44,7 +44,6 @@ locals {
 
   ssm_secrets_required = {
     "database-password"    = var.db_password
-    "redis-auth-token"     = var.redis_auth_token
     "jwt-secret"           = var.jwt_secret
     "token-encryption-key" = var.token_encryption_key
   }
@@ -65,8 +64,6 @@ locals {
     "database-port"     = "5432"
     "database-username" = var.db_username
     "database-name"     = var.db_name
-    "redis-host"        = module.redis.primary_endpoint
-    "redis-port"        = "6379"
     "aws-region"        = var.aws_region
   }
 
@@ -81,14 +78,11 @@ locals {
     "database-port",
     "database-username",
     "database-name",
-    "redis-host",
-    "redis-port",
     "aws-region",
   ]
 
   ssm_secrets_explicit_keys = [
     "database-password",
-    "redis-auth-token",
     "jwt-secret",
     "token-encryption-key",
   ]
@@ -298,19 +292,6 @@ module "rds" {
   tags                       = local.tags
 }
 
-module "redis" {
-  source                     = "../../modules/aws/redis-cluster"
-  name_prefix                = "${var.name_prefix}-redis"
-  vpc_id                     = var.vpc_id
-  subnet_ids                 = var.private_subnet_ids
-  allowed_security_group_ids = [module.eks.cluster_security_group_id]
-  replication_group_id       = "${var.name_prefix}-redis"
-  node_type                  = var.redis_node_type
-  engine_version             = var.redis_engine_version
-  auth_token                 = var.redis_auth_token
-  tags                       = local.tags
-}
-
 resource "kubernetes_namespace" "this" {
   metadata {
     name = var.k8s_namespace
@@ -340,7 +321,6 @@ resource "helm_release" "greptile" {
       greptile_tag = var.greptile_tag
 
       rds_host   = local.rds_host
-      redis_host = module.redis.primary_endpoint
 
       ssm_prefix  = local.ssm_prefix
       kms_key_arn = aws_kms_key.ssm.arn
@@ -366,7 +346,6 @@ resource "helm_release" "greptile" {
     module.eks_subnet_tags,
     helm_release.aws_load_balancer_controller,
     module.rds,
-    module.redis,
     module.irsa_external_secrets,
     module.irsa_indexer,
     module.irsa_cloudwatch,

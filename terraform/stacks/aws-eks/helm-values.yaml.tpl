@@ -24,9 +24,6 @@ irsa:
 database:
   host: ${rds_host}
 
-redis:
-  host: ${redis_host}
-
 cloudwatchLogs:
   enabled: ${cloudwatch_logs_enabled}
   logGroupName: ${cloudwatch_log_group_name}

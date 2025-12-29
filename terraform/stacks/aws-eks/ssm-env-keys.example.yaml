@@ -56,7 +56,6 @@ provided_by_helm:
   - llm-proxy-base-url
   - node-env
   - port
-  - redis-use-tls
   - vector-db-host
   - vector-db-name
   - vector-db-password

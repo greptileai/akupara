@@ -1,6 +1,6 @@
 # AWS EKS Stack for Greptile
 
-Deploy Greptile on **Amazon EKS (Auto Mode)** with managed **RDS PostgreSQL**, managed **ElastiCache Redis**, and Kubernetes-native orchestration via a Terraform-managed Helm release.
+Deploy Greptile on **Amazon EKS (Auto Mode)** with managed **RDS PostgreSQL** and Kubernetes-native orchestration via a Terraform-managed Helm release.
 
 This stack is intended for **Platform / SRE** teams who want managed Kubernetes with rolling updates and horizontal scaling.
 
@@ -17,7 +17,6 @@ Start from the copy/paste root module example: `terraform/examples/aws-eks-modul
 - **Subnet tagging** for Kubernetes Service/Ingress load balancer discovery
 - **AWS Load Balancer Controller** (Helm, `kube-system`)
 - **RDS PostgreSQL** (Greptile + Hatchet databases on the same instance)
-- **ElastiCache Redis** (TLS-enabled by chart defaults)
 - **KMS key** for SSM SecureString parameters
 - **SSM Parameter Store**:
   - `/${name_prefix}/config/*` (String)
@@ -34,21 +33,19 @@ Start from the copy/paste root module example: `terraform/examples/aws-eks-modul
 flowchart TB
   subgraph AWS["AWS Account / VPC"]
     subgraph Subnets["Subnets"]
-      Priv["Private subnets (EKS, RDS, Redis)"]
+      Priv["Private subnets (EKS, RDS)"]
       Pub["Public subnets (optional; for internet-facing LBs)"]
     end
 
     TF["Terraform (root module)"]
     EKS["EKS cluster (Auto Mode)"]
     RDS["RDS PostgreSQL"]
-    Redis["ElastiCache Redis"]
     SSM["SSM Parameter Store\n/{name_prefix}/config/*\n/{name_prefix}/secrets/*"]
     KMS["KMS key (SSM SecureString)"]
     CWLG["CloudWatch Log Group\n/greptile/{name_prefix}/application"]
 
     TF -->|creates| EKS
     TF -->|creates| RDS
-    TF -->|creates| Redis
     TF -->|writes params| SSM
     TF -->|creates| KMS
     TF -->|creates (optional)| CWLG
@@ -84,7 +81,7 @@ Tip: `ssm-env-keys.example.yaml` lists the on-prem env keys (from `docker/.env.e
 ### Network boundaries
 
 - EKS control plane and compute run in `private_subnet_ids` (EKS API endpoint is private; public access is optional via `endpoint_public_access`).
-- RDS and Redis are deployed in `private_subnet_ids` and restrict inbound access to the **EKS cluster security group** by default.
+- RDS is deployed in `private_subnet_ids` and restricts inbound access to the **EKS cluster security group** by default.
 
 ## Prerequisites
 
@@ -103,7 +100,6 @@ At minimum, the credentials used for `terraform apply` must be able to create/ma
 - IAM (roles, policy attachments, OIDC trust)
 - EC2 (subnet tagging, security groups)
 - RDS (instance, subnet groups, parameter groups, snapshots)
-- ElastiCache (replication group, subnet groups)
 - SSM Parameter Store (String + SecureString)
 - KMS (key + alias)
 - CloudWatch Logs (log group), if `cloudwatch_logs_enabled = true`
@@ -209,7 +205,6 @@ kubectl get ingress hatchet-api -n "$NAMESPACE"
 
 Do not expose these externally:
 - RDS PostgreSQL (5432)
-- Redis (6379)
 - Hatchet RabbitMQ (5672, 15672, etc.)
 - Internal-only services (api/auth/indexer/llmproxy/jobs/reviews)
 
@@ -229,7 +224,7 @@ Do not expose these externally:
 
 - Deploy `aws-eks` in parallel with a new `name_prefix` and verify it’s healthy.
 - Translate your EC2 `.env` secrets into `terraform.tfvars` (the stack writes them into SSM under `/${name_prefix}/...`).
-- Migrate data to the new managed RDS/Redis (snapshot/restore or other migration strategy appropriate to your environment).
+- Migrate data to the new managed RDS (snapshot/restore or other migration strategy appropriate to your environment).
 - Cut traffic over (DNS / load balancer) and then destroy the old `aws-ec2` environment.
 
 ## Blue/green deployments
@@ -329,7 +324,6 @@ See `variables.tf` for the full source of truth. Highlights below.
 | `ecr_registry` | Registry/prefix for image pulls (used as `<ecr_registry>/<service>:<tag>`) |
 | `greptile_tag` | Greptile image tag |
 | `db_password` | RDS master password (SecureString in SSM) |
-| `redis_auth_token` | Redis auth token (SecureString in SSM) |
 | `jwt_secret` | Greptile JWT secret (>= 32 chars) |
 | `token_encryption_key` | Greptile token encryption key (>= 32 chars) |
 
@@ -360,8 +354,6 @@ See `variables.tf` for the full source of truth. Highlights below.
 | `db_delete_automated_backups` | `false` | Delete automated backups on destroy |
 | `db_skip_final_snapshot` | `false` | Skip final snapshot on destroy |
 | `db_final_snapshot_identifier` | `null` | Final snapshot name override |
-| `redis_node_type` | `cache.t3.micro` | ElastiCache node type |
-| `redis_engine_version` | `6.2` | Redis engine version |
 | `anthropic_api_key` | `null` | Optional; stored to SSM |
 | `openai_api_key` | `null` | Optional; stored to SSM |
 | `github_client_id` | `null` | Optional; stored to SSM config |
@@ -389,7 +381,6 @@ See `outputs.tf` for the full source of truth.
 | `cluster_name` | EKS cluster name |
 | `cluster_endpoint` | EKS API endpoint |
 | `rds_endpoint` | RDS endpoint |
-| `redis_endpoint` | Redis primary endpoint |
 | `ssm_prefix` | `/${name_prefix}` prefix for SSM parameters |
 | `kms_key_arn` | KMS key ARN used for SecureString parameters |
 | `external_secrets_role_arn` | IRSA role ARN for External Secrets |

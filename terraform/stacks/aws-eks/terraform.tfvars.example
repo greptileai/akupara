@@ -39,11 +39,6 @@ db_backup_retention_period  = 14
 # db_skip_final_snapshot      = false
 # db_final_snapshot_identifier = null
 
-# Redis (ElastiCache)
-redis_node_type      = "cache.t3.micro"
-redis_engine_version = "6.2"
-redis_auth_token     = "PLEASE_GENERATE_A_16_CHAR_MIN_TOKEN"
-
 # Greptile required secrets (must be >= 32 chars)
 jwt_secret           = "PLEASE_GENERATE_AT_LEAST_32_CHARACTERS________"
 token_encryption_key = "PLEASE_GENERATE_AT_LEAST_32_CHARACTERS________"
@@ -87,4 +82,3 @@ tags = {
   ManagedBy   = "terraform"
   Stack       = "aws-eks"
 }
-

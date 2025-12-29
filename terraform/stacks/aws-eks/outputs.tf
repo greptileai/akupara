@@ -13,11 +13,6 @@ output "rds_endpoint" {
   value       = module.rds.endpoint
 }
 
-output "redis_endpoint" {
-  description = "Redis primary endpoint."
-  value       = module.redis.primary_endpoint
-}
-
 output "ssm_prefix" {
   description = "SSM Parameter Store prefix for this deployment (e.g., /prod-blue)."
   value       = local.ssm_prefix
