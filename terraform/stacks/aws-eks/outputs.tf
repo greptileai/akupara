@@ -38,16 +38,6 @@ output "indexer_role_arn" {
   value       = module.irsa_indexer.role_arn
 }
 
-output "github_role_arn" {
-  description = "IRSA role ARN for GitHub integration (Bedrock)."
-  value       = module.irsa_github.role_arn
-}
-
-output "gitlab_role_arn" {
-  description = "IRSA role ARN for GitLab integration (Bedrock)."
-  value       = module.irsa_gitlab.role_arn
-}
-
 output "cloudwatch_role_arn" {
   description = "IRSA role ARN for CloudWatch agent/log shipping."
   value       = module.irsa_cloudwatch.role_arn
@@ -62,4 +52,3 @@ output "kubeconfig_command" {
   description = "Command to configure kubectl for this EKS cluster."
   value       = "aws eks update-kubeconfig --name ${module.eks.cluster_name} --region ${var.aws_region} --profile ${var.aws_profile}"
 }
-

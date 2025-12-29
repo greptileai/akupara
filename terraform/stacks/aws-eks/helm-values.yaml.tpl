@@ -15,8 +15,6 @@ greptile:
 irsa:
   externalSecrets: ${external_secrets_role_arn}
   indexer: ${indexer_role_arn}
-  github: ${github_role_arn}
-  gitlab: ${gitlab_role_arn}
   cloudwatch: ${cloudwatch_role_arn}
 
 database:

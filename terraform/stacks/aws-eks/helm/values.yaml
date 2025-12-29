@@ -20,8 +20,6 @@ greptile:
 irsa:
   externalSecrets: ""
   indexer: ""
-  github: ""
-  gitlab: ""
   cloudwatch: ""
 
 database:
@@ -145,22 +143,6 @@ reviews:
     type: ClusterIP
     port: 3005
   resources: {}
-
-integrations:
-  github:
-    enabled: false
-    replicaCount: 1
-    service:
-      type: ClusterIP
-      port: 3010
-    resources: {}
-  gitlab:
-    enabled: false
-    replicaCount: 1
-    service:
-      type: ClusterIP
-      port: 3011
-    resources: {}
 
 jackson:
   enabled: false
