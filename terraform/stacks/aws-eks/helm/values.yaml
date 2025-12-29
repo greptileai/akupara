@@ -154,5 +154,13 @@ jackson:
     port: 5225
   resources: {}
 
-llm:
-  enabled: false
+llmproxy:
+  enabled: true
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 4000
+  resources: {}
+  # Optional: override the default config shipped in helm/files/llmproxy-config.yaml
+  # If not set, uses the default from helm/files/llmproxy-config.yaml
+  configOverride: ""

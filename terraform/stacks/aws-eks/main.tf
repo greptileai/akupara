@@ -54,7 +54,8 @@ locals {
     var.openai_api_key != null && trimspace(var.openai_api_key) != "" ? { "openai-key" = var.openai_api_key } : {},
     var.github_client_secret != null && trimspace(var.github_client_secret) != "" ? { "github-client-secret" = var.github_client_secret } : {},
     var.github_webhook_secret != null && trimspace(var.github_webhook_secret) != "" ? { "github-webhook-secret" = var.github_webhook_secret } : {},
-    var.github_private_key != null && trimspace(var.github_private_key) != "" ? { "github-private-key" = var.github_private_key } : {}
+    var.github_private_key != null && trimspace(var.github_private_key) != "" ? { "github-private-key" = var.github_private_key } : {},
+    var.llm_proxy_key != null && trimspace(var.llm_proxy_key) != "" ? { "llm-proxy-key" = var.llm_proxy_key } : {}
   )
 
   ssm_secrets = merge(local.ssm_secrets_required, local.ssm_secrets_optional, var.ssm_secrets)

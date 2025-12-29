@@ -243,6 +243,13 @@ variable "github_private_key" {
   sensitive   = true
 }
 
+variable "llm_proxy_key" {
+  description = "LiteLLM proxy master key for authentication (optional). Stored to SSM when provided."
+  type        = string
+  default     = null
+  sensitive   = true
+}
+
 variable "ssm_secrets" {
   description = "Additional SSM SecureString parameters to create under /{name_prefix}/secrets/<key>. Keys should be kebab-case."
   type        = map(string)
@@ -268,7 +275,8 @@ variable "ssm_secrets" {
         "openai-key",
         "github-client-secret",
         "github-webhook-secret",
-        "github-private-key"
+        "github-private-key",
+        "llm-proxy-key"
       ])
     )) == 0
     error_message = "ssm_secrets must not include reserved keys managed by first-class variables."

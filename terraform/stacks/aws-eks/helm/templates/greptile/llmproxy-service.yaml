@@ -1,0 +1,21 @@
+{{/*
+Purpose:
+- ClusterIP Service for LLM Proxy.
+- Other services connect via http://llmproxy:4000
+*/}}
+
+{{- if .Values.llmproxy.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: llmproxy
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: {{ .Values.llmproxy.service.type }}
+  selector:
+    app: llmproxy
+  ports:
+    - port: {{ .Values.llmproxy.service.port }}
+      targetPort: {{ .Values.llmproxy.service.port }}
+      name: http
+{{- end }}

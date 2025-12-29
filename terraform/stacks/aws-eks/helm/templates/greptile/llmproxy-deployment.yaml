@@ -1,0 +1,65 @@
+{{/*
+Purpose:
+- LiteLLM Proxy Deployment for centralized LLM routing.
+- Services connect via LLM_PROXY_BASE_URL.
+*/}}
+
+{{- if .Values.llmproxy.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llmproxy
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.llmproxy.replicaCount }}
+  selector:
+    matchLabels:
+      app: llmproxy
+  template:
+    metadata:
+      labels:
+        app: llmproxy
+      annotations:
+        # Trigger rollout when config changes
+        checksum/config: {{ include (print $.Template.BasePath "/greptile/llmproxy-configmap.yaml") . | sha256sum }}
+    spec:
+      {{- if .Values.irsa.llmproxy }}
+      serviceAccountName: llmproxy-sa
+      {{- end }}
+      containers:
+        - name: llmproxy
+          image: {{ printf "%s/%s:%s" .Values.ecr.registry "llmproxy" .Values.greptile.tag | quote }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: {{ .Values.llmproxy.service.port }}
+          envFrom:
+            - secretRef:
+                name: llm-env
+          env:
+            - name: PORT
+              value: {{ .Values.llmproxy.service.port | quote }}
+          volumeMounts:
+            - name: config
+              mountPath: /app/config.yaml
+              subPath: config.yaml
+              readOnly: true
+          resources:
+            {{- toYaml .Values.llmproxy.resources | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.llmproxy.service.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.llmproxy.service.port }}
+            initialDelaySeconds: 15
+            periodSeconds: 20
+      volumes:
+        - name: config
+          configMap:
+            name: llmproxy-config
+{{- end }}
