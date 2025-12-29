@@ -24,6 +24,9 @@ spec:
         NODE_ENV: {{ .Values.global.environment | quote }}
         HATCHET_CLIENT_TLS_STRATEGY: "none"
         REDIS_USE_TLS: {{ ternary "true" "false" .Values.redis.useTls | quote }}
+        {{- if .Values.llmproxy.enabled }}
+        LLM_PROXY_BASE_URL: {{ printf "http://llmproxy:%d" (int .Values.llmproxy.service.port) | quote }}
+        {{- end }}
         DATABASE_URL: 'postgresql://{{ `{{ .DB_USER }}` }}:{{ `{{ urlquery .DB_PASSWORD }}` }}@{{ `{{ .DB_HOST }}` }}:{{ `{{ .DB_PORT }}` }}/{{ `{{ .DB_NAME }}` }}'
         DIRECT_URL: 'postgresql://{{ `{{ .DB_USER }}` }}:{{ `{{ urlquery .DB_PASSWORD }}` }}@{{ `{{ .DB_HOST }}` }}:{{ `{{ .DB_PORT }}` }}/{{ `{{ .DB_NAME }}` }}'
         VECTOR_DB_HOST: '{{ `{{ .DB_HOST }}` }}'

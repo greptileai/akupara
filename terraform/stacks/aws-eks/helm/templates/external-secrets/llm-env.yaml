@@ -1,10 +1,10 @@
 {{/*
 Purpose:
-- Optional ExternalSecret for LLM provider credentials/config.
-- Pulls provider API keys from SSM and emits env-var-shaped keys used by the app.
+- ExternalSecret for LLM provider credentials/config.
+- Pulls provider API keys from SSM for llmproxy and other LLM-consuming services.
 */}}
 
-{{- if .Values.llm.enabled }}
+{{- if .Values.llmproxy.enabled }}
 apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
@@ -19,10 +19,20 @@ spec:
     name: llm-env
     creationPolicy: Owner
   data:
-    - secretKey: ANTHROPIC_KEY
+    # LiteLLM master key for authentication
+    - secretKey: LITELLM_MASTER_KEY
+      remoteRef:
+        key: {{ printf "%s/secrets/llm-proxy-key" .Values.ssm.prefix | quote }}
+    # Anthropic
+    - secretKey: ANTHROPIC_API_KEY
       remoteRef:
         key: {{ printf "%s/secrets/anthropic-key" .Values.ssm.prefix | quote }}
-    - secretKey: OPENAI_KEY
+    # OpenAI
+    - secretKey: OPENAI_API_KEY
       remoteRef:
         key: {{ printf "%s/secrets/openai-key" .Values.ssm.prefix | quote }}
+    # AWS Region (for Bedrock)
+    - secretKey: AWS_REGION_NAME
+      remoteRef:
+        key: {{ printf "%s/config/aws-region" .Values.ssm.prefix | quote }}
 {{- end }}

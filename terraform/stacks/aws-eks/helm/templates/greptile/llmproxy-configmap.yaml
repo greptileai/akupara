@@ -1,0 +1,20 @@
+{{/*
+Purpose:
+- ConfigMap for LiteLLM proxy configuration.
+- Ships a default config from helm/files/, allows override via values.
+*/}}
+
+{{- if .Values.llmproxy.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: llmproxy-config
+  namespace: {{ .Release.Namespace }}
+data:
+  config.yaml: |
+{{- if .Values.llmproxy.configOverride }}
+{{ .Values.llmproxy.configOverride | indent 4 }}
+{{- else }}
+{{ .Files.Get "files/llmproxy-config.yaml" | indent 4 }}
+{{- end }}
+{{- end }}
