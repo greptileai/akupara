@@ -233,32 +233,6 @@ module "irsa_indexer" {
   tags        = local.tags
 }
 
-module "irsa_github" {
-  source            = "../../modules/aws/eks-irsa"
-  role_name         = "${var.name_prefix}-github-role"
-  oidc_provider_arn = module.eks.oidc_provider_arn
-  oidc_provider_url = module.eks.oidc_provider_url
-
-  namespace            = var.k8s_namespace
-  service_account_name = "github-sa"
-
-  policy_arns = [local.bedrock_full_access_arn]
-  tags        = local.tags
-}
-
-module "irsa_gitlab" {
-  source            = "../../modules/aws/eks-irsa"
-  role_name         = "${var.name_prefix}-gitlab-role"
-  oidc_provider_arn = module.eks.oidc_provider_arn
-  oidc_provider_url = module.eks.oidc_provider_url
-
-  namespace            = var.k8s_namespace
-  service_account_name = "gitlab-sa"
-
-  policy_arns = [local.bedrock_full_access_arn]
-  tags        = local.tags
-}
-
 module "irsa_cloudwatch" {
   source            = "../../modules/aws/eks-irsa"
   role_name         = "${var.name_prefix}-cloudwatch-role"
@@ -347,8 +321,6 @@ resource "helm_release" "greptile" {
 
       external_secrets_role_arn = module.irsa_external_secrets.role_arn
       indexer_role_arn          = module.irsa_indexer.role_arn
-      github_role_arn           = module.irsa_github.role_arn
-      gitlab_role_arn           = module.irsa_gitlab.role_arn
       cloudwatch_role_arn       = module.irsa_cloudwatch.role_arn
 
       cloudwatch_logs_enabled           = var.cloudwatch_logs_enabled
@@ -369,8 +341,6 @@ resource "helm_release" "greptile" {
     module.redis,
     module.irsa_external_secrets,
     module.irsa_indexer,
-    module.irsa_github,
-    module.irsa_gitlab,
     module.irsa_cloudwatch,
     aws_ssm_parameter.secrets,
     aws_ssm_parameter.config,

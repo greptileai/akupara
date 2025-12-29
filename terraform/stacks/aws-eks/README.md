@@ -57,7 +57,7 @@ flowchart TB
       LBC["AWS Load Balancer Controller"]
       ESO["External Secrets Operator"]
       ES["ExternalSecret/SecretStore"]
-      K8SSecrets["Kubernetes Secrets\n(greptile-env, github-env, llm-env,\nhatchet-shared-config, hatchet-client-config)"]
+      K8SSecrets["Kubernetes Secrets\n(greptile-env, llm-env,\nhatchet-shared-config, hatchet-client-config)"]
       Greptile["Greptile services\n(web/api/auth/indexer/...)"]
       Hatchet["Hatchet stack (internal)\n+ token generation Job"]
       CWAgent["CloudWatch Agent DaemonSet (optional)"]
@@ -106,7 +106,7 @@ At minimum, the credentials used for `terraform apply` must be able to create/ma
 - KMS (key + alias)
 - CloudWatch Logs (log group), if `cloudwatch_logs_enabled = true`
 
-This stack attaches **`AmazonBedrockFullAccess`** to some IRSA roles (indexer/github/gitlab). Review and restrict if your environment requires least privilege.
+This stack attaches **`AmazonBedrockFullAccess`** to the indexer IRSA role. Review and restrict if your environment requires least privilege.
 
 ### Networking (VPC + subnets)
 
@@ -128,7 +128,7 @@ The Helm chart constructs image names as:
 
 `<ecr_registry>/<service>:<greptile_tag>`
 
-You must ensure your registry contains the required repos/images (commonly: `web`, `api`, `auth`, `chunker`, `summarizer`, `db-migration-job`, `llmproxy`, `jobs`, `reviews`; plus optional `webhook`, `github`, `gitlab`).
+You must ensure your registry contains the required repos/images (commonly: `web`, `api`, `auth`, `chunker`, `summarizer`, `db-migration-job`, `llmproxy`, `jobs`, `reviews`; plus optional `webhook`).
 
 ## Consume from a root module
 
@@ -175,8 +175,6 @@ If you need to enable optional components:
 Common toggles:
 
 - Webhook receiver: `webhook.enabled: true`
-- GitHub worker + secrets sync: `integrations.github.enabled: true`
-- GitLab worker: `integrations.gitlab.enabled: true`
 - LLM API keys via SSM/ExternalSecrets: `llm.enabled: true`
 - Jackson (SSO helper): `jackson.enabled: true`
 
@@ -392,8 +390,6 @@ See `outputs.tf` for the full source of truth.
 | `kms_key_arn` | KMS key ARN used for SecureString parameters |
 | `external_secrets_role_arn` | IRSA role ARN for External Secrets |
 | `indexer_role_arn` | IRSA role ARN for indexer (Bedrock) |
-| `github_role_arn` | IRSA role ARN for GitHub worker (Bedrock) |
-| `gitlab_role_arn` | IRSA role ARN for GitLab worker (Bedrock) |
 | `cloudwatch_role_arn` | IRSA role ARN for CloudWatch agent |
 | `cloudwatch_log_group_name` | Log group name (or null if disabled) |
 | `kubeconfig_command` | Convenience command for `aws eks update-kubeconfig` |

@@ -43,10 +43,6 @@ spec:
           envFrom:
             - secretRef:
                 name: greptile-env
-            {{- if .Values.integrations.github.enabled }}
-            - secretRef:
-                name: github-env
-            {{- end }}
           env:
             - name: PORT
               value: {{ .Values.web.service.port | quote }}

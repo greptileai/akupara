@@ -56,10 +56,6 @@ spec:
             - secretRef:
                 name: llm-env
             {{- end }}
-            {{- if .Values.integrations.github.enabled }}
-            - secretRef:
-                name: github-env
-            {{- end }}
             - secretRef:
                 name: hatchet-client-config
           env:
