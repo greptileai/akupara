@@ -219,19 +219,6 @@ module "irsa_external_secrets" {
   tags          = local.tags
 }
 
-module "irsa_query" {
-  source            = "../../modules/aws/eks-irsa"
-  role_name         = "${var.name_prefix}-query-role"
-  oidc_provider_arn = module.eks.oidc_provider_arn
-  oidc_provider_url = module.eks.oidc_provider_url
-
-  namespace            = var.k8s_namespace
-  service_account_name = "query-sa"
-
-  policy_arns = [local.bedrock_full_access_arn]
-  tags        = local.tags
-}
-
 module "irsa_indexer" {
   source            = "../../modules/aws/eks-irsa"
   role_name         = "${var.name_prefix}-indexer-role"
@@ -358,7 +345,6 @@ resource "helm_release" "greptile" {
       kms_key_arn = aws_kms_key.ssm.arn
 
       external_secrets_role_arn = module.irsa_external_secrets.role_arn
-      query_role_arn            = module.irsa_query.role_arn
       indexer_role_arn          = module.irsa_indexer.role_arn
       github_role_arn           = module.irsa_github.role_arn
       gitlab_role_arn           = module.irsa_gitlab.role_arn
@@ -381,7 +367,6 @@ resource "helm_release" "greptile" {
     module.rds,
     module.redis,
     module.irsa_external_secrets,
-    module.irsa_query,
     module.irsa_indexer,
     module.irsa_github,
     module.irsa_gitlab,

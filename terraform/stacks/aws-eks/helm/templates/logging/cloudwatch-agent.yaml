@@ -88,12 +88,6 @@ data:
                 "timezone": "UTC"
               },
               {
-                "file_path": "/var/log/containers/query-*.log",
-                "log_group_name": "{{ .Values.cloudwatchLogs.logGroupName }}",
-                "log_stream_name": "query",
-                "timezone": "UTC"
-              },
-              {
                 "file_path": "/var/log/containers/indexer-*.log",
                 "log_group_name": "{{ .Values.cloudwatchLogs.logGroupName }}",
                 "log_stream_name": "indexer",

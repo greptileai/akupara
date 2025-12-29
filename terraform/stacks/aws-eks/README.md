@@ -58,7 +58,7 @@ flowchart TB
       ESO["External Secrets Operator"]
       ES["ExternalSecret/SecretStore"]
       K8SSecrets["Kubernetes Secrets\n(greptile-env, github-env, llm-env,\nhatchet-shared-config, hatchet-client-config)"]
-      Greptile["Greptile services\n(web/api/auth/query/indexer/...)"]
+      Greptile["Greptile services\n(web/api/auth/indexer/...)"]
       Hatchet["Hatchet stack (internal)\n+ token generation Job"]
       CWAgent["CloudWatch Agent DaemonSet (optional)"]
     end
@@ -106,7 +106,7 @@ At minimum, the credentials used for `terraform apply` must be able to create/ma
 - KMS (key + alias)
 - CloudWatch Logs (log group), if `cloudwatch_logs_enabled = true`
 
-This stack attaches **`AmazonBedrockFullAccess`** to some IRSA roles (query/indexer/github/gitlab). Review and restrict if your environment requires least privilege.
+This stack attaches **`AmazonBedrockFullAccess`** to some IRSA roles (indexer/github/gitlab). Review and restrict if your environment requires least privilege.
 
 ### Networking (VPC + subnets)
 
@@ -391,7 +391,6 @@ See `outputs.tf` for the full source of truth.
 | `ssm_prefix` | `/${name_prefix}` prefix for SSM parameters |
 | `kms_key_arn` | KMS key ARN used for SecureString parameters |
 | `external_secrets_role_arn` | IRSA role ARN for External Secrets |
-| `query_role_arn` | IRSA role ARN for query (Bedrock) |
 | `indexer_role_arn` | IRSA role ARN for indexer (Bedrock) |
 | `github_role_arn` | IRSA role ARN for GitHub worker (Bedrock) |
 | `gitlab_role_arn` | IRSA role ARN for GitLab worker (Bedrock) |

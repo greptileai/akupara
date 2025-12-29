@@ -20,7 +20,6 @@ greptile:
 irsa:
   externalSecrets: ""
   indexer: ""
-  query: ""
   github: ""
   gitlab: ""
   cloudwatch: ""
@@ -120,14 +119,6 @@ webhook:
   service:
     type: LoadBalancer
     port: 3007
-  resources: {}
-
-query:
-  enabled: true
-  replicaCount: 3
-  service:
-    type: ClusterIP
-    port: 8081
   resources: {}
 
 indexer:
