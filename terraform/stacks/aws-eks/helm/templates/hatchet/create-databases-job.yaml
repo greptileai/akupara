@@ -34,17 +34,22 @@ spec:
               prefix={{ .Values.ssm.prefix | quote }}
 
               db_host="$(aws ssm get-parameter --name "${prefix}/config/database-host" --query 'Parameter.Value' --output text)"
-	              db_port="$(aws ssm get-parameter --name "${prefix}/config/database-port" --query 'Parameter.Value' --output text)"
-	              db_user="$(aws ssm get-parameter --name "${prefix}/config/database-username" --query 'Parameter.Value' --output text)"
-	              db_password="$(aws ssm get-parameter --with-decryption --name "${prefix}/secrets/database-password" --query 'Parameter.Value' --output text)"
+              db_port="$(aws ssm get-parameter --name "${prefix}/config/database-port" --query 'Parameter.Value' --output text)"
+              db_user="$(aws ssm get-parameter --name "${prefix}/config/database-username" --query 'Parameter.Value' --output text)"
+              db_password="$(aws ssm get-parameter --with-decryption --name "${prefix}/secrets/database-password" --query 'Parameter.Value' --output text)"
 
-	              export PGHOST="$db_host"
-	              export PGPORT="$db_port"
-	              export PGUSER="$db_user"
-	              export PGPASSWORD="$db_password"
-	              export PGDATABASE="postgres"
-	              export PGSSLMODE="prefer"
-	              echo "Ensuring vector + hatchet databases exist on ${db_host}:${db_port}..."
+              export PGHOST="$db_host"
+              export PGPORT="$db_port"
+              export PGUSER="$db_user"
+              export PGPASSWORD="$db_password"
+              export PGDATABASE="postgres"
+              export PGSSLMODE="prefer"
+              echo "Ensuring vector + hatchet databases exist on ${db_host}:${db_port}..."
 
-	              psql -v ON_ERROR_STOP=1 -c "SELECT 'CREATE DATABASE vector' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'vector')\\gexec"
-	              psql -v ON_ERROR_STOP=1 -c "SELECT 'CREATE DATABASE hatchet' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'hatchet')\\gexec"
+              if ! psql -tAc "SELECT 1 FROM pg_database WHERE datname = 'vector'" | grep -q 1; then
+                psql -v ON_ERROR_STOP=1 -c "CREATE DATABASE vector"
+              fi
+
+              if ! psql -tAc "SELECT 1 FROM pg_database WHERE datname = 'hatchet'" | grep -q 1; then
+                psql -v ON_ERROR_STOP=1 -c "CREATE DATABASE hatchet"
+              fi
