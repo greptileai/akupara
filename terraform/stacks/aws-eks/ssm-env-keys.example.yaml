@@ -1,4 +1,3 @@
-# Generated from wt-greptilia/packages/config/src/app-schemas.ts
 # Only includes keys present in docker/.env.example (on-prem subset).
 # Keys are kebab-case for use with ssm_config_keys / ssm_secrets_keys.
 
@@ -18,6 +17,8 @@ ssm_config_keys:
   - email-provider
   - github-app-id
   - github-app-url
+  - github-bot-login
+  - github-bot-username
   - github-client-id
   - github-enabled
   - github-enterprise-api-url
@@ -33,6 +34,7 @@ ssm_config_keys:
   - linear-enabled
   - notifications
   - slack-enabled
+  - slack-client-id
   - support-email
   - use-procedural-memory
   - vector-db-ssl-disable
@@ -46,6 +48,9 @@ ssm_secrets_keys:
   - github-enterprise-client-secret
   - github-private-key
   - greptile-webhook-url
+  - slack-client-secret
+  - slack-signing-secret
+  - slack-webhook-url
   - webhook-secret
 
 provided_by_helm:

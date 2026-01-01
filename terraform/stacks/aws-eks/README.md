@@ -176,7 +176,7 @@ Common toggles:
 - LLM API keys via SSM/ExternalSecrets: `llmproxy.enabled: true`
 - Jackson (SSO helper): `jackson.enabled: true`
 
-Note: setting optional Terraform variables like `github_client_secret` or `openai_api_key` will create SSM parameters, but the corresponding Kubernetes resources are only created when the chart component is enabled.
+Note: optional app/integration values should be provided via `ssm_config`/`ssm_secrets` (or `ssm_config_keys`/`ssm_secrets_keys` when managed outside Terraform). The chart only creates Kubernetes resources for components you enable.
 
 ## Networking
 
@@ -354,12 +354,6 @@ See `variables.tf` for the full source of truth. Highlights below.
 | `db_delete_automated_backups` | `false` | Delete automated backups on destroy |
 | `db_skip_final_snapshot` | `false` | Skip final snapshot on destroy |
 | `db_final_snapshot_identifier` | `null` | Final snapshot name override |
-| `anthropic_api_key` | `null` | Optional; stored to SSM |
-| `openai_api_key` | `null` | Optional; stored to SSM |
-| `github_client_id` | `null` | Optional; stored to SSM config |
-| `github_client_secret` | `null` | Optional; stored to SSM |
-| `github_webhook_secret` | `null` | Optional; stored to SSM |
-| `github_private_key` | `null` | Optional; stored to SSM |
 | `ssm_secrets` | `{}` | Extra SSM SecureString params under `/${name_prefix}/secrets/*` |
 | `ssm_secrets_keys` | `[]` | Extra SecureString keys to expose (managed outside Terraform) |
 | `ssm_config` | `{}` | Extra SSM String params under `/${name_prefix}/config/*` |
@@ -371,6 +365,8 @@ See `variables.tf` for the full source of truth. Highlights below.
 | `hatchet_ingress_host` | `""` | Optional host match for Hatchet Ingress |
 | `hatchet_ingress_annotations` | `{}` | Extra ALB annotations (auth/TLS/etc) |
 | `tags` | `{}` | Extra AWS tags |
+
+App/integration SSM keys expected by the chart are listed in `ssm-env-keys.example.yaml`.
 
 ## Outputs
 
