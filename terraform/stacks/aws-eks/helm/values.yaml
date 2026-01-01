@@ -47,21 +47,49 @@ hatchet-stack:
   # We provide `hatchet-shared-config` via ExternalSecrets so we can inject DATABASE_URL from SSM
   sharedConfig:
     enabled: false
+  api:
+    image:
+      tag: "v0.71.0"
+    migrationJob:
+      image:
+        tag: "v0.71.0"
+    setupJob:
+      image:
+        tag: "v0.71.0"
+    seedJob:
+      image:
+        tag: "v0.71.0"
+    deploymentEnvFrom:
+      - secretRef:
+          name: hatchet-shared-config
+  engine:
+    image:
+      tag: "v0.71.0"
+    deploymentEnvFrom:
+      - secretRef:
+          name: hatchet-shared-config
   caddy:
     enabled: false
   postgres:
     enabled: false
   rabbitmq:
     enabled: true
+    image:
+      registry: docker.io
+      repository: bitnamilegacy/rabbitmq
+      tag: 3.12.13-debian-12-r2
     auth:
       username: "hatchet"
       password: "hatchet"
+    persistence:
+      enabled: false
 
 hatchet:
   tenantId: "707d0855-80ab-4e1f-a156-f1c4546cbf52"
   tokenGeneration:
-    enabled: true
+    enabled: false
     backoffLimit: 10
+    kubectlImage: "bitnami/kubectl:latest"
   ingress:
     enabled: true
     # Optional: set to a DNS name to scope routing to a specific host.

@@ -25,7 +25,7 @@ spec:
           emptyDir: {}
       initContainers:
         - name: check-existing
-          image: bitnami/kubectl:1.31
+          image: {{ .Values.hatchet.tokenGeneration.kubectlImage | quote }}
           command: ["/bin/sh", "-c"]
           args:
             - |
@@ -55,7 +55,7 @@ spec:
               mountPath: /work
       containers:
         - name: token-generator
-          image: ghcr.io/hatchet-dev/hatchet/hatchet-admin:v0.52.0
+          image: ghcr.io/hatchet-dev/hatchet/hatchet-admin:v0.71.0
           command: ["/bin/sh", "-c"]
           args:
             - |
@@ -70,12 +70,12 @@ spec:
               printf "%s" "$token" > /work/token
           envFrom:
             - secretRef:
-                name: hatchet-config
+                name: hatchet-shared-config
           volumeMounts:
             - name: work
               mountPath: /work
         - name: secret-writer
-          image: bitnami/kubectl:1.31
+          image: {{ .Values.hatchet.tokenGeneration.kubectlImage | quote }}
           command: ["/bin/sh", "-c"]
           args:
             - |
