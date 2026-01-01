@@ -47,14 +47,12 @@ spec:
           resources:
             {{- toYaml .Values.llmproxy.resources | nindent 12 }}
           readinessProbe:
-            httpGet:
-              path: /health
+            tcpSocket:
               port: {{ .Values.llmproxy.service.port }}
             initialDelaySeconds: 10
             periodSeconds: 10
           livenessProbe:
-            httpGet:
-              path: /health
+            tcpSocket:
               port: {{ .Values.llmproxy.service.port }}
             initialDelaySeconds: 15
             periodSeconds: 20
