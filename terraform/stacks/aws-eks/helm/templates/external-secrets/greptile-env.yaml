@@ -5,7 +5,7 @@ Purpose:
 - Uses ExternalSecrets templating to derive connection URLs (DATABASE_URL, VECTOR_DB_URL, etc).
 */}}
 
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: greptile-env
@@ -21,10 +21,35 @@ spec:
     template:
       engineVersion: v2
       data:
-        NODE_ENV: {{ .Values.global.environment | quote }}
+        NODE_ENV: {{ ternary "production" .Values.global.environment (eq .Values.global.environment "sandbox") | quote }}
         HATCHET_CLIENT_TLS_STRATEGY: "none"
+        HATCHET_CLIENT_API_URL: {{ printf "http://%s-api:8080" .Release.Name | quote }}
+        HATCHET_CLIENT_HOST_PORT: {{ printf "%s-engine:7070" .Release.Name | quote }}
+        SERVER_AUTH_COOKIE_SECRETS: '{{ `{{ .SERVER_AUTH_COOKIE_SECRETS }}` }}'
+        DB_HOST: '{{ `{{ .DB_HOST }}` }}'
+        DB_PORT: '{{ `{{ .DB_PORT }}` }}'
+        DB_USER: '{{ `{{ .DB_USER }}` }}'
+        DB_NAME: '{{ `{{ .DB_NAME }}` }}'
+        DB_PASSWORD: '{{ `{{ .DB_PASSWORD }}` }}'
+        JWT_SECRET: '{{ `{{ .JWT_SECRET }}` }}'
+        TOKEN_ENCRYPTION_KEY: '{{ `{{ .TOKEN_ENCRYPTION_KEY }}` }}'
+        AWS_REGION: '{{ `{{ .AWS_REGION }}` }}'
+        GREPTILE_API_URL: '{{ `{{ .GREPTILE_API_URL }}` }}'
+        APP_URL: '{{ `{{ .APP_URL }}` }}'
+        GREPTILE_WEB_URL: '{{ `{{ .APP_URL }}` }}'
+        URL: '{{ `{{ .APP_URL }}` }}'
+        GREPTILE_WEBHOOK_URL: '{{ `{{ printf "%s/webhook" .GREPTILE_API_URL }}` }}'
+        WEBHOOK_SECRET: '{{ `{{ .WEBHOOK_SECRET }}` }}'
+        ANALYTICS: '{{ `{{ .ANALYTICS }}` }}'
+        NOTIFICATIONS: '{{ `{{ .NOTIFICATIONS }}` }}'
+        BILLING: "false"
+        BILLING_ENABLED: "false"
+        NEXT_PUBLIC_BILLING: "false"
+        EMAIL_FROM: {{ .Values.greptile.emailFrom | quote }}
+        AUTH_EMAIL_FROM: {{ .Values.greptile.emailFrom | quote }}
         {{- if .Values.llmproxy.enabled }}
         LLM_PROXY_BASE_URL: {{ printf "http://llmproxy:%d" (int .Values.llmproxy.service.port) | quote }}
+        LLM_PROXY_KEY: '{{ `{{ .LLM_PROXY_KEY }}` }}'
         {{- end }}
         DATABASE_URL: 'postgresql://{{ `{{ .DB_USER }}` }}:{{ `{{ urlquery .DB_PASSWORD }}` }}@{{ `{{ .DB_HOST }}` }}:{{ `{{ .DB_PORT }}` }}/{{ `{{ .DB_NAME }}` }}'
         DIRECT_URL: 'postgresql://{{ `{{ .DB_USER }}` }}:{{ `{{ urlquery .DB_PASSWORD }}` }}@{{ `{{ .DB_HOST }}` }}:{{ `{{ .DB_PORT }}` }}/{{ `{{ .DB_NAME }}` }}'
@@ -62,6 +87,26 @@ spec:
     - secretKey: AWS_REGION
       remoteRef:
         key: {{ printf "%s/config/aws-region" .Values.ssm.prefix | quote }}
+    - secretKey: GREPTILE_API_URL
+      remoteRef:
+        key: {{ printf "%s/config/greptile-api-url" .Values.ssm.prefix | quote }}
+    - secretKey: APP_URL
+      remoteRef:
+        key: {{ printf "%s/config/app-url" .Values.ssm.prefix | quote }}
+    - secretKey: WEBHOOK_SECRET
+      remoteRef:
+        key: {{ printf "%s/secrets/webhook-secret" .Values.ssm.prefix | quote }}
+    {{- if .Values.llmproxy.enabled }}
+    - secretKey: LLM_PROXY_KEY
+      remoteRef:
+        key: {{ printf "%s/secrets/llm-proxy-key" .Values.ssm.prefix | quote }}
+    {{- end }}
+    - secretKey: ANALYTICS
+      remoteRef:
+        key: {{ printf "%s/config/analytics" .Values.ssm.prefix | quote }}
+    - secretKey: NOTIFICATIONS
+      remoteRef:
+        key: {{ printf "%s/config/notifications" .Values.ssm.prefix | quote }}
     {{- range $key := .Values.ssm.extraConfigKeys }}
     - secretKey: {{ $key | replace "-" "_" | upper }}
       remoteRef:

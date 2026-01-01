@@ -18,6 +18,7 @@ ecr:
 
 greptile:
   tag: ""
+  emailFrom: "noreply@example.com"
 
 irsa:
   externalSecrets: ""

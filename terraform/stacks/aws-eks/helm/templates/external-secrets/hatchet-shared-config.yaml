@@ -6,7 +6,7 @@ Purpose:
 
 {{- $hatchetStack := index .Values "hatchet-stack" -}}
 {{- if $hatchetStack.enabled }}
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: hatchet-shared-config
@@ -22,11 +22,28 @@ spec:
     template:
       engineVersion: v2
       data:
-        DATABASE_URL: 'postgresql://{{ `{{ .DB_USER }}` }}:{{ `{{ urlquery .DB_PASSWORD }}` }}@{{ `{{ .DB_HOST }}` }}:{{ `{{ .DB_PORT }}` }}/hatchet'
+        DATABASE_URL: 'postgresql://{{ `{{ .DB_USER }}` }}:{{ `{{ urlquery .DB_PASSWORD }}` }}@{{ `{{ .DB_HOST }}` }}:{{ `{{ .DB_PORT }}` }}/hatchet?sslmode=require'
+        DATABASE_HOST: '{{ `{{ .DB_HOST }}` }}'
+        DATABASE_PORT: '{{ `{{ .DB_PORT }}` }}'
+        DATABASE_USER: '{{ `{{ .DB_USER }}` }}'
+        DATABASE_PASSWORD: '{{ `{{ .DB_PASSWORD }}` }}'
+        DATABASE_NAME: "hatchet"
+        DATABASE_POSTGRES_HOST: '{{ `{{ .DB_HOST }}` }}'
+        DATABASE_POSTGRES_PORT: '{{ `{{ .DB_PORT }}` }}'
+        DATABASE_POSTGRES_USERNAME: '{{ `{{ .DB_USER }}` }}'
+        DATABASE_POSTGRES_PASSWORD: '{{ `{{ .DB_PASSWORD }}` }}'
+        DATABASE_POSTGRES_DB_NAME: "hatchet"
+        DATABASE_POSTGRES_SSL_MODE: "require"
+        PGHOST: '{{ `{{ .DB_HOST }}` }}'
+        PGPORT: '{{ `{{ .DB_PORT }}` }}'
+        PGUSER: '{{ `{{ .DB_USER }}` }}'
+        PGPASSWORD: '{{ `{{ .DB_PASSWORD }}` }}'
+        PGDATABASE: "hatchet"
         SERVER_TASKQUEUE_RABBITMQ_URL: {{ printf "amqp://%s:%s@%s-rabbitmq:5672/" $hatchetStack.rabbitmq.auth.username $hatchetStack.rabbitmq.auth.password .Release.Name | quote }}
         SERVER_URL: {{ .Values.hatchet.sharedConfig.serverUrl | quote }}
         SERVER_AUTH_COOKIE_DOMAIN: {{ .Values.hatchet.sharedConfig.serverAuthCookieDomain | quote }}
         SERVER_AUTH_COOKIE_INSECURE: {{ .Values.hatchet.sharedConfig.serverAuthCookieInsecure | quote }}
+        SERVER_AUTH_COOKIE_SECRETS: '{{ `{{ .COOKIE_SECRETS }}` }}'
         SERVER_AUTH_SET_EMAIL_VERIFIED: {{ .Values.hatchet.sharedConfig.serverAuthSetEmailVerified | quote }}
         SERVER_AUTH_BASIC_AUTH_ENABLED: {{ .Values.hatchet.sharedConfig.serverAuthBasicAuthEnabled | quote }}
         SERVER_GRPC_BROADCAST_ADDRESS: {{ .Values.hatchet.sharedConfig.grpcBroadcastAddress | quote }}
@@ -34,6 +51,9 @@ spec:
         ADMIN_PASSWORD: {{ .Values.hatchet.sharedConfig.defaultAdminPassword | quote }}
         SERVER_GRPC_BIND_ADDRESS: "0.0.0.0"
         SERVER_GRPC_INSECURE: {{ .Values.hatchet.sharedConfig.grpcInsecure | quote }}
+        SERVER_ENCRYPTION_MASTER_KEYSET: '{{ `{{ .ENCRYPTION_MASTER_KEYSET }}` }}'
+        SERVER_ENCRYPTION_JWT_PRIVATE_KEYSET: '{{ `{{ .ENCRYPTION_JWT_PRIVATE_KEYSET }}` }}'
+        SERVER_ENCRYPTION_JWT_PUBLIC_KEYSET: '{{ `{{ .ENCRYPTION_JWT_PUBLIC_KEYSET }}` }}'
   data:
     - secretKey: DB_HOST
       remoteRef:
@@ -47,4 +67,16 @@ spec:
     - secretKey: DB_PASSWORD
       remoteRef:
         key: {{ printf "%s/secrets/database-password" .Values.ssm.prefix | quote }}
+    - secretKey: COOKIE_SECRETS
+      remoteRef:
+        key: {{ printf "%s/secrets/hatchet-cookie-secrets" .Values.ssm.prefix | quote }}
+    - secretKey: ENCRYPTION_MASTER_KEYSET
+      remoteRef:
+        key: {{ printf "%s/secrets/hatchet-encryption-master-keyset" .Values.ssm.prefix | quote }}
+    - secretKey: ENCRYPTION_JWT_PRIVATE_KEYSET
+      remoteRef:
+        key: {{ printf "%s/secrets/hatchet-encryption-jwt-private-keyset" .Values.ssm.prefix | quote }}
+    - secretKey: ENCRYPTION_JWT_PUBLIC_KEYSET
+      remoteRef:
+        key: {{ printf "%s/secrets/hatchet-encryption-jwt-public-keyset" .Values.ssm.prefix | quote }}
 {{- end }}
