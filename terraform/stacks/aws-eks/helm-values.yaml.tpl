@@ -26,6 +26,10 @@ cloudwatchLogs:
   enabled: ${cloudwatch_logs_enabled}
   logGroupName: ${cloudwatch_log_group_name}
 
+external-secrets:
+  install: false
+  installCRDs: false
+
 hatchet:
   ingress:
     enabled: ${hatchet_ingress_enabled}
