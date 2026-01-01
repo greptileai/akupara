@@ -184,54 +184,6 @@ variable "token_encryption_key" {
   }
 }
 
-variable "anthropic_api_key" {
-  description = "Anthropic API key (optional). Stored to SSM when provided."
-  type        = string
-  default     = null
-  sensitive   = true
-}
-
-variable "openai_api_key" {
-  description = "OpenAI API key (optional). Stored to SSM when provided."
-  type        = string
-  default     = null
-  sensitive   = true
-}
-
-variable "github_client_id" {
-  description = "GitHub OAuth client ID (optional). Stored to SSM config when provided."
-  type        = string
-  default     = null
-}
-
-variable "github_client_secret" {
-  description = "GitHub OAuth client secret (optional). Stored to SSM when provided."
-  type        = string
-  default     = null
-  sensitive   = true
-}
-
-variable "github_webhook_secret" {
-  description = "GitHub webhook secret (optional). Stored to SSM when provided."
-  type        = string
-  default     = null
-  sensitive   = true
-}
-
-variable "github_private_key" {
-  description = "GitHub App private key PEM (optional). Stored to SSM when provided."
-  type        = string
-  default     = null
-  sensitive   = true
-}
-
-variable "llm_proxy_key" {
-  description = "LiteLLM proxy master key for authentication (optional). Stored to SSM when provided."
-  type        = string
-  default     = null
-  sensitive   = true
-}
-
 variable "ssm_secrets" {
   description = "Additional SSM SecureString parameters to create under /{name_prefix}/secrets/<key>. Keys should be kebab-case."
   type        = map(string)
@@ -251,13 +203,7 @@ variable "ssm_secrets" {
       toset([
         "database-password",
         "jwt-secret",
-        "token-encryption-key",
-        "anthropic-key",
-        "openai-key",
-        "github-client-secret",
-        "github-webhook-secret",
-        "github-private-key",
-        "llm-proxy-key"
+        "token-encryption-key"
       ])
     )) == 0
     error_message = "ssm_secrets must not include reserved keys managed by first-class variables."
@@ -309,8 +255,7 @@ variable "ssm_config" {
         "database-port",
         "database-username",
         "database-name",
-        "aws-region",
-        "github-client-id"
+        "aws-region"
       ])
     )) == 0
     error_message = "ssm_config must not include reserved keys managed by first-class variables or derived values."

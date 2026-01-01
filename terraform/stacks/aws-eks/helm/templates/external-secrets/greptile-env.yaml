@@ -35,16 +35,42 @@ spec:
         TOKEN_ENCRYPTION_KEY: '{{ `{{ .TOKEN_ENCRYPTION_KEY }}` }}'
         AWS_REGION: '{{ `{{ .AWS_REGION }}` }}'
         GREPTILE_API_URL: '{{ `{{ .GREPTILE_API_URL }}` }}'
+        GREPTILE_AUTH_SERVER: {{ printf "http://auth:%d" (int .Values.auth.service.port) | quote }}
         APP_URL: '{{ `{{ .APP_URL }}` }}'
         GREPTILE_WEB_URL: '{{ `{{ .APP_URL }}` }}'
         URL: '{{ `{{ .APP_URL }}` }}'
         GREPTILE_WEBHOOK_URL: '{{ `{{ printf "%s/webhook" .GREPTILE_API_URL }}` }}'
+        GITHUB_WEBHOOK_URL: '{{ `{{ printf "%s/webhook" .GREPTILE_API_URL }}` }}'
+        GITLAB_WEBHOOK_URL: '{{ `{{ printf "%s/webhook" .GREPTILE_API_URL }}` }}'
         WEBHOOK_SECRET: '{{ `{{ .WEBHOOK_SECRET }}` }}'
         ANALYTICS: '{{ `{{ .ANALYTICS }}` }}'
         NOTIFICATIONS: '{{ `{{ .NOTIFICATIONS }}` }}'
         BILLING: "false"
         BILLING_ENABLED: "false"
         NEXT_PUBLIC_BILLING: "false"
+        LINEAR_ENABLED: '{{ `{{ .LINEAR_ENABLED }}` }}'
+        GITHUB_ENABLED: '{{ `{{ .GITHUB_ENABLED }}` }}'
+        GITHUB_ENTERPRISE_ENABLED: '{{ `{{ .GITHUB_ENTERPRISE_ENABLED }}` }}'
+        GITHUB_APP_ID: '{{ `{{ .GITHUB_APP_ID }}` }}'
+        GITHUB_APP_URL: '{{ `{{ .GITHUB_APP_URL }}` }}'
+        GITHUB_CLIENT_ID: '{{ `{{ .GITHUB_CLIENT_ID }}` }}'
+        GITHUB_CLIENT_SECRET: '{{ `{{ .GITHUB_CLIENT_SECRET }}` }}'
+        GITHUB_BOT_USERNAME: '{{ `{{ .GITHUB_BOT_USERNAME }}` }}'
+        GITHUB_BOT_LOGIN: '{{ `{{ .GITHUB_BOT_LOGIN }}` }}'
+        GITHUB_ENTERPRISE_APP_URL: '{{ `{{ .GITHUB_ENTERPRISE_APP_URL }}` }}'
+        GITHUB_ENTERPRISE_APP_ID: '{{ `{{ .GITHUB_ENTERPRISE_APP_ID }}` }}'
+        GITHUB_ENTERPRISE_API_URL: '{{ `{{ .GITHUB_ENTERPRISE_API_URL }}` }}'
+        GITHUB_ENTERPRISE_URL: '{{ `{{ .GITHUB_ENTERPRISE_URL }}` }}'
+        GITHUB_ENTERPRISE_CLIENT_ID: '{{ `{{ .GITHUB_ENTERPRISE_CLIENT_ID }}` }}'
+        GITHUB_ENTERPRISE_CLIENT_SECRET: '{{ `{{ .GITHUB_ENTERPRISE_CLIENT_SECRET }}` }}'
+        AUTH_GITHUB_ID: '{{ `{{ .AUTH_GITHUB_ID }}` }}'
+        AUTH_GITHUB_SECRET: '{{ `{{ .AUTH_GITHUB_SECRET }}` }}'
+        GITLAB_ENABLED: '{{ `{{ .GITLAB_ENABLED }}` }}'
+        SLACK_ENABLED: '{{ `{{ .SLACK_ENABLED }}` }}'
+        SLACK_WEBHOOK_URL: '{{ `{{ .SLACK_WEBHOOK_URL }}` }}'
+        SLACK_CLIENT_ID: '{{ `{{ .SLACK_CLIENT_ID }}` }}'
+        SLACK_CLIENT_SECRET: '{{ `{{ .SLACK_CLIENT_SECRET }}` }}'
+        SLACK_SIGNING_SECRET: '{{ `{{ .SLACK_SIGNING_SECRET }}` }}'
         EMAIL_FROM: {{ .Values.greptile.emailFrom | quote }}
         AUTH_EMAIL_FROM: {{ .Values.greptile.emailFrom | quote }}
         {{- if .Values.llmproxy.enabled }}

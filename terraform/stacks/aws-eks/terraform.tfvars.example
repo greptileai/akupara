@@ -43,23 +43,40 @@ db_backup_retention_period  = 14
 jwt_secret           = "PLEASE_GENERATE_AT_LEAST_32_CHARACTERS________"
 token_encryption_key = "PLEASE_GENERATE_AT_LEAST_32_CHARACTERS________"
 
-# Optional LLM provider API keys (stored to SSM if provided)
-anthropic_api_key = null
-openai_api_key    = null
-
-# Optional GitHub App/OAuth fields (stored to SSM if provided)
-github_client_id     = null
-github_client_secret = null
-github_webhook_secret = null
-github_private_key   = null
-
-# Optional: add extra SSM parameters under /{name_prefix}/secrets/* and /{name_prefix}/config/*
-# Keys must be kebab-case. Reserved keys are blocked by validation.
+# App/integration config: SSM parameters under /{name_prefix}/secrets/* and /{name_prefix}/config/*
+# Keys must be kebab-case. See ssm-env-keys.example.yaml for the full required list.
 # ssm_secrets = {
-#   "my-extra-secret" = "..."
+#   "webhook-secret" = "PLEASE_GENERATE_A_RANDOM_SECRET"
+#   "server-auth-cookie-secrets" = "PLEASE_GENERATE_A_RANDOM_SECRET"
+#   "github-client-secret" = "dummy"
+#   "github-enterprise-client-secret" = "dummy"
+#   "auth-github-secret" = "dummy"
+#   "slack-client-secret" = "dummy"
+#   "slack-signing-secret" = "dummy"
+#   "slack-webhook-url" = "https://hooks.slack.com/services/..."
 # }
 # ssm_config = {
-#   "my-feature-flag" = "true"
+#   "app-url" = "https://app.example.com"
+#   "greptile-api-url" = "https://api.example.com"
+#   "analytics" = "false"
+#   "notifications" = "false"
+#   "linear-enabled" = "false"
+#   "github-enabled" = "false"
+#   "github-enterprise-enabled" = "false"
+#   "github-app-id" = "1"
+#   "github-app-url" = "https://github.com/github-apps/dummy-app"
+#   "github-client-id" = "Iv1..."
+#   "github-bot-username" = "greptile-bot-username"
+#   "github-bot-login" = "greptile-apps-login"
+#   "github-enterprise-app-url" = "https://github.example.com/github-apps/dummy-app"
+#   "github-enterprise-app-id" = "30"
+#   "github-enterprise-api-url" = "https://github.example.com/api/v3/"
+#   "github-enterprise-url" = "https://github.example.com"
+#   "github-enterprise-client-id" = "dummy"
+#   "auth-github-id" = "dummy"
+#   "gitlab-enabled" = "false"
+#   "slack-enabled" = "false"
+#   "slack-client-id" = "dummy"
 # }
 
 # CloudWatch logs (Terraform creates the log group; Helm configures log shipping)
