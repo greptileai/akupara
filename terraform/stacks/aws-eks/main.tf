@@ -79,12 +79,18 @@ locals {
     "database-username",
     "database-name",
     "aws-region",
+    "app-url",
+    "greptile-api-url",
+    "analytics",
+    "notifications",
   ]
 
   ssm_secrets_explicit_keys = [
     "database-password",
     "jwt-secret",
     "token-encryption-key",
+    "webhook-secret",
+    "llm-proxy-key",
   ]
 
   ssm_config_extra_keys = sort(setsubtract(
@@ -301,6 +307,35 @@ resource "kubernetes_namespace" "this" {
   }
 }
 
+resource "helm_release" "external_secrets" {
+  name       = "external-secrets"
+  namespace  = kubernetes_namespace.this.metadata[0].name
+  chart      = "external-secrets"
+  repository = "https://charts.external-secrets.io"
+  version    = "1.1.1"
+
+  timeout = 600
+  wait    = true
+
+  set {
+    name  = "installCRDs"
+    value = "true"
+  }
+
+  depends_on = [
+    module.eks,
+    kubernetes_namespace.this,
+  ]
+}
+
+resource "time_sleep" "wait_for_external_secrets_crds" {
+  create_duration = "60s"
+
+  depends_on = [
+    helm_release.external_secrets,
+  ]
+}
+
 # This release uses the default `helm` provider configured in `providers.tf`,
 # which points at the EKS cluster created by `module.eks` (cluster endpoint +
 # CA cert) and authenticates via `aws eks get-token` (exec auth).
@@ -344,6 +379,8 @@ resource "helm_release" "greptile" {
   depends_on = [
     module.eks,
     module.eks_subnet_tags,
+    helm_release.external_secrets,
+    time_sleep.wait_for_external_secrets_crds,
     helm_release.aws_load_balancer_controller,
     module.rds,
     module.irsa_external_secrets,
