@@ -5,10 +5,8 @@ global:
 ssm:
   prefix: ${ssm_prefix}
   kmsKeyArn: ${kms_key_arn}
-  extraConfigKeys:
-${indent(4, yamlencode(ssm_config_extra_keys))}
-  extraSecretKeys:
-${indent(4, yamlencode(ssm_secrets_extra_keys))}
+  extraConfigKeys: ${jsonencode(ssm_config_extra_keys)}
+  extraSecretKeys: ${jsonencode(ssm_secrets_extra_keys)}
 
 ecr:
   registry: ${ecr_registry}
@@ -32,5 +30,4 @@ hatchet:
   ingress:
     enabled: ${hatchet_ingress_enabled}
     host: ${jsonencode(hatchet_ingress_host)}
-    annotations:
-${indent(6, yamlencode(hatchet_ingress_annotations))}
+    annotations: ${jsonencode(hatchet_ingress_annotations)}
