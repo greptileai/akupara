@@ -336,7 +336,7 @@ See `variables.tf` for the full source of truth. Highlights below.
 | `name_prefix` | `greptile` | Naming prefix + blue/green isolation |
 | `environment` | `production` | Environment label |
 | `public_subnet_ids` | `[]` | Public subnets for internet-facing LBs |
-| `kubernetes_version` | `1.31` | EKS control plane version |
+| `kubernetes_version` | `1.34` | EKS control plane version |
 | `endpoint_public_access` | `true` | Public EKS API endpoint |
 | `k8s_namespace` | `default` | Namespace to deploy into |
 | `db_username` | `postgres` | RDS master username |

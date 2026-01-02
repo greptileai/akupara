@@ -13,7 +13,7 @@ private_subnet_ids = ["subnet-private-1", "subnet-private-2"]
 public_subnet_ids  = ["subnet-public-1", "subnet-public-2"]
 
 # EKS configuration
-kubernetes_version     = "1.31"
+kubernetes_version     = "1.34"
 endpoint_public_access = true
 
 # Container images
