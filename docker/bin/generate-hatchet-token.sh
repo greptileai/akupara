@@ -85,18 +85,25 @@ log "Generating Hatchet token for tenant $tenant_id"
 
 # Generate token via hatchet-admin CLI
 set +o pipefail
-new_token=$(docker compose --profile hatchet --project-directory "$PROJECT_DIR" run --rm --no-deps hatchet-setup-config \
+# Capture output and filter out log messages, keeping only the JWT token
+# Filter out warning messages about JWT_SECRET and LLM_PROXY_KEY (not needed for hatchet token generation)
+raw_output=$(docker compose --profile hatchet --project-directory "$PROJECT_DIR" run --rm --no-deps hatchet-setup-config \
   /hatchet/hatchet-admin token create \
   --config /hatchet/config \
   --tenant-id "$tenant_id" \
   --name "$TOKEN_NAME" \
-  --expiresIn "$TOKEN_TTL" 2>&1 | tr -d '\r')
+  --expiresIn "$TOKEN_TTL" 2>&1 | \
+  grep -v -E '(level=warning|level=info|JWT_SECRET|LLM_PROXY_KEY|cleaning up|time=)' | \
+  tr -d '\r')
 status=$?
 set -o pipefail
 
+# Extract only the JWT token (starts with "eyJ") and filter out any remaining log messages
+new_token=$(echo "$raw_output" | grep -E '^eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+' | head -n1 | tr -d '[:space:]')
+
 if [[ $status -ne 0 || -z "$new_token" ]]; then
   log "ERROR: Failed to generate Hatchet token"
-  log "Output: $new_token"
+  log "Raw output: $raw_output"
   exit 1
 fi
 
