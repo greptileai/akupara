@@ -305,12 +305,8 @@ services:
     restart: on-failure
     env_file:
       - .env.greptile-generated
-      - .env
     environment:
       - PORT=4000
-      - LITELLM_MASTER_KEY=${LLM_PROXY_KEY}
-      # Explicitly unset DATABASE_URL - lite-llm is an external service and shouldn't access Greptile's database
-      - DATABASE_URL=
       # Map common.env variable names to what the config file expects
       - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL}
       - ANTHROPIC_API_KEY=${ANTHROPIC_KEY}

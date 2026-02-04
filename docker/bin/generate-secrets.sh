@@ -12,7 +12,7 @@
 # Secrets managed:
 #   - JWT_SECRET
 #   - TOKEN_ENCRYPTION_KEY
-#   - LLM_PROXY_KEY
+#   - LLM_PROXY_KEY (also sets LITELLM_MASTER_KEY to the same value)
 #
 # Options:
 #   --check-only  Only check if secrets exist, don't generate
@@ -41,6 +41,13 @@ generate_random_string() {
   else
     LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 32
   fi
+}
+
+# Generate LiteLLM master key (must start with 'sk-' for virtual key compatibility)
+generate_litellm_key() {
+  # Generate 32 random alphanumeric chars and prefix with 'sk-'
+  # Total length will be 35 chars (sk- + 32 chars)
+  echo "sk-$(generate_random_string)"
 }
 
 # Check if a key has a non-empty value in a file
@@ -144,8 +151,22 @@ if [[ ${#missing_secrets[@]} -gt 0 ]]; then
   # Add missing secrets
   for secret in "${missing_secrets[@]}"; do
     log "Generating $secret..."
-    existing_secrets["$secret"]=$(generate_random_string)
+    # LLM_PROXY_KEY must start with 'sk-' for LiteLLM compatibility
+    if [[ "$secret" == "LLM_PROXY_KEY" ]]; then
+      existing_secrets["$secret"]=$(generate_litellm_key)
+      # Also set LITELLM_MASTER_KEY to the same value
+      existing_secrets["LITELLM_MASTER_KEY"]="${existing_secrets[$secret]}"
+      log "Setting LITELLM_MASTER_KEY to same value as LLM_PROXY_KEY"
+    else
+      existing_secrets["$secret"]=$(generate_random_string)
+    fi
   done
+  
+  # Ensure LITELLM_MASTER_KEY is set if LLM_PROXY_KEY exists but LITELLM_MASTER_KEY doesn't
+  if [[ -n "${existing_secrets[LLM_PROXY_KEY]:-}" ]] && [[ -z "${existing_secrets[LITELLM_MASTER_KEY]:-}" ]]; then
+    existing_secrets["LITELLM_MASTER_KEY"]="${existing_secrets[LLM_PROXY_KEY]}"
+    log "Setting LITELLM_MASTER_KEY to existing LLM_PROXY_KEY value"
+  fi
 
   # Write all secrets to file
   cat > "$SECRETS_FILE" << EOF
