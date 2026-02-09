@@ -1,17 +1,14 @@
 ## Setting up Greptile using Docker Compose
 
-The easiest way to deploy Greptile is on a single VM using Docker Compose. This approach is ideal for teams with ≤100 members. For larger teams or higher scalability requirements, we recommend checking out the [Kubernetes deployment](/greptile-helm/README.md).
-
 ### Requirements
 
 #### Hardware & Infrastructure
 * One Linux server with the following specifications:
-  * 32-64GB RAM
-  * 8-16 CPUs
+  * 64GB RAM
+  * 32 CPUs
   * **Disk space requirements:**
-    * **Minimum 30GB** for Docker images (~15GB) and system overhead
-    * Additional space for repository checkouts during code reviews (varies by repo sizes)
-    * Recommended: 50-100GB root volume for comfortable operation
+    * **Recommended**: 500GB root volume for comfortable operation of several repositories
+    * **Plus** Additional space for repository checkouts during code reviews (varies by repo sizes)
   * (Optional) A managed Postgres database (stores metadata only, minimal storage needed)
 
 #### Software

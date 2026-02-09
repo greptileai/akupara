@@ -1,7 +1,7 @@
 ## Register a GitHub App for self-hosted GitHub
 1. Go to your GitHub organization settings > Developer Settings > GitHub Apps > New GitHub App. If you have problems finding it, refer to the [official guide](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app#registering-a-github-app)
 2. Set the following values:
-    - GitHub App name: `Greptile` (or your preferred name)
+    - GitHub App name: `Greptile`
     - Homepage URL: You can just write `https://greptile.com`
     - Callback URL: `http://<ip_address>:3000/api/auth/callback/github-enterprise` or `https://<your_dns_name>/api/auth/callback/github-enterprise`
     - Setup URL: `http://<ip_address>:3000/auth/github` or `https://<your_dns_name>/auth/github`
@@ -45,4 +45,4 @@
     - Client ID
     - Client secret (generated above)
     - Webhook secret (generated above)
-    - Private key (generated above)
+    - Private key (generated above) **Important**: To paste the key into the `.env` file new lines have to be replaced with `\n`

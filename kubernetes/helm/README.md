@@ -107,7 +107,7 @@ If using GitHub as your code provider you will need to create a GitHub App to al
 
 1. Go to your GitHub organization settings > Developer Settings > GitHub Apps > New GitHub App
 2. Set the following:
-    - GitHub App name: `Greptile` (or your preferred name)
+    - GitHub App name: `Greptile`
     - Homepage URL: You can just write `https://greptile.com`
     - Webhook URL: Leave blank for now (we'll set this in after the application is deployed).
     - Webhook secret: Generate a secure random string
