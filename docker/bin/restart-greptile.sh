@@ -100,9 +100,8 @@ fi
 
 # Determine compose profiles
 COMPOSE_PROFILES="--profile greptile"
-AUTH_SAML_ONLY=$((grep -E "^AUTH_SAML_ONLY=" .env 2>/dev/null || true) | cut -d'=' -f2 | tr -d '"' | tr -d "'")
-AUTH_SAML_ONLY="${AUTH_SAML_ONLY:-false}"
-if [[ "$AUTH_SAML_ONLY" == "true" ]]; then
+AUTH_SAML_ONLY=$(grep -E "^AUTH_SAML_ONLY=" .env | cut -d'=' -f2 | tr -d '"' | tr -d "'" || echo "false")
+if [[ "${AUTH_SAML_ONLY:-false}" == "true" ]]; then
     COMPOSE_PROFILES="$COMPOSE_PROFILES --profile saml"
 fi
 
