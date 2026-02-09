@@ -4,7 +4,7 @@
     - GitHub App name: `Greptile` (or your preferred name)
     - Homepage URL: You can just write `https://greptile.com`
     - Callback URL: `http://<ip_address>:3000/api/auth/callback/github-enterprise` or `https://<your_dns_name>/api/auth/callback/github-enterprise`
-    - Setup URL: `http://<ip_address>:3000/auth/github` or `https://<your_dns_name>/api/auth/callback/github-enterprise`
+    - Setup URL: `http://<ip_address>:3000/auth/github` or `https://<your_dns_name>/auth/github`
       - Make sure to select "Redirect on update".
     - Webhook URL: `http://<ip_address>:3007/webhook`
     - Webhook secret: Generate a secure random string
