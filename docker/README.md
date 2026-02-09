@@ -51,7 +51,17 @@ Clone or copy this repository (akupara) onto your Linux server and navigate to t
 cd docker
 ```
 
-### 2. Start Hatchet
+### 2. Set Up Environment Files
+Create the `.env` and `Caddyfile` configuration files from their example templates:
+```bash
+./bin/setup-env.sh
+```
+
+This creates:
+- `.env` from `.env.example` (if it doesn't already exist)
+- `Caddyfile` from `Caddyfile.example` (if it doesn't already exist)
+
+### 3. Start Hatchet
 Hatchet is the internal task queue used by Greptile.
 
 1. Run the Hatchet startup script:
@@ -77,7 +87,7 @@ Hatchet is the internal task queue used by Greptile.
 
 5. **Important:** Go to **Settings > General > Members** and change the default admin password.
 
-### 3. Authenticate with Container Registry
+### 4. Authenticate with Container Registry
 Ensure you can pull Greptile's images by logging in to the appropriate container registry.
 
 First, configure your registry provider in `.env`:
@@ -107,7 +117,7 @@ echo "<TOKEN>" | docker login --username <DOCKERHUB_USERNAME> --password-stdin
    | docker login --username AWS --password-stdin <greptile_ecr_registry>
    ```
 
-### 4. Configure Environment Variables
+### 5. Configure Environment Variables
 Open the `.env` file, which contains all the environment variables to configure Greptile and Hatchet.
 
 1. **Required:** Search for all lines containing `TODO:` - these environment variables must be updated before starting Greptile.
@@ -121,13 +131,13 @@ Open the `.env` file, which contains all the environment variables to configure 
    - You will need to create a GitHub App on your instance and copy some values into the `.env` file.
    - For a detailed guide, see [GitHubApp.md](docs/GitHubApp.md).
 
-### 5. Start Greptile Services
+### 6. Start Greptile Services
 Once you have filled out the environment variables in `.env`, start the Greptile services:
 ```bash
 ./bin/start-greptile.sh
 ```
 
-### 6. Verify Services
+### 7. Verify Services
 Check if all containers started successfully:
 ```bash
 docker compose ps
