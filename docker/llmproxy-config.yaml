@@ -44,7 +44,6 @@ litellm_settings:
   drop_params: True
   num_retries: 3 # retry call 3 times on each model_name
   allowed_fails: 3
-  callbacks: ["custom_callbacks.proxy_handler_instance"]
 
 router_settings:
   routing_strategy: simple-shuffle # Literal["simple-shuffle", "least-busy", "usage-based-routing","latency-based-routing"]

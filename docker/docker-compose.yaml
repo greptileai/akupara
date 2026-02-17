@@ -238,6 +238,8 @@ services:
     image: ${CONTAINER_REGISTRY}/summarizer:${GREPTILE_TAG}
     platform: linux/amd64
     restart: on-failure
+    deploy:
+      replicas: 1
     env_file:
       - .env.greptile-generated
       - .env.hatchet-generated
@@ -271,6 +273,8 @@ services:
     privileged: true
     cap_add:
       - SYS_ADMIN
+    deploy:
+      replicas: 1
     restart: on-failure
     env_file:
       - .env.greptile-generated
@@ -283,6 +287,28 @@ services:
       - greptile
     volumes:
       - cloned_repositories:/mnt/efs
+
+  greptile-worker:
+    image: ${CONTAINER_REGISTRY}/worker:${GREPTILE_TAG}
+    platform: linux/amd64
+    privileged: true
+    deploy:
+      replicas: 1
+    cap_add:
+      - SYS_ADMIN
+    restart: on-failure
+    env_file:
+      - .env.greptile-generated
+      - .env.hatchet-generated
+      - .env
+    environment:
+      - PORT=3005
+      - NFS_WORKING_DIR=/mnt/efs
+    profiles:
+      - greptile
+    volumes:
+      - cloned_repositories:/mnt/efs
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
 
   greptile-jobs:
     image: ${CONTAINER_REGISTRY}/jobs:${GREPTILE_TAG}
