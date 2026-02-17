@@ -129,6 +129,7 @@ data:
   {{- end }}
   
   # Application Configuration
+  ONPREM: "true"
   BATCH_SIZE: {{ .Values.indexer.chunker.config.batchSize | default "99" | quote }}
   WORKER_HASH: "onprem"
   HATCHET_REVIEWER_SLOTS: {{ .Values.reviews.config.hatchetReviewerSlots | default "2" | quote }}
