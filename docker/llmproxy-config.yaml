@@ -48,19 +48,22 @@ litellm_settings:
 router_settings:
   routing_strategy: simple-shuffle # Literal["simple-shuffle", "least-busy", "usage-based-routing","latency-based-routing"]
   model_group_alias:
+    "gpt": "gpt-5.2"
+    "codex": "gpt-5.2-codex"  # OpenAI Codex SDK model alias
     "memory-embeddings": "text-embedding-3-small"
     "indexer-embeddings": "text-embedding-ada-002"
     "similarity-embeddings": "text-embedding-3-small"
     "jobs-summarizer": "gpt-5"
-    "memory-clustering": "claude-sonnet-4-20250514"
-    "memory-learning": "claude-sonnet-4-20250514"
-    "review": "claude-sonnet-4-20250514"
-    "refiner": "claude-sonnet-4-20250514"
+    "memory-clustering": "claude-sonnet-4-5"
+    "memory-learning": "claude-sonnet-4-5"
+    "review": "claude-sonnet-4-5"
+    "refiner": "claude-sonnet-4-5"
     "summarizer": "summarizer-pool"
     "summarizer-fast": "summarizer-pool"
-    "engine-mini": "claude-sonnet-4-20250514"
+    "engine-mini": "claude-sonnet-4-5"
     "claude-code": "claude-sonnet-4-5"
     "claude-haiku": "claude-haiku-4-5-20251001"
+    "claude-opus": "claude-opus-4-6"
   num_retries: 2
   timeout: 30 # seconds
 
