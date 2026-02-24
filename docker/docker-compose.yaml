@@ -268,27 +268,6 @@ services:
     profiles:
       - greptile
 
-  greptile-reviews:
-    image: ${CONTAINER_REGISTRY}/reviews:${GREPTILE_TAG}
-    platform: linux/amd64
-    privileged: true
-    cap_add:
-      - SYS_ADMIN
-    deploy:
-      replicas: 1
-    restart: on-failure
-    env_file:
-      - .env.greptile-generated
-      - .env.hatchet-generated
-      - .env
-    environment:
-      - PORT=3005
-      - NFS_WORKING_DIR=/mnt/efs
-    profiles:
-      - greptile
-    volumes:
-      - cloned_repositories:/mnt/efs
-
   greptile-worker:
     image: ${CONTAINER_REGISTRY}/worker:${GREPTILE_TAG}
     platform: linux/amd64
