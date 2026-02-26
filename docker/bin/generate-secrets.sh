@@ -12,7 +12,7 @@
 # Secrets managed:
 #   - JWT_SECRET
 #   - TOKEN_ENCRYPTION_KEY
-#   - LLM_PROXY_KEY (also sets LITELLM_MASTER_KEY to the same value)
+#   - LITELLM_MASTER_KEY
 #
 # Options:
 #   --check-only  Only check if secrets exist, don't generate
@@ -105,7 +105,7 @@ fi
 SECRETS_TO_GENERATE=(
   "JWT_SECRET"
   "TOKEN_ENCRYPTION_KEY"
-  "LLM_PROXY_KEY"
+  "LITELLM_MASTER_KEY"
 )
 
 missing_secrets=()
@@ -151,21 +151,18 @@ if [[ ${#missing_secrets[@]} -gt 0 ]]; then
   # Add missing secrets
   for secret in "${missing_secrets[@]}"; do
     log "Generating $secret..."
-    # LLM_PROXY_KEY must start with 'sk-' for LiteLLM compatibility
-    if [[ "$secret" == "LLM_PROXY_KEY" ]]; then
+    # LITELLM_MASTER_KEY must start with 'sk-' for LiteLLM compatibility
+    if [[ "$secret" == "LITELLM_MASTER_KEY" ]]; then
       existing_secrets["$secret"]=$(generate_litellm_key)
-      # Also set LITELLM_MASTER_KEY to the same value
-      existing_secrets["LITELLM_MASTER_KEY"]="${existing_secrets[$secret]}"
-      log "Setting LITELLM_MASTER_KEY to same value as LLM_PROXY_KEY"
     else
       existing_secrets["$secret"]=$(generate_random_string)
     fi
   done
   
-  # Ensure LITELLM_MASTER_KEY is set if LLM_PROXY_KEY exists but LITELLM_MASTER_KEY doesn't
+  # Migrate legacy LLM_PROXY_KEY to LITELLM_MASTER_KEY if present
   if [[ -n "${existing_secrets[LLM_PROXY_KEY]:-}" ]] && [[ -z "${existing_secrets[LITELLM_MASTER_KEY]:-}" ]]; then
     existing_secrets["LITELLM_MASTER_KEY"]="${existing_secrets[LLM_PROXY_KEY]}"
-    log "Setting LITELLM_MASTER_KEY to existing LLM_PROXY_KEY value"
+    log "Migrated LLM_PROXY_KEY to LITELLM_MASTER_KEY"
   fi
 
   # Write all secrets to file
