@@ -215,7 +215,7 @@ All scripts are located in the `bin/` directory:
 | `bin/start-greptile.sh` | Start Greptile application services |
 | `bin/login-registry.sh` | Authenticate with container registry (ECR/Docker Hub) |
 | `bin/generate-hatchet-token.sh` | Generate Hatchet authentication token |
-| `bin/generate-secrets.sh` | Generate JWT_SECRET, TOKEN_ENCRYPTION_KEY, LLM_PROXY_KEY |
+| `bin/generate-secrets.sh` | Generate JWT_SECRET, TOKEN_ENCRYPTION_KEY, LITELLM_MASTER_KEY |
 | `bin/setup-env.sh` | Create `.env` and `Caddyfile` from example templates |
 | `bin/wait-for-service.sh` | Wait for a Docker Compose service to be healthy |
 

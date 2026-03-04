@@ -11,12 +11,12 @@
       - On unix environments, you can use `openssl rand -hex 32` to generate the secure random string.
 3. Under "Permissions", ensure the following are enabled:
     - Repository permissions:
-      - Contents: `Read-only`
-      - Metadata: `Read-only`
-      - Issues: `Read & Write`
       - Checks: `Read & Write`
-      - Pull requests: `Read & Write`
       - Commit statuses: `Read & Write`
+      - Contents: `Read-only`
+      - Issues: `Read & Write`
+      - Metadata: `Read-only`
+      - Pull requests: `Read & Write`
     - Organization permissions:  
       - Members: `Read-only`
     - Account permissions

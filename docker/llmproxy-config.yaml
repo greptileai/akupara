@@ -30,15 +30,6 @@ model_list:
       aws_access_key_id: "os.environ/AWS_ACCESS_KEY_ID"
       aws_secret_access_key: "os.environ/AWS_SECRET_ACCESS_KEY"
       aws_region_name: "os.environ/AWS_REGION_NAME"
-  # Example of Azure OpenAI models
-  # - model_name: summarizer-pool
-  #   litellm_params:
-  #     model: azure/gpt-4o-mini
-  #     api_base: "os.environ/AZURE_OPENAI_BASE_URL"
-  #     api_key: "os.environ/AZURE_OPENAI_API_KEY"
-  #     api_version: "os.environ/AZURE_OPENAI_API_VERSION"
-  #   model_info:
-  #     base_model: gpt-4o-mini
 
 litellm_settings:
   drop_params: True
@@ -51,9 +42,9 @@ router_settings:
     "gpt": "gpt-5.2"
     "codex": "gpt-5.2-codex"  # OpenAI Codex SDK model alias
     "memory-embeddings": "text-embedding-3-small"
-    "indexer-embeddings": "text-embedding-ada-002"
+    "indexer-embeddings": "text-embedding-3-small"
     "similarity-embeddings": "text-embedding-3-small"
-    "jobs-summarizer": "gpt-5"
+    "jobs-summarizer": "gpt-5-nano"
     "memory-clustering": "claude-sonnet-4-5"
     "memory-learning": "claude-sonnet-4-5"
     "review": "claude-sonnet-4-5"
