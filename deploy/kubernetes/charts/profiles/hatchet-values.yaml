@@ -13,6 +13,12 @@ sharedConfig:
   defaultAdminEmail: "admin@example.com"
   defaultAdminPassword: "Admin123!!"
 
+postgresql:
+  primary:
+    extendedConfiguration: |
+      timezone = 'UTC'
+      log_timezone = 'UTC'
+
 api:
   image:
     tag: "v0.78.29"
