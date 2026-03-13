@@ -1,0 +1,61 @@
+global:
+  registry: "your-registry.example.com/greptile"
+  tag: "vX.Y.Z"
+  imagePullSecrets:
+    - name: regcred
+
+network:
+  appUrl: "https://app.greptile.example.com"
+  webhookUrl: "https://hooks.greptile.example.com/webhook"
+
+hatchet:
+  apiUrl: "http://hatchet-stack-api.default.svc.cluster.local:8080"
+  grpcUrl: "hatchet-stack-engine.default.svc.cluster.local:7070"
+  tlsStrategy: "none"
+
+ingress:
+  enabled: true
+  className: nginx
+  web:
+    enabled: true
+    host: app.greptile.example.com
+    path: /
+    tls:
+      enabled: true
+      secretName: greptile-web-tls
+  webhook:
+    enabled: true
+    host: hooks.greptile.example.com
+    path: /webhook
+    tls:
+      enabled: true
+      secretName: greptile-webhook-tls
+
+secrets:
+  mode: native
+  native:
+    JWT_SECRET: ""
+    TOKEN_ENCRYPTION_KEY: ""
+    LITELLM_MASTER_KEY: ""
+    HATCHET_CLIENT_TOKEN: ""
+    WEBHOOK_SECRET: ""
+    GITHUB_WEBHOOK_SECRET: ""
+    GITHUB_PRIVATE_KEY: ""
+    GITHUB_APP_ID: ""
+    GITHUB_CLIENT_ID: ""
+    GITHUB_CLIENT_SECRET: ""
+    GITHUB_APP_URL: ""
+    GITHUB_ENTERPRISE_URL: ""
+    GITHUB_ENTERPRISE_API_URL: ""
+    ANTHROPIC_KEY: ""
+    OPENAI_KEY: ""
+    AZURE_OPENAI_KEY: ""
+    AWS_ACCESS_KEY_ID: ""
+    AWS_SECRET_ACCESS_KEY: ""
+    AUTH_BOXYHQ_API_KEY: ""
+    AUTH_BOXYHQ_SAML_ID: ""
+    AUTH_BOXYHQ_SAML_SECRET: ""
+    JACKSON_DB_ENCRYPTION_KEY: ""
+    JACKSON_ADMIN_CREDENTIALS: ""
+    JACKSON_PUBLIC_KEY: ""
+    JACKSON_PRIVATE_KEY: ""

@@ -1,0 +1,31 @@
+{{- if and .Values.ingress.enabled .Values.ingress.webhook.enabled .Values.components.webhook.enabled .Values.components.webhook.service.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "greptile.fullname" . }}-webhook
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+    - host: {{ .Values.ingress.webhook.host }}
+      http:
+        paths:
+          - path: {{ .Values.ingress.webhook.path }}
+            pathType: {{ .Values.ingress.webhook.pathType }}
+            backend:
+              service:
+                name: {{ include "greptile.componentName" (dict "root" . "name" "webhook") }}
+                port:
+                  number: {{ .Values.components.webhook.service.port }}
+  {{- if .Values.ingress.webhook.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.webhook.host }}
+      secretName: {{ .Values.ingress.webhook.tls.secretName }}
+  {{- end }}
+{{- end }}

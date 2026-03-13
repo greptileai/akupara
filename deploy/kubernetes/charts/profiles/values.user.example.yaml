@@ -1,0 +1,102 @@
+# Copy to values.user.yaml and fill in required values.
+
+global:
+  registry: "REPLACE_ME_REGISTRY"
+  tag: "REPLACE_ME_TAG"
+
+network:
+  appUrl: "https://greptile.example.com"
+  webhookUrl: "https://greptile.example.com/webhook"
+
+hatchet:
+  apiUrl: "http://hatchet-stack-api.default.svc.cluster.local:8080"
+  grpcUrl: "hatchet-stack-engine.default.svc.cluster.local:7070"
+  tlsStrategy: "none"
+
+# Optional: enable built-in PgBouncer so DATABASE_URL uses pooled connections.
+# DIRECT_URL remains a direct database connection.
+# pgbouncer:
+#   enabled: true
+
+email:
+  provider: "SES"
+  from: "email@domain.com"
+  support: "support@example.com"
+  smtp:
+    host: "smtp.example.com"
+    port: "587"
+    user: "smtp_username"
+    secure: "false"
+    tls: "true"
+    rejectUnauthorized: "true"
+
+secrets:
+  mode: native
+  native:
+    # Required for app auth/session.
+    JWT_SECRET: "REPLACE_ME"
+    # Required. Must be exactly 32 chars.
+    TOKEN_ENCRYPTION_KEY: "REPLACE_ME_32_CHARACTERS_LONG_KEY"
+
+    # Required for workers/jobs.
+    HATCHET_CLIENT_TOKEN: "REPLACE_ME"
+
+    # Required by API/worker/jobs/web for LLM proxy auth.
+    LITELLM_MASTER_KEY: "REPLACE_ME"
+
+    # Required for llmproxy model calls.
+    ANTHROPIC_KEY: "REPLACE_ME"
+
+    # Required for GitHub integration + webhook handling.
+    GITHUB_WEBHOOK_SECRET: "REPLACE_ME"
+    WEBHOOK_SECRET: "REPLACE_ME"
+    GITHUB_PRIVATE_KEY: "REPLACE_ME"
+    GITHUB_APP_ID: "REPLACE_ME"
+    GITHUB_CLIENT_ID: "REPLACE_ME"
+    GITHUB_CLIENT_SECRET: "REPLACE_ME"
+    GITHUB_APP_URL: "https://github.com/apps/REPLACE_ME"
+
+    # Optional: only required when email.provider=SMTP.
+    # SMTP_PASSWORD: "REPLACE_ME"
+
+    # Optional: uncomment if you route through OpenAI/Azure/Bedrock via llmproxy config.
+    # OPENAI_KEY: ""
+    # AZURE_OPENAI_KEY: ""
+    # AWS_ACCESS_KEY_ID: ""
+    # AWS_SECRET_ACCESS_KEY: ""
+
+    # Optional: only required if BILLING/BILLING_ENABLED is true.
+    # STRIPE_SECRET_KEY: ""
+
+    # Optional: only required if ANALYTICS is true.
+    # POSTHOG_KEY: ""
+
+ingress:
+  enabled: true
+  className: nginx
+  web:
+    enabled: true
+    host: greptile.example.com
+    path: /
+    tls:
+      enabled: true
+      secretName: greptile-web-tls
+  webhook:
+    enabled: true
+    host: greptile.example.com
+    path: /webhook
+    tls:
+      enabled: true
+      secretName: greptile-webhook-tls
+
+# Optional: use managed Postgres instead of bundled Postgres chart.
+# postgres:
+#   enabled: false
+# externalDatabase:
+#   host: "REPLACE_ME"
+#   port: 5432
+#   user: "REPLACE_ME"
+#   password: "REPLACE_ME"
+#   database: "REPLACE_ME"
+#   vectorDatabase: "vector"
+#   sslDisable: "false"

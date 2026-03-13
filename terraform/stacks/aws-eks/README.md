@@ -76,7 +76,7 @@ flowchart TB
 
 Important: Terraform also stores these values in **Terraform state**. Treat your state backend (local or remote) as sensitive.
 
-Tip: `ssm-env-keys.example.yaml` lists the on-prem env keys (from `docker/.env.example`) to help populate `ssm_config_keys`/`ssm_secrets_keys` when SSM parameters are managed outside Terraform.
+Tip: `ssm-env-keys.example.yaml` lists the on-prem env keys (from `deploy/docker-compose/.env.example`) to help populate `ssm_config_keys`/`ssm_secrets_keys` when SSM parameters are managed outside Terraform.
 
 ### Network boundaries
 

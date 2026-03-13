@@ -1,0 +1,114 @@
+{{- range $name, $component := .Values.components }}
+{{- $isJackson := eq $name "jackson" }}
+{{- if and $component.enabled (or (not $isJackson) $.Values.saml.enabled) }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "greptile.componentName" (dict "root" $ "name" $name) }}
+  labels:
+    {{- include "greptile.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $name }}
+spec:
+  replicas: {{ $component.replicas }}
+  selector:
+    matchLabels:
+      {{- include "greptile.selectorLabels" $ | nindent 6 }}
+      app.kubernetes.io/component: {{ $name }}
+  template:
+    metadata:
+      labels:
+        {{- include "greptile.selectorLabels" $ | nindent 8 }}
+        app.kubernetes.io/component: {{ $name }}
+      {{- with $.Values.global.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "greptile.serviceAccountName" $ }}
+      {{- if $.Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml $.Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.global.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.global.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.global.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ $name }}
+          image: {{ include "greptile.componentImage" (dict "root" $ "component" $component) }}
+          imagePullPolicy: {{ default $.Values.global.pullPolicy $component.image.pullPolicy }}
+          {{- with $.Values.global.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if $component.containerPort }}
+          ports:
+            - name: http
+              containerPort: {{ $component.containerPort }}
+              protocol: TCP
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "greptile.fullname" $ }}-env
+            - configMapRef:
+                name: {{ include "greptile.componentName" (dict "root" $ "name" $name) }}-env
+            - secretRef:
+                name: {{ include "greptile.secretName" $ }}
+            {{- range $cm := $component.envFromConfigMap }}
+            - configMapRef:
+                name: {{ $cm }}
+            {{- end }}
+            {{- range $secret := $component.envFromSecret }}
+            - secretRef:
+                name: {{ $secret }}
+            {{- end }}
+          env:
+            - name: COMPONENT_NAME
+              value: {{ $name | quote }}
+            {{- range $k, $v := $component.extraEnv }}
+            - name: {{ $k }}
+              value: {{ $v | quote }}
+            {{- end }}
+          {{- with $component.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $component.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml $component.resources | nindent 12 }}
+          {{- with $component.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- if $component.volumes }}
+      volumes:
+        {{- range $vol := $component.volumes }}
+        - name: {{ $vol.name }}
+          {{- if $vol.persistentVolumeClaim }}
+          persistentVolumeClaim:
+            claimName: {{ default (include "greptile.sharedPvcName" $) $vol.persistentVolumeClaim.claimName }}
+          {{- end }}
+          {{- if $vol.configMap }}
+          configMap:
+            name: {{ default (include "greptile.llmproxyConfigName" $) $vol.configMap.name }}
+          {{- end }}
+        {{- end }}
+      {{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,18 @@
+{{- range $name, $component := .Values.components }}
+{{- $isJackson := eq $name "jackson" }}
+{{- if and $component.enabled (or (not $isJackson) $.Values.saml.enabled) }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "greptile.componentName" (dict "root" $ "name" $name) }}-env
+  labels:
+    {{- include "greptile.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $name }}
+data:
+  SERVICE_NAME: {{ $name | quote }}
+  {{- range $k, $v := $component.componentEnv }}
+  {{ $k }}: {{ tpl ($v | toString) $ | quote }}
+  {{- end }}
+{{- end }}
+{{- end }}

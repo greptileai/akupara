@@ -1,0 +1,26 @@
+global:
+  registry: "your-registry.example.com/greptile"
+  tag: "dev"
+
+network:
+  appUrl: "http://greptile.local"
+  webhookUrl: "http://greptile.local/webhook"
+
+ingress:
+  enabled: false
+
+components:
+  web:
+    service:
+      type: NodePort
+  webhook:
+    service:
+      type: NodePort
+
+secrets:
+  mode: native
+  native:
+    JWT_SECRET: "dev-jwt-secret"
+    TOKEN_ENCRYPTION_KEY: "dev-token-encryption-key"
+    LITELLM_MASTER_KEY: "sk-dev-litellm-master-key"
+    HATCHET_CLIENT_TOKEN: ""

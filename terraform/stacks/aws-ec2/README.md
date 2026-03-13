@@ -8,7 +8,7 @@ Root module that deploys the Greptile Docker-based experience on a single EC2 in
 - Exposes standard outputs consumed by helm/helmfile stages
 
 ## Bootstrap workflow
-When `enable_greptile_bootstrap = true` (default) the stack renders a cloud-init script that installs Docker/Compose, writes the production compose bundle to `/opt/greptile`, and installs systemd units that match the `docker/` reference orchestration:
+When `enable_greptile_bootstrap = true` (default) the stack renders a cloud-init script that installs Docker/Compose, writes the production compose bundle to `/opt/greptile`, and installs systemd units that match the `deploy/docker-compose/` reference orchestration:
 
 Pull Images → Start Hatchet → Generate Hatchet Token → Start Greptile → Start SAML
 
