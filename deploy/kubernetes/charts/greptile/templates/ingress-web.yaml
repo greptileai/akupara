@@ -1,4 +1,9 @@
 {{- if and .Values.ingress.enabled .Values.ingress.web.enabled .Values.components.web.enabled .Values.components.web.service.enabled }}
+{{- $appHost := regexFind "^[^/]+" (regexReplaceAll "^https?://" .Values.network.appUrl "") -}}
+{{- $appPathRaw := regexReplaceAll "^https?://[^/]+" .Values.network.appUrl "" -}}
+{{- $appPath := default "/" $appPathRaw -}}
+{{- $host := default $appHost .Values.ingress.web.host -}}
+{{- $path := default $appPath .Values.ingress.web.path -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -12,10 +17,10 @@ metadata:
 spec:
   ingressClassName: {{ .Values.ingress.className }}
   rules:
-    - host: {{ .Values.ingress.web.host }}
+    - host: {{ $host | quote }}
       http:
         paths:
-          - path: {{ .Values.ingress.web.path }}
+          - path: {{ $path | quote }}
             pathType: {{ .Values.ingress.web.pathType }}
             backend:
               service:
@@ -25,7 +30,7 @@ spec:
   {{- if .Values.ingress.web.tls.enabled }}
   tls:
     - hosts:
-        - {{ .Values.ingress.web.host }}
+        - {{ $host | quote }}
       secretName: {{ .Values.ingress.web.tls.secretName }}
   {{- end }}
 {{- end }}

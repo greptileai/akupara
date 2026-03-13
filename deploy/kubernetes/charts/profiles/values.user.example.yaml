@@ -76,15 +76,17 @@ ingress:
   className: nginx
   web:
     enabled: true
-    host: greptile.example.com
-    path: /
+    # Optional: defaults to hostname/path from network.appUrl.
+    host: ""
+    path: ""
     tls:
       enabled: true
       secretName: greptile-web-tls
   webhook:
     enabled: true
-    host: greptile.example.com
-    path: /webhook
+    # Optional: defaults to hostname/path from network.webhookUrl.
+    host: ""
+    path: ""
     tls:
       enabled: true
       secretName: greptile-webhook-tls

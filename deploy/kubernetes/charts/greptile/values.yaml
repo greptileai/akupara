@@ -690,16 +690,16 @@ ingress:
   annotations: {}
   web:
     enabled: true
-    host: greptile.local
-    path: /
+    host: ""
+    path: ""
     pathType: Prefix
     tls:
       enabled: false
       secretName: ""
   webhook:
     enabled: true
-    host: greptile.local
-    path: /webhook
+    host: ""
+    path: ""
     pathType: Prefix
     tls:
       enabled: false
