@@ -18,4 +18,5 @@ helm upgrade --install greptile ./charts/greptile -f ./charts/profiles/values.us
 
 Read docs:
 - `docs/install.md`
+- `docs/ingress-controller.md`
 - `docs/secrets.md`
