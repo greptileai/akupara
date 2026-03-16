@@ -72,7 +72,7 @@ pgbouncer:
     maxClientConn: "1000"
     defaultPoolSize: "50"
     reservePoolSize: "10"
-    authType: "md5"
+    authType: "scram-sha-256"
   resources:
     requests:
       cpu: 100m
