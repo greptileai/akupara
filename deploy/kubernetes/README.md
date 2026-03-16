@@ -12,7 +12,7 @@ This directory contains a clean-sheet Helm structure aligned with the current `d
 ```bash
 cd deploy/kubernetes
 ./scripts/validate.sh
-cp ./charts/profiles/values.user.example.yaml ./charts/profiles/values.user.yaml
+./scripts/init-values.sh
 helm upgrade --install greptile ./charts/greptile -f ./charts/profiles/values.user.yaml
 ```
 

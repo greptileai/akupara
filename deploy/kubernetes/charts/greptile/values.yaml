@@ -25,6 +25,13 @@ hatchet:
 
 postgres:
   enabled: true
+  global:
+    security:
+      allowInsecureImages: true
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/postgresql
+    tag: 17.6.0-debian-12-r4
   auth:
     username: postgres
     postgresPassword: postgres
@@ -50,10 +57,10 @@ externalDatabase:
   sslDisable: "true"
 
 pgbouncer:
-  enabled: false
+  enabled: true
   image:
     repository: "edoburu/pgbouncer"
-    tag: "1.24.1-p1"
+    tag: "v1.25.1-p0"
     pullPolicy: IfNotPresent
   replicas: 1
   containerPort: 5432
@@ -97,7 +104,8 @@ appConfig:
   defaultExperimentVariant: "opus-v8"
 
 email:
-  provider: "SES"
+  # Leave empty to use the app's noop provider (no outbound email delivery).
+  provider: ""
   from: "email@domain.com"
   support: "support@example.com"
   smtp:
@@ -131,18 +139,18 @@ secrets:
     LITELLM_MASTER_KEY: ""
     HATCHET_CLIENT_TOKEN: ""
     WEBHOOK_SECRET: ""
-    GITHUB_WEBHOOK_SECRET: ""
-    GITHUB_PRIVATE_KEY: ""
-    GITHUB_APP_ID: ""
-    GITHUB_CLIENT_ID: ""
-    GITHUB_CLIENT_SECRET: ""
-    GITHUB_APP_URL: ""
-    GITHUB_ENTERPRISE_URL: ""
-    GITHUB_ENTERPRISE_API_URL: ""
-    GITHUB_ENTERPRISE_APP_URL: ""
-    GITHUB_ENTERPRISE_APP_ID: ""
-    GITHUB_ENTERPRISE_CLIENT_ID: ""
-    GITHUB_ENTERPRISE_CLIENT_SECRET: ""
+    GITHUB_WEBHOOK_SECRET: "dummy-github-webhook-secret"
+    GITHUB_PRIVATE_KEY: "dummy-github-private-key"
+    GITHUB_APP_ID: "0"
+    GITHUB_CLIENT_ID: "dummy-github-client-id"
+    GITHUB_CLIENT_SECRET: "dummy-github-client-secret"
+    GITHUB_APP_URL: "https://github.com/apps/dummy-greptile-app"
+    GITHUB_ENTERPRISE_URL: "https://github.example.com"
+    GITHUB_ENTERPRISE_API_URL: "https://github.example.com/api/v3/"
+    GITHUB_ENTERPRISE_APP_URL: "https://github.example.com/apps/dummy-greptile-app"
+    GITHUB_ENTERPRISE_APP_ID: "0"
+    GITHUB_ENTERPRISE_CLIENT_ID: "dummy-github-enterprise-client-id"
+    GITHUB_ENTERPRISE_CLIENT_SECRET: "dummy-github-enterprise-client-secret"
     AUTH_GITHUB_ID: ""
     AUTH_GITHUB_SECRET: ""
     SMTP_PASSWORD: ""
@@ -172,13 +180,6 @@ migrations:
       repository: db-migration-job
       tag: ""
       pullPolicy: IfNotPresent
-    resources:
-      requests:
-        cpu: 200m
-        memory: 512Mi
-      limits:
-        cpu: 500m
-        memory: 1Gi
 
 components:
   web:
@@ -192,25 +193,6 @@ components:
       enabled: true
       type: ClusterIP
       port: 3000
-    resources:
-      requests:
-        cpu: 500m
-        memory: 1Gi
-      limits:
-        cpu: 1000m
-        memory: 2Gi
-    livenessProbe:
-      httpGet:
-        path: /
-        port: 3000
-      initialDelaySeconds: 20
-      periodSeconds: 20
-    readinessProbe:
-      httpGet:
-        path: /
-        port: 3000
-      initialDelaySeconds: 10
-      periodSeconds: 10
     extraEnv: {}
     componentEnv:
       APP_URL: "{{ .Values.network.appUrl }}"
@@ -236,10 +218,6 @@ components:
     envFromSecret: []
     volumes: []
     volumeMounts: []
-    autoscaling:
-      enabled: false
-    pdb:
-      enabled: false
 
   auth:
     enabled: true
@@ -252,23 +230,6 @@ components:
       enabled: true
       type: ClusterIP
       port: 3001
-    resources:
-      requests:
-        cpu: 100m
-        memory: 256Mi
-      limits:
-        cpu: 500m
-        memory: 512Mi
-    livenessProbe:
-      tcpSocket:
-        port: 3001
-      initialDelaySeconds: 20
-      periodSeconds: 20
-    readinessProbe:
-      tcpSocket:
-        port: 3001
-      initialDelaySeconds: 10
-      periodSeconds: 10
     extraEnv: {}
     componentEnv:
       APP_URL: "{{ .Values.network.appUrl }}"
@@ -278,10 +239,6 @@ components:
     envFromSecret: []
     volumes: []
     volumeMounts: []
-    autoscaling:
-      enabled: false
-    pdb:
-      enabled: false
 
   api:
     enabled: true
@@ -294,23 +251,6 @@ components:
       enabled: true
       type: ClusterIP
       port: 3002
-    resources:
-      requests:
-        cpu: 500m
-        memory: 1Gi
-      limits:
-        cpu: 2000m
-        memory: 4Gi
-    livenessProbe:
-      tcpSocket:
-        port: 3002
-      initialDelaySeconds: 20
-      periodSeconds: 20
-    readinessProbe:
-      tcpSocket:
-        port: 3002
-      initialDelaySeconds: 10
-      periodSeconds: 10
     extraEnv: {}
     componentEnv:
       APP_URL: "{{ .Values.network.appUrl }}"
@@ -325,10 +265,6 @@ components:
     envFromSecret: []
     volumes: []
     volumeMounts: []
-    autoscaling:
-      enabled: false
-    pdb:
-      enabled: false
 
   chunker:
     enabled: true
@@ -341,23 +277,6 @@ components:
       enabled: false
       type: ClusterIP
       port: 3003
-    resources:
-      requests:
-        cpu: 4
-        memory: 6Gi
-      limits:
-        cpu: 8
-        memory: 12Gi
-    livenessProbe:
-      tcpSocket:
-        port: 3003
-      initialDelaySeconds: 30
-      periodSeconds: 20
-    readinessProbe:
-      tcpSocket:
-        port: 3003
-      initialDelaySeconds: 15
-      periodSeconds: 10
     extraEnv: {}
     componentEnv:
       PARENT_DIR: "/mnt/data/"
@@ -381,10 +300,6 @@ components:
     volumeMounts:
       - name: shared-workdir
         mountPath: /mnt
-    autoscaling:
-      enabled: false
-    pdb:
-      enabled: false
 
   summarizer:
     enabled: true
@@ -397,23 +312,6 @@ components:
       enabled: false
       type: ClusterIP
       port: 3004
-    resources:
-      requests:
-        cpu: 1
-        memory: 2Gi
-      limits:
-        cpu: 2
-        memory: 4Gi
-    livenessProbe:
-      tcpSocket:
-        port: 3004
-      initialDelaySeconds: 30
-      periodSeconds: 20
-    readinessProbe:
-      tcpSocket:
-        port: 3004
-      initialDelaySeconds: 15
-      periodSeconds: 10
     extraEnv: {}
     componentEnv:
       PARENT_DIR: "/mnt/data/"
@@ -437,10 +335,6 @@ components:
     volumeMounts:
       - name: shared-workdir
         mountPath: /mnt
-    autoscaling:
-      enabled: false
-    pdb:
-      enabled: false
 
   worker:
     enabled: true
@@ -453,23 +347,6 @@ components:
       enabled: false
       type: ClusterIP
       port: 3005
-    resources:
-      requests:
-        cpu: 1000m
-        memory: 2Gi
-      limits:
-        cpu: 2000m
-        memory: 4Gi
-    livenessProbe:
-      tcpSocket:
-        port: 3005
-      initialDelaySeconds: 30
-      periodSeconds: 20
-    readinessProbe:
-      tcpSocket:
-        port: 3005
-      initialDelaySeconds: 15
-      periodSeconds: 10
     extraEnv: {}
     componentEnv:
       PORT: "3005"
@@ -491,10 +368,6 @@ components:
     volumeMounts:
       - name: shared-workdir
         mountPath: /mnt/efs
-    autoscaling:
-      enabled: false
-    pdb:
-      enabled: false
 
   webhook:
     enabled: true
@@ -507,23 +380,6 @@ components:
       enabled: true
       type: ClusterIP
       port: 3007
-    resources:
-      requests:
-        cpu: 100m
-        memory: 256Mi
-      limits:
-        cpu: 1000m
-        memory: 2Gi
-    livenessProbe:
-      tcpSocket:
-        port: 3007
-      initialDelaySeconds: 20
-      periodSeconds: 20
-    readinessProbe:
-      tcpSocket:
-        port: 3007
-      initialDelaySeconds: 10
-      periodSeconds: 10
     extraEnv: {}
     componentEnv:
       PORT: "3007"
@@ -532,10 +388,6 @@ components:
     envFromSecret: []
     volumes: []
     volumeMounts: []
-    autoscaling:
-      enabled: false
-    pdb:
-      enabled: false
 
   jobs:
     enabled: true
@@ -548,23 +400,6 @@ components:
       enabled: false
       type: ClusterIP
       port: 8080
-    resources:
-      requests:
-        cpu: 100m
-        memory: 256Mi
-      limits:
-        cpu: 500m
-        memory: 512Mi
-    livenessProbe:
-      tcpSocket:
-        port: 8080
-      initialDelaySeconds: 20
-      periodSeconds: 20
-    readinessProbe:
-      tcpSocket:
-        port: 8080
-      initialDelaySeconds: 10
-      periodSeconds: 10
     extraEnv: {}
     componentEnv:
       PORT: "8080"
@@ -582,10 +417,6 @@ components:
     envFromSecret: []
     volumes: []
     volumeMounts: []
-    autoscaling:
-      enabled: false
-    pdb:
-      enabled: false
 
   llmproxy:
     enabled: true
@@ -598,23 +429,6 @@ components:
       enabled: false
       type: ClusterIP
       port: 4000
-    resources:
-      requests:
-        cpu: 2000m
-        memory: 4Gi
-      limits:
-        cpu: 4000m
-        memory: 8Gi
-    livenessProbe:
-      tcpSocket:
-        port: 4000
-      initialDelaySeconds: 20
-      periodSeconds: 20
-    readinessProbe:
-      tcpSocket:
-        port: 4000
-      initialDelaySeconds: 10
-      periodSeconds: 10
     extraEnv: {}
     componentEnv:
       PORT: "4000"
@@ -625,6 +439,15 @@ components:
       AWS_REGION_NAME: "{{ .Values.llm.awsRegion }}"
     envFromConfigMap: []
     envFromSecret: []
+    useSharedSecret: false
+    secretEnv:
+      - ANTHROPIC_API_KEY
+      - OPENAI_API_KEY
+      - AZURE_OPENAI_API_KEY
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - LITELLM_MASTER_KEY
+      - LLM_PROXY_KEY
     volumes:
       - name: llmproxy-config
         configMap:
@@ -633,10 +456,6 @@ components:
       - name: llmproxy-config
         mountPath: /app/config.yaml
         subPath: config.yaml
-    autoscaling:
-      enabled: false
-    pdb:
-      enabled: false
 
   jackson:
     enabled: false
@@ -649,23 +468,6 @@ components:
       enabled: true
       type: ClusterIP
       port: 5225
-    resources:
-      requests:
-        cpu: 100m
-        memory: 128Mi
-      limits:
-        cpu: 500m
-        memory: 512Mi
-    livenessProbe:
-      tcpSocket:
-        port: 5225
-      initialDelaySeconds: 20
-      periodSeconds: 20
-    readinessProbe:
-      tcpSocket:
-        port: 5225
-      initialDelaySeconds: 10
-      periodSeconds: 10
     extraEnv: {}
     componentEnv:
       PORT: "5225"
@@ -679,10 +481,6 @@ components:
     envFromSecret: []
     volumes: []
     volumeMounts: []
-    autoscaling:
-      enabled: false
-    pdb:
-      enabled: false
 
 ingress:
   enabled: true

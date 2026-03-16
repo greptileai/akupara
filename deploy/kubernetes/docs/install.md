@@ -16,18 +16,28 @@ helm repo add hatchet https://hatchet-dev.github.io/hatchet-charts
 helm upgrade --install hatchet-stack hatchet/hatchet-stack -f ./charts/profiles/hatchet-values.yaml
 ```
 
-## 3) Generate/Set Hatchet Client Token
-Create an API token in Hatchet admin UI and set `secrets.native.HATCHET_CLIENT_TOKEN`.
+## 3) Bootstrap Greptile values
+Generate `values.user.yaml` and prepopulate required generated secrets:
+```bash
+./scripts/init-values.sh
+```
+
+This script:
+- creates `./charts/profiles/values.user.yaml` from the example if needed
+- generates `JWT_SECRET`
+- generates `TOKEN_ENCRYPTION_KEY`
+- generates `LITELLM_MASTER_KEY`
+- attempts to generate `HATCHET_CLIENT_TOKEN` from the running Hatchet release
 
 ## 4) Configure Greptile values
-Start from `./charts/profiles/values.user.example.yaml` and set:
+Edit `./charts/profiles/values.user.yaml` and set:
 - `global.registry`, `global.tag`
 - `network.*`
-- secrets (or switch to `secrets.mode=external`)
+- provider-specific secrets such as GitHub and model API keys
+- or switch to `secrets.mode=external`
 
 ## 5) Deploy Greptile
 ```bash
 helm dependency update ./charts/greptile
-cp ./charts/profiles/values.user.example.yaml ./charts/profiles/values.user.yaml
 helm upgrade --install greptile ./charts/greptile -f ./charts/profiles/values.user.yaml
 ```

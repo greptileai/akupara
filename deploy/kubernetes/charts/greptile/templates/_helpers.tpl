@@ -83,7 +83,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 
 {{- define "greptile.databaseHost" -}}
 {{- if .Values.postgres.enabled -}}
-{{ printf "%s-postgresql" (include "greptile.fullname" .) }}
+{{ printf "%s-postgres" (include "greptile.fullname" .) }}
 {{- else -}}
 {{ .Values.externalDatabase.host }}
 {{- end -}}

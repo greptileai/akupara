@@ -10,6 +10,7 @@ maintainers:
     email: support@greptile.com
 dependencies:
   - name: postgresql
-    version: "16.7.14"
+    alias: postgres
+    version: "16.7.27"
     repository: https://charts.bitnami.com/bitnami
     condition: postgres.enabled

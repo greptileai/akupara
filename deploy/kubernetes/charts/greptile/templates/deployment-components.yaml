@@ -65,8 +65,10 @@ spec:
                 name: {{ include "greptile.fullname" $ }}-env
             - configMapRef:
                 name: {{ include "greptile.componentName" (dict "root" $ "name" $name) }}-env
+            {{- if ne $component.useSharedSecret false }}
             - secretRef:
                 name: {{ include "greptile.secretName" $ }}
+            {{- end }}
             {{- range $cm := $component.envFromConfigMap }}
             - configMapRef:
                 name: {{ $cm }}
@@ -78,6 +80,13 @@ spec:
           env:
             - name: COMPONENT_NAME
               value: {{ $name | quote }}
+            {{- range $secretKey := $component.secretEnv }}
+            - name: {{ $secretKey }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.secretName" $ }}
+                  key: {{ $secretKey }}
+            {{- end }}
             {{- range $k, $v := $component.extraEnv }}
             - name: {{ $k }}
               value: {{ $v | quote }}
