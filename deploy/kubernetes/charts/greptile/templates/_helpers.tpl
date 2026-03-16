@@ -81,6 +81,14 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
 {{- end -}}
 
+{{- define "greptile.githubEnterpriseApiUrl" -}}
+{{- if .Values.github.enterpriseApiUrl -}}
+{{- .Values.github.enterpriseApiUrl -}}
+{{- else -}}
+{{- printf "%s/api/v3/" (trimSuffix "/" .Values.github.enterpriseUrl) -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "greptile.databaseHost" -}}
 {{- if .Values.postgres.enabled -}}
 {{ printf "%s-postgres" (include "greptile.fullname" .) }}

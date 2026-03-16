@@ -13,6 +13,13 @@ hatchet:
   grpcUrl: "hatchet-stack-engine.default.svc.cluster.local:7070"
   tlsStrategy: "none"
 
+github:
+  appId: "0"
+  appUrl: "https://github.com/apps/REPLACE_ME"
+  enterpriseUrl: "https://github.example.com"
+  enterpriseAppUrl: "https://github.example.com/apps/REPLACE_ME"
+  enterpriseAppId: "0"
+
 # PgBouncer is enabled by default in chart values.
 # Optional: disable if you want direct DB connections only.
 # pgbouncer:
@@ -52,10 +59,8 @@ secrets:
     GITHUB_WEBHOOK_SECRET: "REPLACE_ME"
     WEBHOOK_SECRET: "REPLACE_ME"
     GITHUB_PRIVATE_KEY: "REPLACE_ME"
-    GITHUB_APP_ID: "REPLACE_ME"
     GITHUB_CLIENT_ID: "REPLACE_ME"
     GITHUB_CLIENT_SECRET: "REPLACE_ME"
-    GITHUB_APP_URL: "https://github.com/apps/REPLACE_ME"
 
     # Optional: only required when email.provider=SMTP.
     # SMTP_PASSWORD: "REPLACE_ME"

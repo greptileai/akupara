@@ -122,6 +122,19 @@
         "defaultExperimentVariant": { "type": "string" }
       }
     },
+    "github": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "string" },
+        "enterpriseEnabled": { "type": "string" },
+        "appId": { "type": "string" },
+        "appUrl": { "type": "string" },
+        "enterpriseUrl": { "type": "string" },
+        "enterpriseApiUrl": { "type": "string" },
+        "enterpriseAppUrl": { "type": "string" },
+        "enterpriseAppId": { "type": "string" }
+      }
+    },
     "email": {
       "type": "object",
       "properties": {

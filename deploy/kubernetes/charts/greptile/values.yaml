@@ -96,12 +96,29 @@ env:
     HATCHET_CLIENT_TLS_STRATEGY: "{{ .Values.hatchet.tlsStrategy }}"
     HATCHET_CLIENT_GRPC_BROADCAST_ADDRESS: "{{ .Values.hatchet.grpcUrl }}"
     HATCHET_CLIENT_SERVER_URL: "{{ .Values.hatchet.apiUrl }}"
+    GITHUB_ENABLED: "{{ .Values.github.enabled }}"
+    GITHUB_APP_ID: "{{ .Values.github.appId }}"
+    GITHUB_APP_URL: "{{ .Values.github.appUrl }}"
+    GITHUB_ENTERPRISE_URL: "{{ .Values.github.enterpriseUrl }}"
+    GITHUB_ENTERPRISE_API_URL: "{{ include \"greptile.githubEnterpriseApiUrl\" . }}"
+    GITHUB_ENTERPRISE_APP_URL: "{{ .Values.github.enterpriseAppUrl }}"
+    GITHUB_ENTERPRISE_APP_ID: "{{ .Values.github.enterpriseAppId }}"
 
 appConfig:
   authSamlOnly: "false"
   learnProceduralMemory: "true"
   useProceduralMemory: "true"
   defaultExperimentVariant: "opus-v8"
+
+github:
+  enabled: "false"
+  enterpriseEnabled: "true"
+  appId: "0"
+  appUrl: "https://github.com/apps/dummy-greptile-app"
+  enterpriseUrl: "https://github.example.com"
+  enterpriseApiUrl: ""
+  enterpriseAppUrl: "https://github.example.com/apps/dummy-greptile-app"
+  enterpriseAppId: "0"
 
 email:
   # Leave empty to use the app's noop provider (no outbound email delivery).
@@ -141,14 +158,8 @@ secrets:
     WEBHOOK_SECRET: ""
     GITHUB_WEBHOOK_SECRET: "dummy-github-webhook-secret"
     GITHUB_PRIVATE_KEY: "dummy-github-private-key"
-    GITHUB_APP_ID: "0"
     GITHUB_CLIENT_ID: "dummy-github-client-id"
     GITHUB_CLIENT_SECRET: "dummy-github-client-secret"
-    GITHUB_APP_URL: "https://github.com/apps/dummy-greptile-app"
-    GITHUB_ENTERPRISE_URL: "https://github.example.com"
-    GITHUB_ENTERPRISE_API_URL: "https://github.example.com/api/v3/"
-    GITHUB_ENTERPRISE_APP_URL: "https://github.example.com/apps/dummy-greptile-app"
-    GITHUB_ENTERPRISE_APP_ID: "0"
     GITHUB_ENTERPRISE_CLIENT_ID: "dummy-github-enterprise-client-id"
     GITHUB_ENTERPRISE_CLIENT_SECRET: "dummy-github-enterprise-client-secret"
     AUTH_GITHUB_ID: ""
@@ -203,7 +214,7 @@ components:
       GREPTILE_WEBHOOK_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"webhook\") }}:{{ .Values.components.webhook.service.port }}/webhook"
       BILLING_ENABLED: "false"
       ANALYTICS: "false"
-      GITHUB_ENTERPRISE_ENABLED: "true"
+      GITHUB_ENTERPRISE_ENABLED: "{{ .Values.github.enterpriseEnabled }}"
       AUTH_SAML_ONLY: "{{ .Values.appConfig.authSamlOnly }}"
       EMAIL_PROVIDER: "{{ .Values.email.provider }}"
       EMAIL_FROM: "{{ .Values.email.from }}"
