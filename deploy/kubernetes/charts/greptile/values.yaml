@@ -218,7 +218,7 @@ components:
       GREPTILE_WEB_URL: "{{ .Values.network.appUrl }}"
       GREPTILE_AUTH_SERVER: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"auth\") }}:{{ .Values.components.auth.service.port }}"
       GREPTILE_API_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"api\") }}:{{ .Values.components.api.service.port }}/v2"
-      GREPTILE_WEBHOOK_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"webhook\") }}:{{ .Values.components.webhook.service.port }}/webhook"
+      GREPTILE_WEBHOOK_URL: "{{ .Values.network.webhookUrl }}"
       BILLING_ENABLED: "false"
       ANALYTICS: "false"
       GITHUB_ENTERPRISE_ENABLED: "{{ .Values.github.enterpriseEnabled }}"
@@ -276,6 +276,7 @@ components:
       port: 3002
     extraEnv: {}
     componentEnv:
+      PORT: "3002"
       APP_URL: "{{ .Values.network.appUrl }}"
       GREPTILE_WEB_URL: "{{ .Values.network.appUrl }}"
       URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"api\") }}:{{ .Values.components.api.service.port }}"
