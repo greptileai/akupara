@@ -120,6 +120,13 @@ github:
   enterpriseAppUrl: "https://github.example.com/apps/dummy-greptile-app"
   enterpriseAppId: "0"
 
+integrations:
+  linearEnabled: "false"
+  slackEnabled: "false"
+  notionEnabled: "false"
+  atlassianEnabled: "false"
+  googleDriveEnabled: "false"
+
 email:
   # Leave empty to use the app's noop provider (no outbound email delivery).
   provider: ""
@@ -215,6 +222,11 @@ components:
       BILLING_ENABLED: "false"
       ANALYTICS: "false"
       GITHUB_ENTERPRISE_ENABLED: "{{ .Values.github.enterpriseEnabled }}"
+      LINEAR_ENABLED: "{{ .Values.integrations.linearEnabled }}"
+      SLACK_ENABLED: "{{ .Values.integrations.slackEnabled }}"
+      GOOGLE_DRIVE_ENABLED: "{{ .Values.integrations.googleDriveEnabled }}"
+      ATLASSIAN_ENABLED: "{{ .Values.integrations.atlassianEnabled }}"
+      NOTION_ENABLED: "{{ .Values.integrations.notionEnabled }}"
       AUTH_SAML_ONLY: "{{ .Values.appConfig.authSamlOnly }}"
       EMAIL_PROVIDER: "{{ .Values.email.provider }}"
       EMAIL_FROM: "{{ .Values.email.from }}"

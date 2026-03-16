@@ -135,6 +135,16 @@
         "enterpriseAppId": { "type": "string" }
       }
     },
+    "integrations": {
+      "type": "object",
+      "properties": {
+        "linearEnabled": { "type": "string" },
+        "slackEnabled": { "type": "string" },
+        "notionEnabled": { "type": "string" },
+        "atlassianEnabled": { "type": "string" },
+        "googleDriveEnabled": { "type": "string" }
+      }
+    },
     "email": {
       "type": "object",
       "properties": {
