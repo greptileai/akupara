@@ -368,6 +368,12 @@ components:
       repository: worker
       tag: ""
     containerPort: 3005
+    securityContext:
+      privileged: true
+      allowPrivilegeEscalation: true
+      capabilities:
+        add:
+          - SYS_ADMIN
     service:
       enabled: false
       type: ClusterIP
@@ -390,9 +396,15 @@ components:
       - name: shared-workdir
         persistentVolumeClaim:
           claimName: ""
+      - name: cgroupfs
+        hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
     volumeMounts:
       - name: shared-workdir
         mountPath: /mnt/efs
+      - name: cgroupfs
+        mountPath: /sys/fs/cgroup
 
   webhook:
     enabled: true

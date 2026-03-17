@@ -50,7 +50,8 @@ spec:
         - name: {{ $name }}
           image: {{ include "greptile.componentImage" (dict "root" $ "component" $component) }}
           imagePullPolicy: {{ default $.Values.global.pullPolicy $component.image.pullPolicy }}
-          {{- with $.Values.global.containerSecurityContext }}
+          {{- $securityContext := default $.Values.global.containerSecurityContext $component.securityContext }}
+          {{- with $securityContext }}
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
@@ -116,6 +117,13 @@ spec:
           {{- if $vol.configMap }}
           configMap:
             name: {{ default (include "greptile.llmproxyConfigName" $) $vol.configMap.name }}
+          {{- end }}
+          {{- if $vol.hostPath }}
+          hostPath:
+            path: {{ $vol.hostPath.path }}
+            {{- with $vol.hostPath.type }}
+            type: {{ . }}
+            {{- end }}
           {{- end }}
         {{- end }}
       {{- end }}
