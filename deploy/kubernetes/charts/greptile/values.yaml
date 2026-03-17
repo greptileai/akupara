@@ -93,6 +93,7 @@ env:
   shared:
     ONPREM: "true"
     NODE_ENV: "production"
+    NEW_WORKER_LOAD: "100"
     HATCHET_CLIENT_TLS_STRATEGY: "{{ .Values.hatchet.tlsStrategy }}"
     HATCHET_CLIENT_GRPC_BROADCAST_ADDRESS: "{{ .Values.hatchet.grpcUrl }}"
     HATCHET_CLIENT_SERVER_URL: "{{ .Values.hatchet.apiUrl }}"
@@ -450,7 +451,7 @@ components:
       tag: ""
     containerPort: 4000
     service:
-      enabled: false
+      enabled: true
       type: ClusterIP
       port: 4000
     extraEnv: {}
