@@ -99,7 +99,12 @@
             "maxClientConn": { "type": "string" },
             "defaultPoolSize": { "type": "string" },
             "reservePoolSize": { "type": "string" },
-            "authType": { "type": "string" }
+            "authType": { "type": "string" },
+            "queryWaitTimeout": { "type": "string" },
+            "clientIdleTimeout": { "type": "string" },
+            "serverIdleTimeout": { "type": "string" },
+            "serverConnectTimeout": { "type": "string" },
+            "serverLoginRetry": { "type": "string" }
           }
         }
       }

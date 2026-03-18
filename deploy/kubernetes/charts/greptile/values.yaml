@@ -37,6 +37,8 @@ postgres:
     postgresPassword: postgres
     database: postgres
   primary:
+    extendedConfiguration: |-
+      idle_in_transaction_session_timeout = '5min'
     persistence:
       enabled: true
       size: 30Gi
@@ -73,6 +75,11 @@ pgbouncer:
     defaultPoolSize: "50"
     reservePoolSize: "10"
     authType: "scram-sha-256"
+    queryWaitTimeout: "120"
+    clientIdleTimeout: "300"
+    serverIdleTimeout: "600"
+    serverConnectTimeout: "15"
+    serverLoginRetry: "15"
   resources:
     requests:
       cpu: 100m

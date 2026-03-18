@@ -77,6 +77,16 @@ spec:
               value: {{ .Values.pgbouncer.config.reservePoolSize | quote }}
             - name: AUTH_TYPE
               value: {{ .Values.pgbouncer.config.authType | quote }}
+            - name: QUERY_WAIT_TIMEOUT
+              value: {{ .Values.pgbouncer.config.queryWaitTimeout | quote }}
+            - name: CLIENT_IDLE_TIMEOUT
+              value: {{ .Values.pgbouncer.config.clientIdleTimeout | quote }}
+            - name: SERVER_IDLE_TIMEOUT
+              value: {{ .Values.pgbouncer.config.serverIdleTimeout | quote }}
+            - name: SERVER_CONNECT_TIMEOUT
+              value: {{ .Values.pgbouncer.config.serverConnectTimeout | quote }}
+            - name: SERVER_LOGIN_RETRY
+              value: {{ .Values.pgbouncer.config.serverLoginRetry | quote }}
           livenessProbe:
             tcpSocket:
               port: pgbouncer
