@@ -41,7 +41,7 @@ postgres:
       idle_in_transaction_session_timeout = '5min'
     persistence:
       enabled: true
-      size: 30Gi
+      size: 40Gi
       storageClass: ""
     service:
       type: ClusterIP
@@ -91,7 +91,7 @@ pgbouncer:
 storage:
   sharedWorkdir:
     enabled: true
-    size: 200Gi
+    size: 1Ti
     storageClass: ""
     accessModes:
       - ReadWriteMany
