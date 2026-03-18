@@ -3,6 +3,8 @@
 global:
   registry: "REPLACE_ME_REGISTRY"
   tag: "REPLACE_ME_TAG"
+  imagePullSecrets:
+    - name: regcred
 
 network:
   appUrl: "https://greptile.example.com"
@@ -25,18 +27,19 @@ github:
 # pgbouncer:
 #   enabled: false
 
-email:
-  # Leave empty to disable external email delivery (noop provider).
-  provider: ""
-  from: "email@domain.com"
-  support: "support@example.com"
-  smtp:
-    host: "smtp.example.com"
-    port: "587"
-    user: "smtp_username"
-    secure: "false"
-    tls: "true"
-    rejectUnauthorized: "true"
+# Optional If you want to use external email delivery.
+# email:
+#   # Leave empty to disable external email delivery (noop provider).
+#   provider: ""
+#   from: "email@domain.com"
+#   support: "support@example.com"
+#   smtp:
+#     host: "smtp.example.com"
+#     port: "587"
+#     user: "smtp_username"
+#     secure: "false"
+#     tls: "true"
+#     rejectUnauthorized: "true"
 
 secrets:
   mode: native
@@ -71,12 +74,6 @@ secrets:
     # AWS_ACCESS_KEY_ID: ""
     # AWS_SECRET_ACCESS_KEY: ""
 
-    # Optional: only required if BILLING/BILLING_ENABLED is true.
-    # STRIPE_SECRET_KEY: ""
-
-    # Optional: only required if ANALYTICS is true.
-    # POSTHOG_KEY: ""
-
 ingress:
   enabled: true
   className: nginx
@@ -84,18 +81,18 @@ ingress:
     enabled: true
     # Optional: defaults to hostname/path from network.appUrl.
     host: ""
-    path: ""
+    path: /
     tls:
-      enabled: true
-      secretName: greptile-web-tls
+      enabled: false
+      secretName: ""
   webhook:
     enabled: true
     # Optional: defaults to hostname/path from network.webhookUrl.
     host: ""
-    path: ""
+    path: /webhook
     tls:
-      enabled: true
-      secretName: greptile-webhook-tls
+      enabled: false
+      secretName: ""
 
 # Optional: use managed Postgres instead of bundled Postgres chart.
 # postgres:
