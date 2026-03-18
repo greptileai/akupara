@@ -3,7 +3,9 @@
 ## Verify rollout
 ```bash
 kubectl get pods -l app.kubernetes.io/instance=greptile
-kubectl logs deploy/greptile-greptile-web
+kubectl get svc
+kubectl get ingress
+kubectl logs deploy/greptile-web
 ```
 
 ## Validate worker registration

@@ -12,6 +12,7 @@ This directory contains a clean-sheet Helm structure aligned with the current `d
 ```bash
 cd deploy/kubernetes
 ./scripts/validate.sh
+# install ingress controller and Hatchet first; see docs/install.md
 ./scripts/init-values.sh
 helm upgrade --install greptile ./charts/greptile -f ./charts/profiles/values.user.yaml
 ```

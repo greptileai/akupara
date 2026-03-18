@@ -23,7 +23,7 @@ kubectl get ingressclass
 
 Expected:
 - an ingress class named `nginx`
-- a controller service (`ingress-nginx-controller`) with endpoints
+- a controller service (`nginx-ingress-ingress-nginx-controller`) with endpoints
 
 Then configure app charts to use:
 
