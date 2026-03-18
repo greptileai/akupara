@@ -27,20 +27,6 @@ github:
 # pgbouncer:
 #   enabled: false
 
-# Optional If you want to use external email delivery.
-# email:
-#   # Leave empty to disable external email delivery (noop provider).
-#   provider: ""
-#   from: "email@domain.com"
-#   support: "support@example.com"
-#   smtp:
-#     host: "smtp.example.com"
-#     port: "587"
-#     user: "smtp_username"
-#     secure: "false"
-#     tls: "true"
-#     rejectUnauthorized: "true"
-
 secrets:
   mode: native
   native:
