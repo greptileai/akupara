@@ -1,4 +1,4 @@
-# Only includes keys present in docker/.env.example (on-prem subset).
+# Only includes keys present in deploy/docker-compose/.env.example (on-prem subset).
 # Keys are kebab-case for use with ssm_config_keys / ssm_secrets_keys.
 
 ssm_config_keys:

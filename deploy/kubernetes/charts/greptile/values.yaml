@@ -1,0 +1,548 @@
+global:
+  registry: "REPLACE_ME_REGISTRY"
+  tag: "REPLACE_ME_TAG"
+  pullPolicy: IfNotPresent
+  imagePullSecrets: []
+  podAnnotations: {}
+  podSecurityContext:
+    fsGroup: 1000
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: false
+    runAsNonRoot: false
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+network:
+  appUrl: "http://greptile.local"
+  webhookUrl: "http://greptile.local/webhook"
+
+hatchet:
+  apiUrl: "http://hatchet-stack-api.default.svc.cluster.local:8080"
+  grpcUrl: "hatchet-stack-engine.default.svc.cluster.local:7070"
+  tlsStrategy: "none"
+
+postgres:
+  enabled: true
+  global:
+    security:
+      allowInsecureImages: true
+  image:
+    registry: docker.io
+    repository: bitnamilegacy/postgresql
+    tag: 17.6.0-debian-12-r4
+  auth:
+    username: postgres
+    postgresPassword: postgres
+    database: postgres
+  primary:
+    extendedConfiguration: |-
+      idle_in_transaction_session_timeout = '5min'
+    persistence:
+      enabled: true
+      size: 40Gi
+      storageClass: ""
+    service:
+      type: ClusterIP
+      port: 5432
+  tls:
+    enabled: false
+
+externalDatabase:
+  host: ""
+  port: 5432
+  user: ""
+  password: ""
+  database: ""
+  vectorDatabase: "vector"
+  sslDisable: "true"
+
+pgbouncer:
+  enabled: true
+  image:
+    repository: "edoburu/pgbouncer"
+    tag: "v1.25.1-p0"
+    pullPolicy: IfNotPresent
+  replicas: 1
+  containerPort: 5432
+  service:
+    type: ClusterIP
+    port: 5432
+  config:
+    poolMode: "transaction"
+    maxClientConn: "1000"
+    defaultPoolSize: "50"
+    reservePoolSize: "10"
+    authType: "scram-sha-256"
+    queryWaitTimeout: "120"
+    clientIdleTimeout: "300"
+    serverIdleTimeout: "600"
+    serverConnectTimeout: "15"
+    serverLoginRetry: "15"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+storage:
+  sharedWorkdir:
+    enabled: true
+    size: 1Ti
+    storageClass: ""
+    accessModes:
+      - ReadWriteMany
+
+env:
+  shared:
+    ONPREM: "true"
+    NODE_ENV: "production"
+    NEW_WORKER_LOAD: "100"
+    HATCHET_CLIENT_TLS_STRATEGY: "{{ .Values.hatchet.tlsStrategy }}"
+    HATCHET_CLIENT_GRPC_BROADCAST_ADDRESS: "{{ .Values.hatchet.grpcUrl }}"
+    HATCHET_CLIENT_SERVER_URL: "{{ .Values.hatchet.apiUrl }}"
+    GITHUB_ENABLED: "{{ .Values.github.enabled }}"
+    GITHUB_APP_ID: "{{ .Values.github.appId }}"
+    GITHUB_APP_URL: "{{ .Values.github.appUrl }}"
+    GITHUB_ENTERPRISE_URL: "{{ .Values.github.enterpriseUrl }}"
+    GITHUB_ENTERPRISE_API_URL: "{{ include \"greptile.githubEnterpriseApiUrl\" . }}"
+    GITHUB_ENTERPRISE_APP_URL: "{{ .Values.github.enterpriseAppUrl }}"
+    GITHUB_ENTERPRISE_APP_ID: "{{ .Values.github.enterpriseAppId }}"
+
+appConfig:
+  authSamlOnly: "false"
+  learnProceduralMemory: "true"
+  useProceduralMemory: "true"
+  defaultExperimentVariant: "opus-v8"
+
+github:
+  enabled: "false"
+  enterpriseEnabled: "true"
+  appId: "0"
+  appUrl: "https://github.com/apps/dummy-greptile-app"
+  enterpriseUrl: "https://github.example.com"
+  enterpriseApiUrl: ""
+  enterpriseAppUrl: "https://github.example.com/apps/dummy-greptile-app"
+  enterpriseAppId: "0"
+
+integrations:
+  linearEnabled: "false"
+  slackEnabled: "false"
+  notionEnabled: "false"
+  atlassianEnabled: "false"
+  googleDriveEnabled: "false"
+
+email:
+  # Leave empty to use the app's noop provider (no outbound email delivery).
+  provider: ""
+  from: "email@domain.com"
+  support: "support@example.com"
+  smtp:
+    host: "smtp.example.com"
+    port: "587"
+    user: "smtp_username"
+    secure: "false"
+    tls: "true"
+    rejectUnauthorized: "true"
+
+llm:
+  anthropicBaseUrl: "https://api.anthropic.com"
+  openaiBaseUrl: "https://api.openai.com/v1/"
+  azureOpenaiUrl: "https://onboardai.openai.azure.com/"
+  azureOpenaiApiVersion: "2024-07-18"
+  awsRegion: "us-east-1"
+
+saml:
+  enabled: false
+  externalUrl: "http://saml-jackson:5225"
+  hostUrl: ""
+  idpEnabled: "true"
+  dbSsl: "false"
+
+secrets:
+  mode: native
+  name: ""
+  native:
+    JWT_SECRET: ""
+    TOKEN_ENCRYPTION_KEY: ""
+    LITELLM_MASTER_KEY: ""
+    HATCHET_CLIENT_TOKEN: ""
+    WEBHOOK_SECRET: ""
+    GITHUB_WEBHOOK_SECRET: "dummy-github-webhook-secret"
+    GITHUB_PRIVATE_KEY: "dummy-github-private-key"
+    GITHUB_CLIENT_ID: "dummy-github-client-id"
+    GITHUB_CLIENT_SECRET: "dummy-github-client-secret"
+    GITHUB_ENTERPRISE_CLIENT_ID: "dummy-github-enterprise-client-id"
+    GITHUB_ENTERPRISE_CLIENT_SECRET: "dummy-github-enterprise-client-secret"
+    AUTH_GITHUB_ID: ""
+    AUTH_GITHUB_SECRET: ""
+    SMTP_PASSWORD: ""
+    ANTHROPIC_KEY: ""
+    OPENAI_KEY: ""
+    AZURE_OPENAI_KEY: ""
+    AWS_ACCESS_KEY_ID: ""
+    AWS_SECRET_ACCESS_KEY: ""
+    AUTH_BOXYHQ_API_KEY: ""
+    AUTH_BOXYHQ_SAML_ID: ""
+    AUTH_BOXYHQ_SAML_SECRET: ""
+    JACKSON_DB_ENCRYPTION_KEY: ""
+    JACKSON_ADMIN_CREDENTIALS: ""
+    JACKSON_PUBLIC_KEY: ""
+    JACKSON_PRIVATE_KEY: ""
+  external:
+    secretStoreRef:
+      name: ""
+      kind: ClusterSecretStore
+    refreshInterval: 1h
+    data: []
+
+migrations:
+  db:
+    enabled: true
+    image:
+      repository: db-migration-job
+      tag: ""
+      pullPolicy: IfNotPresent
+
+components:
+  web:
+    enabled: true
+    replicas: 1
+    image:
+      repository: web
+      tag: ""
+    containerPort: 3000
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 3000
+    extraEnv: {}
+    componentEnv:
+      APP_URL: "{{ .Values.network.appUrl }}"
+      NEXTAUTH_URL: "{{ .Values.network.appUrl }}"
+      GREPTILE_WEB_URL: "{{ .Values.network.appUrl }}"
+      GREPTILE_AUTH_SERVER: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"auth\") }}:{{ .Values.components.auth.service.port }}"
+      GREPTILE_API_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"api\") }}:{{ .Values.components.api.service.port }}/v2"
+      GREPTILE_WEBHOOK_URL: "{{ .Values.network.webhookUrl }}"
+      BILLING_ENABLED: "false"
+      ANALYTICS: "false"
+      GITHUB_ENTERPRISE_ENABLED: "{{ .Values.github.enterpriseEnabled }}"
+      LINEAR_ENABLED: "{{ .Values.integrations.linearEnabled }}"
+      SLACK_ENABLED: "{{ .Values.integrations.slackEnabled }}"
+      GOOGLE_DRIVE_ENABLED: "{{ .Values.integrations.googleDriveEnabled }}"
+      ATLASSIAN_ENABLED: "{{ .Values.integrations.atlassianEnabled }}"
+      NOTION_ENABLED: "{{ .Values.integrations.notionEnabled }}"
+      AUTH_SAML_ONLY: "{{ .Values.appConfig.authSamlOnly }}"
+      EMAIL_PROVIDER: "{{ .Values.email.provider }}"
+      EMAIL_FROM: "{{ .Values.email.from }}"
+      SUPPORT_EMAIL: "{{ .Values.email.support }}"
+      SMTP_HOST: "{{ .Values.email.smtp.host }}"
+      SMTP_PORT: "{{ .Values.email.smtp.port }}"
+      SMTP_USER: "{{ .Values.email.smtp.user }}"
+      SMTP_SECURE: "{{ .Values.email.smtp.secure }}"
+      SMTP_TLS: "{{ .Values.email.smtp.tls }}"
+      SMTP_REJECT_UNAUTHORIZED: "{{ .Values.email.smtp.rejectUnauthorized }}"
+    envFromConfigMap: []
+    envFromSecret: []
+    volumes: []
+    volumeMounts: []
+
+  auth:
+    enabled: true
+    replicas: 1
+    image:
+      repository: auth
+      tag: ""
+    containerPort: 3001
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 3001
+    extraEnv: {}
+    componentEnv:
+      APP_URL: "{{ .Values.network.appUrl }}"
+      GREPTILE_WEB_URL: "{{ .Values.network.appUrl }}"
+      EMAIL_FROM: "{{ .Values.email.from }}"
+    envFromConfigMap: []
+    envFromSecret: []
+    volumes: []
+    volumeMounts: []
+
+  api:
+    enabled: true
+    replicas: 1
+    image:
+      repository: api
+      tag: ""
+    containerPort: 3002
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 3002
+    extraEnv: {}
+    componentEnv:
+      PORT: "3002"
+      APP_URL: "{{ .Values.network.appUrl }}"
+      GREPTILE_WEB_URL: "{{ .Values.network.appUrl }}"
+      URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"api\") }}:{{ .Values.components.api.service.port }}"
+      GREPTILE_WEBHOOK_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"webhook\") }}:{{ .Values.components.webhook.service.port }}/webhook"
+      LLM_PROXY_BASE_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"llmproxy\") }}:{{ .Values.components.llmproxy.containerPort }}"
+      BILLING: "false"
+      ANALYTICS: "false"
+      NOTIFICATIONS: "false"
+    envFromConfigMap: []
+    envFromSecret: []
+    volumes: []
+    volumeMounts: []
+
+  chunker:
+    enabled: true
+    replicas: 1
+    image:
+      repository: chunker
+      tag: ""
+    containerPort: 3003
+    service:
+      enabled: false
+      type: ClusterIP
+      port: 3003
+    extraEnv: {}
+    componentEnv:
+      PARENT_DIR: "/mnt/data/"
+      PORT: "3003"
+      EMAIL_PROVIDER: "{{ .Values.email.provider }}"
+      SMTP_HOST: "{{ .Values.email.smtp.host }}"
+      SMTP_PORT: "{{ .Values.email.smtp.port }}"
+      SMTP_USER: "{{ .Values.email.smtp.user }}"
+      SMTP_SECURE: "{{ .Values.email.smtp.secure }}"
+      SMTP_TLS: "{{ .Values.email.smtp.tls }}"
+      SMTP_REJECT_UNAUTHORIZED: "{{ .Values.email.smtp.rejectUnauthorized }}"
+      LLM_PROXY_BASE_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"llmproxy\") }}:{{ .Values.components.llmproxy.containerPort }}"
+      APP_URL: "{{ .Values.network.appUrl }}"
+      GREPTILE_APP_URL: "{{ .Values.network.appUrl }}"
+    envFromConfigMap: []
+    envFromSecret: []
+    volumes:
+      - name: shared-workdir
+        persistentVolumeClaim:
+          claimName: ""
+    volumeMounts:
+      - name: shared-workdir
+        mountPath: /mnt
+
+  summarizer:
+    enabled: true
+    replicas: 1
+    image:
+      repository: summarizer
+      tag: ""
+    containerPort: 3004
+    service:
+      enabled: false
+      type: ClusterIP
+      port: 3004
+    extraEnv: {}
+    componentEnv:
+      PARENT_DIR: "/mnt/data/"
+      PORT: "3004"
+      LLM_PROXY_BASE_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"llmproxy\") }}:{{ .Values.components.llmproxy.containerPort }}"
+      VECTOR_DB_HOST: "{{ include \"greptile.databaseHost\" . }}"
+      VECTOR_DB_PORT: "{{ include \"greptile.databasePort\" . }}"
+      VECTOR_DB_USER: "{{ include \"greptile.databaseUser\" . }}"
+      VECTOR_DB_NAME: "{{ include \"greptile.vectorDatabaseName\" . }}"
+      VECTOR_DB_PROVIDER: "pgvector"
+      VECTOR_EMBEDDINGS_TABLE_NAME: "embeddings"
+      VECTOR_DB_SSL_DISABLE: "{{ .Values.externalDatabase.sslDisable }}"
+      ANALYTICS: "false"
+      NOTIFICATIONS: "false"
+    envFromConfigMap: []
+    envFromSecret: []
+    volumes:
+      - name: shared-workdir
+        persistentVolumeClaim:
+          claimName: ""
+    volumeMounts:
+      - name: shared-workdir
+        mountPath: /mnt
+
+  worker:
+    enabled: true
+    replicas: 1
+    image:
+      repository: worker
+      tag: ""
+    containerPort: 3005
+    securityContext:
+      privileged: true
+      allowPrivilegeEscalation: true
+      capabilities:
+        add:
+          - SYS_ADMIN
+    service:
+      enabled: false
+      type: ClusterIP
+      port: 3005
+    extraEnv: {}
+    componentEnv:
+      PORT: "3005"
+      NFS_WORKING_DIR: "/mnt/efs"
+      GREPTILE_API_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"api\") }}:{{ .Values.components.api.service.port }}/v2"
+      GREPTILE_WEB_URL: "{{ .Values.network.appUrl }}"
+      LLM_PROXY_BASE_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"llmproxy\") }}:{{ .Values.components.llmproxy.containerPort }}"
+      BILLING: "false"
+      ANALYTICS: "false"
+      LEARN_PROCEDURAL_MEMORY: "{{ .Values.appConfig.learnProceduralMemory }}"
+      USE_PROCEDURAL_MEMORY: "{{ .Values.appConfig.useProceduralMemory }}"
+      DEFAULT_EXPERIMENT_VARIANT: "{{ .Values.appConfig.defaultExperimentVariant }}"
+    envFromConfigMap: []
+    envFromSecret: []
+    volumes:
+      - name: shared-workdir
+        persistentVolumeClaim:
+          claimName: ""
+      - name: cgroupfs
+        hostPath:
+          path: /sys/fs/cgroup
+          type: Directory
+    volumeMounts:
+      - name: shared-workdir
+        mountPath: /mnt/efs
+      - name: cgroupfs
+        mountPath: /sys/fs/cgroup
+
+  webhook:
+    enabled: true
+    replicas: 1
+    image:
+      repository: webhook
+      tag: ""
+    containerPort: 3007
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 3007
+    extraEnv: {}
+    componentEnv:
+      PORT: "3007"
+      ANALYTICS: "false"
+    envFromConfigMap: []
+    envFromSecret: []
+    volumes: []
+    volumeMounts: []
+
+  jobs:
+    enabled: true
+    replicas: 1
+    image:
+      repository: jobs
+      tag: ""
+    containerPort: 8080
+    service:
+      enabled: false
+      type: ClusterIP
+      port: 8080
+    extraEnv: {}
+    componentEnv:
+      PORT: "8080"
+      EMAIL_PROVIDER: "{{ .Values.email.provider }}"
+      SMTP_HOST: "{{ .Values.email.smtp.host }}"
+      SMTP_PORT: "{{ .Values.email.smtp.port }}"
+      SMTP_USER: "{{ .Values.email.smtp.user }}"
+      SMTP_SECURE: "{{ .Values.email.smtp.secure }}"
+      SMTP_TLS: "{{ .Values.email.smtp.tls }}"
+      SMTP_REJECT_UNAUTHORIZED: "{{ .Values.email.smtp.rejectUnauthorized }}"
+      LLM_PROXY_BASE_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"llmproxy\") }}:{{ .Values.components.llmproxy.containerPort }}"
+      APP_URL: "{{ .Values.network.appUrl }}"
+      GREPTILE_APP_URL: "{{ .Values.network.appUrl }}"
+    envFromConfigMap: []
+    envFromSecret: []
+    volumes: []
+    volumeMounts: []
+
+  llmproxy:
+    enabled: true
+    replicas: 1
+    image:
+      repository: llmproxy
+      tag: ""
+    containerPort: 4000
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 4000
+    extraEnv: {}
+    componentEnv:
+      PORT: "4000"
+      ANTHROPIC_BASE_URL: "{{ .Values.llm.anthropicBaseUrl }}"
+      OPENAI_BASE_URL: "{{ .Values.llm.openaiBaseUrl }}"
+      AZURE_OPENAI_BASE_URL: "{{ .Values.llm.azureOpenaiUrl }}"
+      AZURE_OPENAI_API_VERSION: "{{ .Values.llm.azureOpenaiApiVersion }}"
+      AWS_REGION_NAME: "{{ .Values.llm.awsRegion }}"
+    envFromConfigMap: []
+    envFromSecret: []
+    useSharedSecret: false
+    secretEnv:
+      - ANTHROPIC_API_KEY
+      - OPENAI_API_KEY
+      - AZURE_OPENAI_API_KEY
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - LITELLM_MASTER_KEY
+      - LLM_PROXY_KEY
+    volumes:
+      - name: llmproxy-config
+        configMap:
+          name: ""
+    volumeMounts:
+      - name: llmproxy-config
+        mountPath: /app/config.yaml
+        subPath: config.yaml
+
+  jackson:
+    enabled: false
+    replicas: 1
+    image:
+      repository: boxyhq/jackson
+      tag: "latest"
+    containerPort: 5225
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 5225
+    extraEnv: {}
+    componentEnv:
+      PORT: "5225"
+      DB_ENGINE: "sql"
+      DB_TYPE: "postgres"
+      DB_SSL: "{{ .Values.saml.dbSsl }}"
+      HOST_URL: "{{ .Values.saml.hostUrl }}"
+      EXTERNAL_URL: "{{ .Values.saml.externalUrl }}"
+      IDP_ENABLED: "{{ .Values.saml.idpEnabled }}"
+    envFromConfigMap: []
+    envFromSecret: []
+    volumes: []
+    volumeMounts: []
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}
+  web:
+    enabled: true
+    host: ""
+    path: ""
+    pathType: Prefix
+    tls:
+      enabled: false
+      secretName: ""
+  webhook:
+    enabled: true
+    host: ""
+    path: ""
+    pathType: Prefix
+    tls:
+      enabled: false
+      secretName: ""

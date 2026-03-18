@@ -1,0 +1,58 @@
+{{- if .Values.migrations.db.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "greptile.fullname" . }}-db-migration
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        {{- include "greptile.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: db-migration
+    spec:
+      restartPolicy: Never
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - name: wait-for-postgres
+          image: docker.io/bitnamilegacy/postgresql:17.6.0-debian-12-r4
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              until pg_isready -q -d "$DIRECT_URL"; do
+                echo "waiting for postgres at DIRECT_URL"
+                sleep 2
+              done
+          envFrom:
+            - configMapRef:
+                name: {{ include "greptile.fullname" . }}-env
+            - secretRef:
+                name: {{ include "greptile.secretName" . }}
+      containers:
+        - name: db-migration
+          image: {{ include "greptile.image" (dict "root" . "repository" .Values.migrations.db.image.repository "tag" .Values.migrations.db.image.tag) }}
+          imagePullPolicy: {{ .Values.migrations.db.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "greptile.fullname" . }}-env
+            - secretRef:
+                name: {{ include "greptile.secretName" . }}
+          env:
+            # Migrations should use direct Postgres, not PgBouncer.
+            - name: DATABASE_URL
+              value: {{ include "greptile.databaseUrl" . | quote }}
+            - name: DIRECT_URL
+              value: {{ include "greptile.databaseUrl" . | quote }}
+          resources:
+            {{- toYaml .Values.migrations.db.resources | nindent 12 }}
+{{- end }}
