@@ -1,5 +1,12 @@
 # Install Guide (Helm 3)
 
+## Production Prerequisites
+- Ingress controller: Greptile creates Ingress resources but does not install an Ingress controller. Install and verify `ingress-nginx` first. (Step 1)
+- Hatchet: Greptile depends on a separate Hatchet deployment. `hatchet-stack-api` and `hatchet-stack-engine` must be reachable before bootstrapping Greptile values. (Step 2)
+- Storage: bundled Postgres and the shared workdir PVC require enough backing storage for your workload. Review `postgres.primary.persistence.size` and `storage.sharedWorkdir.size` before deploying to a small cluster or reduce the storage amount.
+- Worker sandboxing: the `worker` deployment runs privileged with `SYS_ADMIN` and a `/sys/fs/cgroup` mount so review sandboxing can work. Clusters with restrictive pod security policies must allow this.
+- Bundled database defaults: the chart defaults now include PgBouncer with transaction pooling and basic timeout protections, plus a Postgres `idle_in_transaction_session_timeout` of `5min`. These are sensible defaults for fresh installs but do not replace backups, monitoring, and capacity planning.
+
 ## 1) Install Ingress Controller (Required)
 Install once per cluster:
 ```bash
