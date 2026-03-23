@@ -13,11 +13,13 @@ sharedConfig:
   defaultAdminEmail: "admin@example.com"
   defaultAdminPassword: "Admin123!!"
 
-postgresql:
+postgres:
   primary:
-    extendedConfiguration: |
-      timezone = 'UTC'
-      log_timezone = 'UTC'
+    extraEnvVars:
+      - name: POSTGRESQL_TIMEZONE
+        value: "UTC"
+      - name: POSTGRESQL_LOG_TIMEZONE
+        value: "UTC"
 
 api:
   image:
