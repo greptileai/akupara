@@ -1,6 +1,6 @@
 #!/bin/bash
 # Start Greptile application services
-# Usage: ./start_greptile.sh
+# Usage: ./bin/start-greptile.sh
 #
 # Prerequisites:
 #   - .env file must exist (run start_hatchet.sh first)

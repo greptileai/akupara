@@ -2,7 +2,6 @@ services:
   # ===== HATCHET SECTION ======
   hatchet-postgres:
     image: postgres:15
-    platform: linux/amd64
     hostname: hatchet-postgres
     environment:
       POSTGRES_USER: ${HATCHET_POSTGRES_USER:-hatchet}
@@ -20,7 +19,6 @@ services:
 
   hatchet-rabbitmq:
     image: "rabbitmq:3-management"
-    platform: linux/amd64
     hostname: hatchet-rabbitmq
     ports:
       - "5673:5672" # RabbitMQ
@@ -41,7 +39,6 @@ services:
 
   hatchet-migration:
     image: ghcr.io/hatchet-dev/hatchet/hatchet-migrate:${HATCHET_TAG}
-    platform: linux/amd64
     environment:
       DATABASE_URL: ${HATCHET_DATABASE_URL}
     depends_on:
@@ -52,7 +49,6 @@ services:
 
   hatchet-setup-config:
     image: ghcr.io/hatchet-dev/hatchet/hatchet-admin:${HATCHET_TAG}
-    platform: linux/amd64
     command: /hatchet/hatchet-admin quickstart --skip certs --generated-config-dir /hatchet/config --overwrite=false
     environment:
       DATABASE_URL: ${HATCHET_DATABASE_URL}
@@ -77,7 +73,6 @@ services:
 
   hatchet-engine:
     image: ghcr.io/hatchet-dev/hatchet/hatchet-engine:${HATCHET_TAG}
-    platform: linux/amd64
     command: /hatchet/hatchet-engine --config /hatchet/config
     restart: on-failure
     depends_on:
@@ -99,7 +94,6 @@ services:
 
   hatchet-api:
     image: ghcr.io/hatchet-dev/hatchet/hatchet-api:${HATCHET_TAG}
-    platform: linux/amd64
     command: /hatchet/hatchet-api --config /hatchet/config
     restart: on-failure
     depends_on:
@@ -117,14 +111,12 @@ services:
 
   hatchet-frontend:
     image: ghcr.io/hatchet-dev/hatchet/hatchet-frontend:${HATCHET_TAG}
-    platform: linux/amd64
     restart: on-failure
     profiles:
       - hatchet
 
   hatchet-caddy:
     image: caddy:2.7.6-alpine
-    platform: linux/amd64
     restart: on-failure
     ports:
       - 8080:8080
@@ -162,7 +154,6 @@ services:
 
   greptile-db-migration:
     image: ${CONTAINER_REGISTRY}/db-migration-job:${GREPTILE_TAG}
-    platform: linux/amd64
     depends_on:
       greptile-postgres:
         condition: service_healthy
@@ -176,7 +167,6 @@ services:
 
   greptile-web:
     image: ${CONTAINER_REGISTRY}/web:${GREPTILE_TAG}
-    platform: linux/amd64
     env_file:
       - .env.greptile-generated
       - .env.hatchet-generated
@@ -193,7 +183,6 @@ services:
 
   greptile-auth:
     image: ${CONTAINER_REGISTRY}/auth:${GREPTILE_TAG}
-    platform: linux/amd64
     env_file:
       - .env.greptile-generated
       - .env.hatchet-generated
@@ -205,7 +194,6 @@ services:
 
   greptile-api:
     image: ${CONTAINER_REGISTRY}/api:${GREPTILE_TAG}
-    platform: linux/amd64
     restart: on-failure
     env_file:
       - .env.greptile-generated
@@ -221,7 +209,6 @@ services:
 
   greptile-indexer-chunker:
     image: ${CONTAINER_REGISTRY}/chunker:${GREPTILE_TAG}
-    platform: linux/amd64
     restart: on-failure
     env_file:
       - .env.greptile-generated
@@ -237,7 +224,6 @@ services:
 
   greptile-indexer-summarizer:
     image: ${CONTAINER_REGISTRY}/summarizer:${GREPTILE_TAG}
-    platform: linux/amd64
     restart: on-failure
     deploy:
       replicas: 1
@@ -255,7 +241,6 @@ services:
 
   greptile-webhook:
     image: ${CONTAINER_REGISTRY}/webhook:${GREPTILE_TAG}
-    platform: linux/amd64
     restart: on-failure
     env_file:
       - .env.greptile-generated
@@ -270,7 +255,6 @@ services:
 
   greptile-worker:
     image: ${CONTAINER_REGISTRY}/worker:${GREPTILE_TAG}
-    platform: linux/amd64
     privileged: true
     deploy:
       replicas: 1
@@ -292,7 +276,6 @@ services:
 
   greptile-jobs:
     image: ${CONTAINER_REGISTRY}/jobs:${GREPTILE_TAG}
-    platform: linux/amd64
     restart: on-failure
     env_file:
       - .env.greptile-generated
@@ -307,7 +290,6 @@ services:
 
   greptile-llmproxy:
     image: ${CONTAINER_REGISTRY}/llmproxy:${GREPTILE_TAG}
-    platform: linux/amd64
     restart: on-failure
     env_file:
       - .env.greptile-generated
@@ -336,7 +318,6 @@ services:
   saml-jackson:
     image: boxyhq/jackson
     hostname: saml-jackson
-    platform: linux/amd64
     restart: on-failure
     profiles:
       - saml

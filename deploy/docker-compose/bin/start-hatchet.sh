@@ -15,7 +15,7 @@ if ! docker info > /dev/null 2>&1; then
     echo "Error: Cannot access Docker. Please check that:"
     echo "1. Docker is installed and running"
     echo "2. Your user has permission to access Docker (try running 'docker ps')"
-    echo "3. You are a member of the 'docker' group (you can add yourself with 'sudo usermod -aG docker \$USER')"
+    echo "3. You are a member of the 'docker' group (add yourself with 'sudo usermod -aG docker \$USER', then run 'newgrp docker')"
     exit 1
 fi
 
@@ -39,4 +39,4 @@ echo "You can access the Hatchet UI at http://localhost:8080"
 echo ""
 echo "Next steps:"
 echo "  1. Generate Hatchet token: ./bin/generate-hatchet-token.sh"
-echo "  2. Start Greptile services: ./start_greptile.sh"
+echo "  2. Start Greptile services: ./bin/start-greptile.sh"
