@@ -1,0 +1,36 @@
+{{- if and .Values.ingress.enabled .Values.ingress.web.enabled .Values.components.web.enabled .Values.components.web.service.enabled }}
+{{- $appHost := regexFind "^[^/]+" (regexReplaceAll "^https?://" .Values.network.appUrl "") -}}
+{{- $appPathRaw := regexReplaceAll "^https?://[^/]+" .Values.network.appUrl "" -}}
+{{- $appPath := default "/" $appPathRaw -}}
+{{- $host := default $appHost .Values.ingress.web.host -}}
+{{- $path := default $appPath .Values.ingress.web.path -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "greptile.fullname" . }}-web
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+    - host: {{ $host | quote }}
+      http:
+        paths:
+          - path: {{ $path | quote }}
+            pathType: {{ .Values.ingress.web.pathType }}
+            backend:
+              service:
+                name: {{ include "greptile.componentName" (dict "root" . "name" "web") }}
+                port:
+                  number: {{ .Values.components.web.service.port }}
+  {{- if .Values.ingress.web.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ $host | quote }}
+      secretName: {{ .Values.ingress.web.tls.secretName }}
+  {{- end }}
+{{- end }}

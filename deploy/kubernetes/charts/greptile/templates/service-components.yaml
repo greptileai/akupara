@@ -1,0 +1,23 @@
+{{- range $name, $component := .Values.components }}
+{{- $isJackson := eq $name "jackson" }}
+{{- if and $component.enabled $component.service.enabled (or (not $isJackson) $.Values.saml.enabled) }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "greptile.componentName" (dict "root" $ "name" $name) }}
+  labels:
+    {{- include "greptile.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $name }}
+spec:
+  type: {{ $component.service.type }}
+  ports:
+    - name: http
+      port: {{ $component.service.port }}
+      targetPort: {{ $component.containerPort }}
+      protocol: TCP
+  selector:
+    {{- include "greptile.selectorLabels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $name }}
+{{- end }}
+{{- end }}

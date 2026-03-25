@@ -41,3 +41,5 @@ out
 /apps
 /packages
 /infra 
+
+Caddyfile

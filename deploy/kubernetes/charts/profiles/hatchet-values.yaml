@@ -1,0 +1,43 @@
+caddy:
+  enabled: true
+
+sharedConfig:
+  enabled: true
+  serverUrl: "http://hatchet-stack-api.default.svc.cluster.local:8080"
+  grpcBroadcastAddress: "hatchet-stack-engine.default.svc.cluster.local:7070"
+  serverAuthCookieDomain: "localhost:8080"
+  serverAuthCookieInsecure: "t"
+  serverAuthSetEmailVerified: "t"
+  serverAuthBasicAuthEnabled: "t"
+  grpcInsecure: "true"
+  defaultAdminEmail: "admin@example.com"
+  defaultAdminPassword: "Admin123!!"
+
+postgres:
+  primary:
+    extraEnvVars:
+      - name: POSTGRESQL_TIMEZONE
+        value: "UTC"
+      - name: POSTGRESQL_LOG_TIMEZONE
+        value: "UTC"
+
+api:
+  image:
+    tag: "v0.78.29"
+  migrationJob:
+    image:
+      tag: "v0.78.29"
+  setupJob:
+    image:
+      tag: "v0.78.29"
+  seedJob:
+    image:
+      tag: "v0.78.29"
+
+engine:
+  image:
+    tag: "v0.78.29"
+
+frontend:
+  image:
+    tag: "v0.78.29"

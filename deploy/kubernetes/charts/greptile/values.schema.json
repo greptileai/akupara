@@ -1,0 +1,219 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["global", "secrets", "components", "hatchet", "network"],
+  "properties": {
+    "global": {
+      "type": "object",
+      "required": ["registry", "tag"],
+      "properties": {
+        "registry": { "type": "string", "minLength": 1 },
+        "tag": { "type": "string", "minLength": 1 },
+        "pullPolicy": { "type": "string", "enum": ["Always", "IfNotPresent", "Never"] }
+      }
+    },
+    "secrets": {
+      "type": "object",
+      "required": ["mode"],
+      "properties": {
+        "mode": { "type": "string", "enum": ["native", "external"] },
+        "native": {
+          "type": "object",
+          "properties": {
+            "JWT_SECRET": { "type": "string" },
+            "TOKEN_ENCRYPTION_KEY": { "type": "string" },
+            "LITELLM_MASTER_KEY": { "type": "string" },
+            "HATCHET_CLIENT_TOKEN": { "type": "string" },
+            "SMTP_PASSWORD": { "type": "string" }
+          }
+        },
+        "external": {
+          "type": "object",
+          "properties": {
+            "secretStoreRef": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "kind": { "type": "string" }
+              }
+            },
+            "data": { "type": "array" }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "mode": { "const": "external" } } },
+          "then": {
+            "properties": {
+              "external": {
+                "required": ["secretStoreRef", "data"]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "network": {
+      "type": "object",
+      "required": ["appUrl", "webhookUrl"],
+      "properties": {
+        "appUrl": { "type": "string", "minLength": 1 },
+        "webhookUrl": { "type": "string", "minLength": 1 }
+      }
+    },
+    "hatchet": {
+      "type": "object",
+      "required": ["apiUrl", "grpcUrl", "tlsStrategy"],
+      "properties": {
+        "apiUrl": { "type": "string", "minLength": 1 },
+        "grpcUrl": { "type": "string", "minLength": 1 },
+        "tlsStrategy": { "type": "string", "enum": ["none", "tls"] }
+      }
+    },
+    "pgbouncer": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "replicas": { "type": "integer", "minimum": 1 },
+        "containerPort": { "type": "integer", "minimum": 1, "maximum": 65535 },
+        "image": {
+          "type": "object",
+          "properties": {
+            "repository": { "type": "string", "minLength": 1 },
+            "tag": { "type": "string" },
+            "pullPolicy": { "type": "string", "enum": ["Always", "IfNotPresent", "Never"] }
+          }
+        },
+        "service": {
+          "type": "object",
+          "properties": {
+            "type": { "type": "string" },
+            "port": { "type": "integer", "minimum": 1, "maximum": 65535 }
+          }
+        },
+        "config": {
+          "type": "object",
+          "properties": {
+            "poolMode": { "type": "string" },
+            "maxClientConn": { "type": "string" },
+            "defaultPoolSize": { "type": "string" },
+            "reservePoolSize": { "type": "string" },
+            "authType": { "type": "string" },
+            "queryWaitTimeout": { "type": "string" },
+            "clientIdleTimeout": { "type": "string" },
+            "serverIdleTimeout": { "type": "string" },
+            "serverConnectTimeout": { "type": "string" },
+            "serverLoginRetry": { "type": "string" }
+          }
+        }
+      }
+    },
+    "env": {
+      "type": "object",
+      "properties": {
+        "shared": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "appConfig": {
+      "type": "object",
+      "properties": {
+        "authSamlOnly": { "type": "string" },
+        "learnProceduralMemory": { "type": "string" },
+        "useProceduralMemory": { "type": "string" },
+        "defaultExperimentVariant": { "type": "string" }
+      }
+    },
+    "github": {
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "string" },
+        "enterpriseEnabled": { "type": "string" },
+        "appId": { "type": "string" },
+        "appUrl": { "type": "string" },
+        "enterpriseUrl": { "type": "string" },
+        "enterpriseApiUrl": { "type": "string" },
+        "enterpriseAppUrl": { "type": "string" },
+        "enterpriseAppId": { "type": "string" }
+      }
+    },
+    "integrations": {
+      "type": "object",
+      "properties": {
+        "linearEnabled": { "type": "string" },
+        "slackEnabled": { "type": "string" },
+        "notionEnabled": { "type": "string" },
+        "atlassianEnabled": { "type": "string" },
+        "googleDriveEnabled": { "type": "string" }
+      }
+    },
+    "email": {
+      "type": "object",
+      "properties": {
+        "provider": { "type": "string" },
+        "from": { "type": "string" },
+        "support": { "type": "string" },
+        "smtp": {
+          "type": "object",
+          "properties": {
+            "host": { "type": "string" },
+            "port": { "type": "string" },
+            "user": { "type": "string" },
+            "secure": { "type": "string" },
+            "tls": { "type": "string" },
+            "rejectUnauthorized": { "type": "string" }
+          }
+        }
+      }
+    },
+    "components": {
+      "type": "object",
+      "required": ["web", "auth", "api", "chunker", "summarizer", "worker", "webhook", "jobs", "llmproxy"],
+      "additionalProperties": {
+        "type": "object",
+        "required": ["enabled", "replicas", "image"],
+        "properties": {
+          "enabled": { "type": "boolean" },
+          "replicas": { "type": "integer", "minimum": 0 },
+          "containerPort": { "type": "integer", "minimum": 1, "maximum": 65535 },
+          "componentEnv": {
+            "type": "object",
+            "additionalProperties": { "type": "string" }
+          },
+          "securityContext": {
+            "type": "object"
+          },
+          "volumes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "persistentVolumeClaim": { "type": "object" },
+                "configMap": { "type": "object" },
+                "hostPath": { "type": "object" }
+              }
+            }
+          },
+          "volumeMounts": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "image": {
+            "type": "object",
+            "required": ["repository"],
+            "properties": {
+              "repository": { "type": "string", "minLength": 1 },
+              "tag": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

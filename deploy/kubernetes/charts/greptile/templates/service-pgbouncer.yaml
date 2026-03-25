@@ -1,0 +1,19 @@
+{{- if .Values.pgbouncer.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "greptile.pgbouncerName" . }}
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: pgbouncer
+spec:
+  type: {{ .Values.pgbouncer.service.type }}
+  ports:
+    - name: pgbouncer
+      port: {{ .Values.pgbouncer.service.port }}
+      targetPort: {{ .Values.pgbouncer.containerPort }}
+      protocol: TCP
+  selector:
+    {{- include "greptile.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: pgbouncer
+{{- end }}

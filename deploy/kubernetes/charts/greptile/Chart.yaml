@@ -1,0 +1,16 @@
+apiVersion: v2
+name: greptile
+description: Greptile on-prem workloads for Kubernetes
+version: 2.0.0
+appVersion: "2.0.0"
+type: application
+home: https://greptile.com
+maintainers:
+  - name: Greptile
+    email: support@greptile.com
+dependencies:
+  - name: postgresql
+    alias: postgres
+    version: "16.7.27"
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgres.enabled
