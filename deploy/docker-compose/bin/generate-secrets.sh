@@ -32,11 +32,9 @@ log() {
 
 # Generate random 32-character alphanumeric string
 generate_random_string() {
-  # Use openssl rand (non-blocking, fast, widely available)
-  # Base64 gives us alphanumeric + / + =, so we filter to alphanumeric only
-  # We generate 24 bytes (32 base64 chars) then filter to get 32 alphanumeric chars
+  # Generate enough base64 output that filtering non-alphanumerics still leaves 32 chars.
   if command -v openssl >/dev/null 2>&1; then
-    openssl rand -base64 24 | tr -d '\n' | LC_ALL=C tr -dc 'A-Za-z0-9' | head -c 32
+    openssl rand -base64 48 | tr -d '\n' | LC_ALL=C tr -dc 'A-Za-z0-9' | head -c 32
   # Fallback: use /dev/urandom (may block on low-entropy systems)
   else
     LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 32
