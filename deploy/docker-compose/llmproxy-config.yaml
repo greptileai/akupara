@@ -88,11 +88,13 @@ router_settings:
     "memory-clustering": "claude-sonnet-4-6"
     "review": "claude-sonnet-4-6" # backward-compat alias; avoid alias chaining
     "review-deep": "claude-opus-4-6"
+    "review-opus-4-8": "claude-opus-4-8"
     "review-light": "claude-haiku-4-5-20251001"
     "review-sonnet": "claude-sonnet-4-6"
     "review-opus": "claude-opus-4-6"
     "review-haiku": "claude-haiku-4-5-20251001"
     "refiner": "claude-sonnet-4-6"
+    "reply-agent": "claude-sonnet-4-6"
     "summarizer": "summarizer-pool"
     "summarizer-fast": "summarizer-pool"
     "engine-mini": "claude-sonnet-4-6"
