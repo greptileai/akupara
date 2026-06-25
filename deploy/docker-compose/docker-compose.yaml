@@ -177,7 +177,7 @@ services:
       - NEXT_PUBLIC_BILLING=${BILLING}
       - NEXT_PUBLIC_ANALYTICS=${ANALYTICS}
     ports:
-      - "3000:3000"
+      - "3002:3000"
     profiles:
       - greptile
 
