@@ -34,10 +34,10 @@ log() {
 generate_random_string() {
   # Generate enough base64 output that filtering non-alphanumerics still leaves 32 chars.
   if command -v openssl >/dev/null 2>&1; then
-    openssl rand -base64 48 | tr -d '\n' | LC_ALL=C tr -dc 'A-Za-z0-9' | head -c 32
+    openssl rand -base64 48 | tr -d '\n' | LC_ALL=C tr -dc 'A-Za-z0-9' | head -c 8
   # Fallback: use /dev/urandom (may block on low-entropy systems)
   else
-    LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 32
+    LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 8
   fi
 }
 
