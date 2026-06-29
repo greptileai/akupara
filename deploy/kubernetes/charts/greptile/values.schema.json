@@ -124,7 +124,8 @@
         "authSamlOnly": { "type": "string" },
         "learnProceduralMemory": { "type": "string" },
         "useProceduralMemory": { "type": "string" },
-        "defaultExperimentVariant": { "type": "string" }
+        "defaultExperimentVariant": { "type": "string" },
+        "defaultDynamicRouter": { "type": "string" }
       }
     },
     "github": {
