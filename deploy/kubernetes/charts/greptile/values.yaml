@@ -116,7 +116,8 @@ appConfig:
   authSamlOnly: "false"
   learnProceduralMemory: "true"
   useProceduralMemory: "true"
-  defaultExperimentVariant: "opus-v8"
+  defaultExperimentVariant: "rsv11-stndrd4"
+  defaultDynamicRouter: "router:reviewNumber:rsv11-stndrd4:rsv16-stndrd4-regated"
 
 github:
   enabled: "false"
@@ -397,6 +398,7 @@ components:
       LEARN_PROCEDURAL_MEMORY: "{{ .Values.appConfig.learnProceduralMemory }}"
       USE_PROCEDURAL_MEMORY: "{{ .Values.appConfig.useProceduralMemory }}"
       DEFAULT_EXPERIMENT_VARIANT: "{{ .Values.appConfig.defaultExperimentVariant }}"
+      DEFAULT_DYNAMIC_ROUTER: "{{ .Values.appConfig.defaultDynamicRouter }}"
     envFromConfigMap: []
     envFromSecret: []
     volumes:
