@@ -223,10 +223,11 @@ services:
       - greptile
 
   greptile-indexer-summarizer:
+    # Disabled (0 replicas) for now; kept for future compatibility since it's still referenced.
     image: ${CONTAINER_REGISTRY}/summarizer:${GREPTILE_TAG}
     restart: on-failure
     deploy:
-      replicas: 1
+      replicas: 0
     env_file:
       - .env.greptile-generated
       - .env.hatchet-generated

@@ -336,7 +336,8 @@ components:
 
   summarizer:
     enabled: true
-    replicas: 1
+    # Disabled (0 replicas) for now; kept for future compatibility since it's still referenced.
+    replicas: 0
     image:
       repository: summarizer
       tag: ""
