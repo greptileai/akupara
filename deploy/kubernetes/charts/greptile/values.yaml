@@ -111,6 +111,8 @@ env:
     GITHUB_ENTERPRISE_API_URL: "{{ include \"greptile.githubEnterpriseApiUrl\" . }}"
     GITHUB_ENTERPRISE_APP_URL: "{{ .Values.github.enterpriseAppUrl }}"
     GITHUB_ENTERPRISE_APP_ID: "{{ .Values.github.enterpriseAppId }}"
+    TREX_SETTINGS_ENABLED: "{{ .Values.appConfig.trexSettingsEnabled }}"
+    REPO_CLUSTERS_ENABLED: "{{ .Values.appConfig.repoClustersEnabled }}"
 
 appConfig:
   authSamlOnly: "false"
@@ -118,6 +120,8 @@ appConfig:
   useProceduralMemory: "true"
   defaultExperimentVariant: "rsv11-stndrd4"
   defaultDynamicRouter: "router:reviewNumber:rsv11-stndrd4:rsv16-stndrd4-regated"
+  trexSettingsEnabled: "false"
+  repoClustersEnabled: "false"
 
 github:
   enabled: "false"
