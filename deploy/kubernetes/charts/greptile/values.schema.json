@@ -125,7 +125,9 @@
         "learnProceduralMemory": { "type": "string" },
         "useProceduralMemory": { "type": "string" },
         "defaultExperimentVariant": { "type": "string" },
-        "defaultDynamicRouter": { "type": "string" }
+        "defaultDynamicRouter": { "type": "string" },
+        "trexSettingsEnabled": { "type": "string" },
+        "repoClustersEnabled": { "type": "string" }
       }
     },
     "github": {
