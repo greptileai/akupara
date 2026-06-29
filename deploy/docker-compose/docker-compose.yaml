@@ -223,6 +223,7 @@ services:
       - greptile
 
   greptile-indexer-summarizer:
+    # Disabled (0 replicas) for now; kept for future compatibility since it's still referenced.
     image: ${CONTAINER_REGISTRY}/summarizer:${GREPTILE_TAG}
     restart: on-failure
     deploy:
