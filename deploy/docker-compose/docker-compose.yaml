@@ -226,7 +226,7 @@ services:
     image: ${CONTAINER_REGISTRY}/summarizer:${GREPTILE_TAG}
     restart: on-failure
     deploy:
-      replicas: 1
+      replicas: 0
     env_file:
       - .env.greptile-generated
       - .env.hatchet-generated

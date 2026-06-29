@@ -336,7 +336,7 @@ components:
 
   summarizer:
     enabled: true
-    replicas: 1
+    replicas: 0
     image:
       repository: summarizer
       tag: ""
