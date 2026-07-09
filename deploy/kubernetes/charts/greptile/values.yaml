@@ -100,7 +100,6 @@ env:
   shared:
     ONPREM: "true"
     NODE_ENV: "production"
-    NEW_WORKER_LOAD: "100"
     HATCHET_CLIENT_TLS_STRATEGY: "{{ .Values.hatchet.tlsStrategy }}"
     HATCHET_CLIENT_GRPC_BROADCAST_ADDRESS: "{{ .Values.hatchet.grpcUrl }}"
     HATCHET_CLIENT_SERVER_URL: "{{ .Values.hatchet.apiUrl }}"
@@ -113,6 +112,8 @@ env:
     GITHUB_ENTERPRISE_APP_ID: "{{ .Values.github.enterpriseAppId }}"
     TREX_SETTINGS_ENABLED: "{{ .Values.appConfig.trexSettingsEnabled }}"
     REPO_CLUSTERS_ENABLED: "{{ .Values.appConfig.repoClustersEnabled }}"
+    HEADLESS_REVIEW_ENABLED: "{{ .Values.appConfig.headlessReviewEnabled }}"
+    AUTH_MIGRATION_ENABLED: "{{ .Values.appConfig.authMigrationEnabled }}"
 
 appConfig:
   authSamlOnly: "false"
@@ -121,7 +122,9 @@ appConfig:
   defaultExperimentVariant: "rsv11-stndrd4"
   defaultDynamicRouter: "router:reviewNumber:rsv11-stndrd4:rsv16-stndrd4-regated"
   trexSettingsEnabled: "false"
-  repoClustersEnabled: "false"
+  repoClustersEnabled: "true"
+  headlessReviewEnabled: "true"
+  authMigrationEnabled: "false"
 
 github:
   enabled: "false"
