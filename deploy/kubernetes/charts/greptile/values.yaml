@@ -233,7 +233,7 @@ components:
       NEXTAUTH_URL: "{{ .Values.network.appUrl }}"
       GREPTILE_WEB_URL: "{{ .Values.network.appUrl }}"
       GREPTILE_AUTH_SERVER: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"auth\") }}:{{ .Values.components.auth.service.port }}"
-      GREPTILE_API_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"api\") }}:{{ .Values.components.api.service.port }}/v2"
+      GREPTILE_API_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"api\") }}:{{ .Values.components.api.service.port }}"
       GREPTILE_WEBHOOK_URL: "{{ .Values.network.webhookUrl }}"
       BILLING_ENABLED: "false"
       ANALYTICS: "false"
@@ -398,7 +398,7 @@ components:
     componentEnv:
       PORT: "3005"
       NFS_WORKING_DIR: "/mnt/efs"
-      GREPTILE_API_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"api\") }}:{{ .Values.components.api.service.port }}/v2"
+      GREPTILE_API_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"api\") }}:{{ .Values.components.api.service.port }}"
       GREPTILE_WEB_URL: "{{ .Values.network.appUrl }}"
       LLM_PROXY_BASE_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"llmproxy\") }}:{{ .Values.components.llmproxy.containerPort }}"
       BILLING: "false"
