@@ -13,6 +13,7 @@
 #   - JWT_SECRET
 #   - TOKEN_ENCRYPTION_KEY
 #   - LITELLM_MASTER_KEY
+#   - WEB_TRIGGER_SECRET
 #
 # Options:
 #   --check-only  Only check if secrets exist, don't generate
@@ -104,6 +105,7 @@ SECRETS_TO_GENERATE=(
   "JWT_SECRET"
   "TOKEN_ENCRYPTION_KEY"
   "LITELLM_MASTER_KEY"
+  "WEB_TRIGGER_SECRET"
 )
 
 missing_secrets=()
