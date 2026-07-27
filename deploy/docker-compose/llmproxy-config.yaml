@@ -67,6 +67,8 @@ batch_settings:
 router_settings:
   routing_strategy: simple-shuffle # Literal["simple-shuffle", "least-busy", "usage-based-routing","latency-based-routing"]
   model_group_alias:
+    # GPT review routing expects gpt-5.5. If unavailable from your provider, alias it here, e.g.:
+    # "gpt-5.5": "gpt-5.2"
     "gpt": "gpt-5.2"
     "codex": "gpt-5.2-codex"  # OpenAI Codex SDK model alias
     "alternate-review": "gpt-5.2-codex"

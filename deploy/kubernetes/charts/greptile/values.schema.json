@@ -122,10 +122,10 @@
       "type": "object",
       "properties": {
         "authSamlOnly": { "type": "string" },
-        "learnProceduralMemory": { "type": "string" },
-        "useProceduralMemory": { "type": "string" },
         "defaultExperimentVariant": { "type": "string" },
         "defaultDynamicRouter": { "type": "string" },
+        "reviewWorkflowRoutingEnabled": { "type": "string" },
+        "defaultNativeRoutingPolicy": { "type": "string" },
         "trexSettingsEnabled": { "type": "string" },
         "repoClustersEnabled": { "type": "string" }
       }

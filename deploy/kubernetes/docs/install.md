@@ -51,6 +51,13 @@ Edit `./charts/profiles/values.user.yaml` and set:
 - provider-specific secrets such as GitHub and model API keys
 - or switch to `secrets.mode=external`
 
+### GPT-based models
+If you use GPT for reviews, uncomment these settings in the chart values (see `charts/greptile/values.yaml`):
+- `appConfig.reviewWorkflowRoutingEnabled` / `appConfig.defaultNativeRoutingPolicy`
+- the matching `REVIEW_WORKFLOW_ROUTING_ENABLED` and `DEFAULT_NATIVE_ROUTING_POLICY` entries under `components.worker.componentEnv`
+
+The GPT routing variant expects `gpt-5.5` by default. If `gpt-5.5` is not available from your provider, add a LiteLLM alias in `charts/greptile/files/llmproxy-config.yaml` that maps `gpt-5.5` to a GPT model you do have access to (under `router_settings.model_group_alias`).
+
 ## 5) Deploy Greptile
 ```bash
 helm dependency update ./charts/greptile
