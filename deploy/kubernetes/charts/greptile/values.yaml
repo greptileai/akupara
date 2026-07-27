@@ -346,42 +346,6 @@ components:
       - name: shared-workdir
         mountPath: /mnt
 
-  summarizer:
-    enabled: true
-    # Disabled (0 replicas) for now; kept for future compatibility since it's still referenced.
-    replicas: 0
-    image:
-      repository: summarizer
-      tag: ""
-    containerPort: 3004
-    service:
-      enabled: false
-      type: ClusterIP
-      port: 3004
-    extraEnv: {}
-    componentEnv:
-      PARENT_DIR: "/mnt/data/"
-      PORT: "3004"
-      LLM_PROXY_BASE_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"llmproxy\") }}:{{ .Values.components.llmproxy.containerPort }}"
-      VECTOR_DB_HOST: "{{ include \"greptile.databaseHost\" . }}"
-      VECTOR_DB_PORT: "{{ include \"greptile.databasePort\" . }}"
-      VECTOR_DB_USER: "{{ include \"greptile.databaseUser\" . }}"
-      VECTOR_DB_NAME: "{{ include \"greptile.vectorDatabaseName\" . }}"
-      VECTOR_DB_PROVIDER: "pgvector"
-      VECTOR_EMBEDDINGS_TABLE_NAME: "embeddings"
-      VECTOR_DB_SSL_DISABLE: "{{ .Values.externalDatabase.sslDisable }}"
-      ANALYTICS: "false"
-      NOTIFICATIONS: "false"
-    envFromConfigMap: []
-    envFromSecret: []
-    volumes:
-      - name: shared-workdir
-        persistentVolumeClaim:
-          claimName: ""
-    volumeMounts:
-      - name: shared-workdir
-        mountPath: /mnt
-
   worker:
     enabled: true
     replicas: 1

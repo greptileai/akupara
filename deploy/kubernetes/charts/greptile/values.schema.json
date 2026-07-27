@@ -174,7 +174,7 @@
     },
     "components": {
       "type": "object",
-      "required": ["web", "auth", "api", "chunker", "summarizer", "worker", "webhook", "jobs", "llmproxy"],
+      "required": ["web", "auth", "api", "chunker", "worker", "webhook", "jobs", "llmproxy"],
       "additionalProperties": {
         "type": "object",
         "required": ["enabled", "replicas", "image"],

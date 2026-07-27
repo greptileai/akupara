@@ -3,7 +3,7 @@
 This chart deploys Greptile application workloads on Kubernetes with parity to the `deploy/docker-compose/` stack.
 
 ## Scope
-- Included: `web`, `auth`, `api`, `chunker`, `summarizer`, `worker`, `webhook`, `jobs`, `llmproxy`, optional `jackson`, DB migration job.
+- Included: `web`, `auth`, `api`, `chunker`, `worker`, `webhook`, `jobs`, `llmproxy`, optional `jackson`, DB migration job.
 - Excluded: Hatchet deployment itself (deploy separately).
 
 ## Quick Start

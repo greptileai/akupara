@@ -222,24 +222,6 @@ services:
     profiles:
       - greptile
 
-  greptile-indexer-summarizer:
-    # Disabled (0 replicas) for now; kept for future compatibility since it's still referenced.
-    image: ${CONTAINER_REGISTRY}/summarizer:${GREPTILE_TAG}
-    restart: on-failure
-    deploy:
-      replicas: 0
-    env_file:
-      - .env.greptile-generated
-      - .env.hatchet-generated
-      - .env
-    environment:
-      - PARENT_DIR=/mnt/data/
-      - PORT=3004
-    volumes:
-      - shared-mnt:/mnt
-    profiles:
-      - greptile
-
   greptile-webhook:
     image: ${CONTAINER_REGISTRY}/webhook:${GREPTILE_TAG}
     restart: on-failure

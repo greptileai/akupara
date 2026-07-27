@@ -80,7 +80,6 @@ Minimum healthy set for a bundled-database install:
 - `greptile-web`
 - `greptile-webhook`
 - `greptile-worker`
-- `greptile-summarizer`
 - `greptile-chunker`
 - `greptile-jobs`
 - `greptile-llmproxy`

@@ -164,7 +164,6 @@ You should see the following services running:
 * greptile-auth
 * greptile-api
 * greptile-indexer-chunker
-* greptile-indexer-summarizer
 * greptile-webhook
 * greptile-reviews
 * greptile-jobs
