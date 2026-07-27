@@ -182,6 +182,7 @@ secrets:
     JWT_SECRET: ""
     TOKEN_ENCRYPTION_KEY: ""
     LITELLM_MASTER_KEY: ""
+    WEB_TRIGGER_SECRET: ""
     HATCHET_CLIENT_TOKEN: ""
     WEBHOOK_SECRET: ""
     GITHUB_WEBHOOK_SECRET: "dummy-github-webhook-secret"

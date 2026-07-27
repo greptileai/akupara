@@ -23,6 +23,7 @@
             "JWT_SECRET": { "type": "string" },
             "TOKEN_ENCRYPTION_KEY": { "type": "string" },
             "LITELLM_MASTER_KEY": { "type": "string" },
+            "WEB_TRIGGER_SECRET": { "type": "string" },
             "HATCHET_CLIENT_TOKEN": { "type": "string" },
             "SMTP_PASSWORD": { "type": "string" }
           }

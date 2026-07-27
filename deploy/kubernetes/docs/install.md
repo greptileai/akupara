@@ -40,6 +40,7 @@ This script:
 - generates `JWT_SECRET`
 - generates `TOKEN_ENCRYPTION_KEY`
 - generates `LITELLM_MASTER_KEY`
+- generates `WEB_TRIGGER_SECRET`
 - attempts to generate `HATCHET_CLIENT_TOKEN` from the running Hatchet release
 
 `hatchet-stack` must already be deployed and reachable for automatic `HATCHET_CLIENT_TOKEN` generation to succeed.
