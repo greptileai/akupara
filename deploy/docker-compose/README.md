@@ -20,6 +20,7 @@
   * Latest Anthropic models or latest AWS Bedrock models
   * (Recommended but not required) Latest OpenAI models
   * Recommended rate limits: At least 100 requests per minute and 800,000 tokens per minute
+* **GPT-based models:** If you use GPT for reviews, uncomment `REVIEW_WORKFLOW_ROUTING_ENABLED` and `DEFAULT_NATIVE_ROUTING_POLICY` in `.env` (see `.env.example`). The GPT routing variant expects `gpt-5.5` by default. If `gpt-5.5` is not available from your provider, add a LiteLLM alias in `llmproxy-config.yaml` that maps `gpt-5.5` to a GPT model you do have access to (under `router_settings.model_group_alias`).
 
 #### Container Registry
 * Access to Greptile's container images (shared with you by Greptile)
@@ -128,6 +129,10 @@ Open the `.env` file, which contains all the environment variables to configure 
    - You will need to create a GitHub App on your instance and copy some values into the `.env` file.
    - For a detailed guide, see [GitHubApp.md](docs/GitHubApp.md).
 
+5. **If using GPT-based models:**
+   - Uncomment `REVIEW_WORKFLOW_ROUTING_ENABLED` and `DEFAULT_NATIVE_ROUTING_POLICY` in `.env`.
+   - The GPT variant expects `gpt-5.5` by default. If that model is not available, define a LiteLLM alias in `llmproxy-config.yaml` (`router_settings.model_group_alias`) mapping `gpt-5.5` to whichever GPT variant your provider exposes.
+
 ### 6. Start Greptile Services
 Once you have filled out the environment variables in `.env`, start the Greptile services:
 ```bash
@@ -159,7 +164,6 @@ You should see the following services running:
 * greptile-auth
 * greptile-api
 * greptile-indexer-chunker
-* greptile-indexer-summarizer
 * greptile-webhook
 * greptile-reviews
 * greptile-jobs
@@ -215,7 +219,7 @@ All scripts are located in the `bin/` directory:
 | `bin/start-greptile.sh` | Start Greptile application services |
 | `bin/login-registry.sh` | Authenticate with container registry (ECR/Docker Hub) |
 | `bin/generate-hatchet-token.sh` | Generate Hatchet authentication token |
-| `bin/generate-secrets.sh` | Generate JWT_SECRET, TOKEN_ENCRYPTION_KEY, LITELLM_MASTER_KEY |
+| `bin/generate-secrets.sh` | Generate JWT_SECRET, TOKEN_ENCRYPTION_KEY, LITELLM_MASTER_KEY, WEB_TRIGGER_SECRET |
 | `bin/setup-env.sh` | Create `.env` and `Caddyfile` from example templates |
 | `bin/wait-for-service.sh` | Wait for a Docker Compose service to be healthy |
 

@@ -12,6 +12,7 @@ This bootstraps `charts/profiles/values.user.yaml` and auto-generates:
 - `JWT_SECRET`
 - `TOKEN_ENCRYPTION_KEY`
 - `LITELLM_MASTER_KEY`
+- `WEB_TRIGGER_SECRET`
 - `HATCHET_CLIENT_TOKEN` when Hatchet is already deployed and reachable
 
 ## External Secrets Operator

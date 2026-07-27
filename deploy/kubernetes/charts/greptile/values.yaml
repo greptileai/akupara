@@ -117,10 +117,15 @@ env:
 
 appConfig:
   authSamlOnly: "false"
-  learnProceduralMemory: "true"
-  useProceduralMemory: "true"
   defaultExperimentVariant: "rsv11-stndrd4"
   defaultDynamicRouter: "router:reviewNumber:rsv11-stndrd4:rsv16-stndrd4-regated"
+  # If using gpt-based models, uncomment the following lines (and the matching
+  # REVIEW_WORKFLOW_ROUTING_ENABLED / DEFAULT_NATIVE_ROUTING_POLICY entries in
+  # components.worker.componentEnv). The GPT variant expects gpt-5.5 by default.
+  # If gpt-5.5 is unavailable, add a LiteLLM alias in files/llmproxy-config.yaml
+  # (router_settings.model_group_alias) mapping gpt-5.5 to an available GPT model.
+  # reviewWorkflowRoutingEnabled: "true"
+  # defaultNativeRoutingPolicy: "native-rod-gpt-simp-v6-composed-primary@1"
   trexSettingsEnabled: "false"
   repoClustersEnabled: "true"
   headlessReviewEnabled: "true"
@@ -177,6 +182,7 @@ secrets:
     JWT_SECRET: ""
     TOKEN_ENCRYPTION_KEY: ""
     LITELLM_MASTER_KEY: ""
+    WEB_TRIGGER_SECRET: ""
     HATCHET_CLIENT_TOKEN: ""
     WEBHOOK_SECRET: ""
     GITHUB_WEBHOOK_SECRET: "dummy-github-webhook-secret"
@@ -341,42 +347,6 @@ components:
       - name: shared-workdir
         mountPath: /mnt
 
-  summarizer:
-    enabled: true
-    # Disabled (0 replicas) for now; kept for future compatibility since it's still referenced.
-    replicas: 0
-    image:
-      repository: summarizer
-      tag: ""
-    containerPort: 3004
-    service:
-      enabled: false
-      type: ClusterIP
-      port: 3004
-    extraEnv: {}
-    componentEnv:
-      PARENT_DIR: "/mnt/data/"
-      PORT: "3004"
-      LLM_PROXY_BASE_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"llmproxy\") }}:{{ .Values.components.llmproxy.containerPort }}"
-      VECTOR_DB_HOST: "{{ include \"greptile.databaseHost\" . }}"
-      VECTOR_DB_PORT: "{{ include \"greptile.databasePort\" . }}"
-      VECTOR_DB_USER: "{{ include \"greptile.databaseUser\" . }}"
-      VECTOR_DB_NAME: "{{ include \"greptile.vectorDatabaseName\" . }}"
-      VECTOR_DB_PROVIDER: "pgvector"
-      VECTOR_EMBEDDINGS_TABLE_NAME: "embeddings"
-      VECTOR_DB_SSL_DISABLE: "{{ .Values.externalDatabase.sslDisable }}"
-      ANALYTICS: "false"
-      NOTIFICATIONS: "false"
-    envFromConfigMap: []
-    envFromSecret: []
-    volumes:
-      - name: shared-workdir
-        persistentVolumeClaim:
-          claimName: ""
-    volumeMounts:
-      - name: shared-workdir
-        mountPath: /mnt
-
   worker:
     enabled: true
     replicas: 1
@@ -403,10 +373,12 @@ components:
       LLM_PROXY_BASE_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"llmproxy\") }}:{{ .Values.components.llmproxy.containerPort }}"
       BILLING: "false"
       ANALYTICS: "false"
-      LEARN_PROCEDURAL_MEMORY: "{{ .Values.appConfig.learnProceduralMemory }}"
-      USE_PROCEDURAL_MEMORY: "{{ .Values.appConfig.useProceduralMemory }}"
       DEFAULT_EXPERIMENT_VARIANT: "{{ .Values.appConfig.defaultExperimentVariant }}"
       DEFAULT_DYNAMIC_ROUTER: "{{ .Values.appConfig.defaultDynamicRouter }}"
+      # If using gpt-based models, uncomment the following lines (and appConfig above).
+      # GPT variant expects gpt-5.5; alias via LiteLLM if unavailable. See docs/install.md.
+      # REVIEW_WORKFLOW_ROUTING_ENABLED: "{{ .Values.appConfig.reviewWorkflowRoutingEnabled }}"
+      # DEFAULT_NATIVE_ROUTING_POLICY: "{{ .Values.appConfig.defaultNativeRoutingPolicy }}"
     envFromConfigMap: []
     envFromSecret: []
     volumes:
