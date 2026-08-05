@@ -18,6 +18,9 @@ hatchet:
 github:
   appId: "0"
   appUrl: "https://github.com/apps/REPLACE_ME"
+  # Must match your GitHub App slug so Greptile can find its own prior comments.
+  botLogin: "REPLACE_ME"
+  botUsername: "REPLACE_ME[bot]"
   enterpriseUrl: "https://github.example.com"
   enterpriseAppUrl: "https://github.example.com/apps/REPLACE_ME"
   enterpriseAppId: "0"
