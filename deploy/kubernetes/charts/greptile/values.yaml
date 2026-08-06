@@ -106,6 +106,8 @@ env:
     GITHUB_ENABLED: "{{ .Values.github.enabled }}"
     GITHUB_APP_ID: "{{ .Values.github.appId }}"
     GITHUB_APP_URL: "{{ .Values.github.appUrl }}"
+    GITHUB_BOT_LOGIN: "{{ .Values.github.botLogin }}"
+    GITHUB_BOT_USERNAME: "{{ .Values.github.botUsername }}"
     GITHUB_ENTERPRISE_URL: "{{ .Values.github.enterpriseUrl }}"
     GITHUB_ENTERPRISE_API_URL: "{{ include \"greptile.githubEnterpriseApiUrl\" . }}"
     GITHUB_ENTERPRISE_APP_URL: "{{ .Values.github.enterpriseAppUrl }}"
@@ -136,6 +138,9 @@ github:
   enterpriseEnabled: "true"
   appId: "0"
   appUrl: "https://github.com/apps/dummy-greptile-app"
+  # Used to recognize the app's own PR comments (must match the GitHub App slug / bot user).
+  botLogin: "greptile"
+  botUsername: "greptile[bot]"
   enterpriseUrl: "https://github.example.com"
   enterpriseApiUrl: ""
   enterpriseAppUrl: "https://github.example.com/apps/dummy-greptile-app"
