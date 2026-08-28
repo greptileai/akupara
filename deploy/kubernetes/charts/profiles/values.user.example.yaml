@@ -15,6 +15,10 @@ hatchet:
   grpcUrl: "hatchet-stack-engine.default.svc.cluster.local:7070"
   tlsStrategy: "none"
 
+# Optional static feature flags for this on-prem deployment.
+features:
+  feature_flags: {}
+
 github:
   appId: "0"
   appUrl: "https://github.com/apps/REPLACE_ME"
