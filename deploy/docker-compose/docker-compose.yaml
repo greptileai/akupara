@@ -299,7 +299,7 @@ services:
   # ===== SAML SECTION ======
   # Deployed conditionally based on AUTH_SAML_ONLY environment variable
   saml-jackson:
-    image: boxyhq/jackson
+    image: boxyhq/jackson:26.2.0
     hostname: saml-jackson
     restart: on-failure
     profiles:

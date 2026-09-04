@@ -493,7 +493,7 @@ components:
     replicas: 1
     image:
       repository: boxyhq/jackson
-      tag: "latest"
+      tag: "26.2.0"
     containerPort: 5225
     service:
       enabled: true
