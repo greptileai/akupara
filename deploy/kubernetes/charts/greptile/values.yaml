@@ -248,6 +248,7 @@ components:
       GREPTILE_WEBHOOK_URL: "{{ .Values.network.webhookUrl }}"
       BILLING_ENABLED: "false"
       ANALYTICS: "false"
+      PYLON_ENABLED: "false"
       GITHUB_ENTERPRISE_ENABLED: "{{ .Values.github.enterpriseEnabled }}"
       LINEAR_ENABLED: "{{ .Values.integrations.linearEnabled }}"
       SLACK_ENABLED: "{{ .Values.integrations.slackEnabled }}"

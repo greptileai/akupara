@@ -176,6 +176,7 @@ services:
       - BILLING_ENABLED=${BILLING}
       - NEXT_PUBLIC_BILLING=${BILLING}
       - NEXT_PUBLIC_ANALYTICS=${ANALYTICS}
+      - PYLON_ENABLED=false
     ports:
       - "3000:3000"
     profiles:
