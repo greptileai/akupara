@@ -1,4 +1,4 @@
-{{- if and .Values.ingress.enabled .Values.ingress.auth.enabled .Values.authV2.enabled }}
+{{- if and .Values.ingress.enabled .Values.ingress.auth.enabled .Values.authV2.enabled (index .Values.components "auth-v2").enabled (index .Values.components "auth-v2").service.enabled }}
 {{- $authHost := regexFind "^[^/:]+" (regexReplaceAll "^https?://" .Values.network.authUrl "") -}}
 {{- $authPathRaw := regexReplaceAll "^https?://[^/]+" .Values.network.authUrl "" -}}
 {{- $authPath := default "/" $authPathRaw -}}

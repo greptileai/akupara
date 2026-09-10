@@ -18,7 +18,7 @@ network:
   appUrl: "http://greptile.local"
   webhookUrl: "http://greptile.local/webhook"
   apiUrl: "http://greptile.local/api" # Maybe http://api.greptile.local/
-  authUrl: "http://auth.greptile.local"
+  authUrl: "https://auth.greptile.local" # must always be https
 
 hatchet:
   apiUrl: "http://hatchet-stack-api.default.svc.cluster.local:8080"
