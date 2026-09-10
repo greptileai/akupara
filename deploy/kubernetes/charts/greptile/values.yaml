@@ -272,6 +272,7 @@ components:
       port: 3000
     extraEnv: {}
     componentEnv:
+      DATABASE_CONNECTION_LIMIT: "4"
       APP_URL: "{{ .Values.network.appUrl }}"
       NEXTAUTH_URL: "{{ .Values.network.appUrl }}"
       GREPTILE_WEB_URL: "{{ .Values.network.appUrl }}"
@@ -314,6 +315,7 @@ components:
       port: 3001
     extraEnv: {}
     componentEnv:
+      DATABASE_CONNECTION_LIMIT: "4"
       APP_URL: "{{ .Values.network.appUrl }}"
       GREPTILE_WEB_URL: "{{ .Values.network.appUrl }}"
       EMAIL_FROM: "{{ .Values.email.from }}"
@@ -335,6 +337,7 @@ components:
       port: 3002
     extraEnv: {}
     componentEnv:
+      DATABASE_CONNECTION_LIMIT: "4"
       PORT: "3002"
       PUBLIC_URL: "{{ .Values.network.authUrl }}"
       GREPTILE_WEB_URL: "{{ .Values.network.appUrl }}"
@@ -361,6 +364,7 @@ components:
       port: 3002
     extraEnv: {}
     componentEnv:
+      DATABASE_CONNECTION_LIMIT: "8"
       PORT: "3002"
       APP_URL: "{{ .Values.network.appUrl }}"
       GREPTILE_WEB_URL: "{{ .Values.network.appUrl }}"
@@ -390,6 +394,7 @@ components:
       port: 3003
     extraEnv: {}
     componentEnv:
+      DATABASE_CONNECTION_LIMIT: "10"
       PARENT_DIR: "/mnt/data/"
       PORT: "3003"
       EMAIL_PROVIDER: "{{ .Values.email.provider }}"
@@ -431,6 +436,7 @@ components:
       port: 3005
     extraEnv: {}
     componentEnv:
+      DATABASE_CONNECTION_LIMIT: "5"
       PORT: "3005"
       NFS_WORKING_DIR: "/mnt/efs"
       GREPTILE_API_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"api\") }}:{{ .Values.components.api.service.port }}"
@@ -473,6 +479,7 @@ components:
       port: 3007
     extraEnv: {}
     componentEnv:
+      DATABASE_CONNECTION_LIMIT: "4"
       PORT: "3007"
       ANALYTICS: "false"
     envFromConfigMap: []
@@ -493,6 +500,7 @@ components:
       port: 8080
     extraEnv: {}
     componentEnv:
+      DATABASE_CONNECTION_LIMIT: "10"
       PORT: "8080"
       EMAIL_PROVIDER: "{{ .Values.email.provider }}"
       SMTP_HOST: "{{ .Values.email.smtp.host }}"
