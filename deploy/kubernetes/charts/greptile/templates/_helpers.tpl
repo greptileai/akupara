@@ -177,3 +177,10 @@ vector
 {{- printf "postgresql://%s:%s@%s:%s/%s" (include "greptile.databaseUser" .) (include "greptile.databasePassword" .) (include "greptile.databaseHost" .) (include "greptile.databasePort" .) (include "greptile.vectorDatabaseName" .) -}}
 {{- end -}}
 
+{{- define "greptile.hydraTokenHookUrl" -}}
+{{- if .Values.authV2.hookUrl -}}
+{{- .Values.authV2.hookUrl -}}
+{{- else -}}
+{{- printf "http://%s:%v/api/hooks/token" (include "greptile.componentName" (dict "root" . "name" "auth-v2")) (index .Values.components "auth-v2").service.port -}}
+{{- end -}}
+{{- end -}}

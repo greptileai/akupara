@@ -17,6 +17,8 @@ global:
 network:
   appUrl: "http://greptile.local"
   webhookUrl: "http://greptile.local/webhook"
+  apiUrl: "http://greptile.local/api" # Maybe http://api.greptile.local/
+  authUrl: "http://auth.greptile.local"
 
 hatchet:
   apiUrl: "http://hatchet-stack-api.default.svc.cluster.local:8080"
@@ -127,7 +129,10 @@ env:
     TREX_SETTINGS_ENABLED: "{{ .Values.appConfig.trexSettingsEnabled }}"
     REPO_CLUSTERS_ENABLED: "{{ .Values.appConfig.repoClustersEnabled }}"
     HEADLESS_REVIEW_ENABLED: "{{ .Values.appConfig.headlessReviewEnabled }}"
-    AUTH_MIGRATION_ENABLED: "{{ .Values.appConfig.authMigrationEnabled }}"
+    AUTH_MIGRATION_ENABLED: "{{ .Values.authV2.enabled }}"
+    GREPTILE_AUTH_V2_URL: "{{ .Values.network.authUrl }}"
+    HYDRA_ISSUER_URL: "{{ .Values.network.authUrl }}"
+    AUTH_BOXYHQ_URL: "{{ .Values.saml.externalUrl }}"
 
 appConfig:
   authSamlOnly: "false"
@@ -143,7 +148,6 @@ appConfig:
   trexSettingsEnabled: "false"
   repoClustersEnabled: "true"
   headlessReviewEnabled: "true"
-  authMigrationEnabled: "false"
 
 github:
   enabled: "false"
@@ -189,6 +193,24 @@ saml:
   hostUrl: ""
   idpEnabled: "true"
   dbSsl: "false"
+
+# The default auth mode (Ory Hydra + the auth-v2 component); replaces the legacy
+# auth component. Set enabled: false for legacy auth; docs/operations.md covers migrating.
+authV2:
+  enabled: true
+  hookUrl: "" # override when hydra cannot reach auth-v2 in-cluster
+  hydra:
+    replicas: 1 # keep at 1: hydra migrates its schema on boot
+    image:
+      repository: "hydra"
+      tag: ""
+      pullPolicy: IfNotPresent
+    publicPort: 4444
+    adminPort: 4445
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
 
 secrets:
   mode: native
@@ -253,7 +275,7 @@ components:
       APP_URL: "{{ .Values.network.appUrl }}"
       NEXTAUTH_URL: "{{ .Values.network.appUrl }}"
       GREPTILE_WEB_URL: "{{ .Values.network.appUrl }}"
-      GREPTILE_AUTH_SERVER: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"auth\") }}:{{ .Values.components.auth.service.port }}"
+      GREPTILE_AUTH_SERVER: "{{ if .Values.authV2.enabled }}http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"auth-v2\") }}:{{ (index .Values.components \"auth-v2\").service.port }}{{ else }}http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"auth\") }}:{{ .Values.components.auth.service.port }}{{ end }}"
       GREPTILE_API_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"api\") }}:{{ .Values.components.api.service.port }}"
       GREPTILE_WEBHOOK_URL: "{{ .Values.network.webhookUrl }}"
       BILLING_ENABLED: "false"
@@ -300,6 +322,32 @@ components:
     volumes: []
     volumeMounts: []
 
+  auth-v2:
+    enabled: true
+    replicas: 1
+    image:
+      repository: auth-v2
+      tag: ""
+    containerPort: 3002
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 3002
+    extraEnv: {}
+    componentEnv:
+      PORT: "3002"
+      PUBLIC_URL: "{{ .Values.network.authUrl }}"
+      GREPTILE_WEB_URL: "{{ .Values.network.appUrl }}"
+      EMAIL_FROM: "{{ .Values.email.from }}"
+      API_AUDIENCE: "{{ .Values.network.apiUrl }}/mcp"
+      HYDRA_ADMIN_URL: "http://{{ include \"greptile.fullname\" . }}-hydra:{{ .Values.authV2.hydra.adminPort }}"
+      HYDRA_PUBLIC_URL: "http://{{ include \"greptile.fullname\" . }}-hydra:{{ .Values.authV2.hydra.publicPort }}"
+      HYDRA_INTERNAL_URL: "http://{{ include \"greptile.fullname\" . }}-hydra:{{ .Values.authV2.hydra.publicPort }}"
+    envFromConfigMap: []
+    envFromSecret: []
+    volumes: []
+    volumeMounts: []
+
   api:
     enabled: true
     replicas: 1
@@ -322,6 +370,8 @@ components:
       BILLING: "false"
       ANALYTICS: "false"
       NOTIFICATIONS: "false"
+      OAUTH_AUDIENCE: "{{ if .Values.authV2.enabled }}{{ .Values.network.apiUrl }}/mcp{{ end }}"
+      OAUTH_ISSUER: "{{ if .Values.authV2.enabled }}{{ .Values.network.authUrl }}{{ end }}"
     envFromConfigMap: []
     envFromSecret: []
     volumes: []
@@ -528,6 +578,14 @@ ingress:
   className: nginx
   annotations: {}
   web:
+    enabled: true
+    host: ""
+    path: ""
+    pathType: Prefix
+    tls:
+      enabled: false
+      secretName: ""
+  auth:
     enabled: true
     host: ""
     path: ""

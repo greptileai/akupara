@@ -44,7 +44,7 @@ This script:
 ## 4) Configure values
 Edit `./charts/profiles/values.user.yaml`:
 - `global.registry`, `global.tag`
-- `network.*`
+- `network.*` — the public origins, including `network.apiUrl` and `network.authUrl` (the OIDC issuer, must be https; auth v2 is the default auth mode, set `authV2.enabled: false` for legacy auth)
 - relevant providider specific API keys
 
 You may also choose to use `secrets.mode=external`
@@ -75,10 +75,13 @@ Minimum healthy set for a bundled-database install:
 - `greptile-pgbouncer`
 - `greptile-redis`
 - `greptile-api`
-- `greptile-auth`
+- `greptile-auth-v2`
+- `greptile-hydra`
 - `greptile-web`
 - `greptile-webhook`
 - `greptile-worker`
 - `greptile-chunker`
 - `greptile-jobs`
 - `greptile-llmproxy`
+
+With auth v2 (the default), `greptile-auth` is replaced by `greptile-auth-v2` and `greptile-hydra`.

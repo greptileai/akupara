@@ -1,6 +1,8 @@
 {{- range $name, $component := .Values.components }}
 {{- $isJackson := eq $name "jackson" }}
-{{- if and $component.enabled $component.service.enabled (or (not $isJackson) $.Values.saml.enabled) }}
+{{- $isAuth := eq $name "auth" }}
+{{- $isAuthV2 := eq $name "auth-v2" }}
+{{- if and $component.enabled $component.service.enabled (or (not $isJackson) $.Values.saml.enabled) (or (not $isAuth) (not $.Values.authV2.enabled)) (or (not $isAuthV2) $.Values.authV2.enabled) }}
 ---
 apiVersion: v1
 kind: Service
@@ -16,6 +18,9 @@ spec:
       port: {{ $component.service.port }}
       targetPort: {{ $component.containerPort }}
       protocol: TCP
+      {{- if and (eq $component.service.type "NodePort") $component.service.nodePort }}
+      nodePort: {{ $component.service.nodePort }}
+      {{- end }}
   selector:
     {{- include "greptile.selectorLabels" $ | nindent 4 }}
     app.kubernetes.io/component: {{ $name }}

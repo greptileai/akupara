@@ -1,0 +1,64 @@
+{{- if .Values.authV2.enabled }}
+# Hydra's config, mounted over /etc/hydra/hydra.yml. List-valued keys must live
+# here rather than env; secrets and the DSN stay in env.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "greptile.fullname" . }}-hydra-config
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: hydra
+data:
+  hydra.yml: |
+    serve:
+      public:
+        cors:
+          enabled: true
+          allowed_origins:
+            - {{ .Values.network.appUrl }}
+        port: {{ .Values.authV2.hydra.publicPort }}
+      admin:
+        host: 0.0.0.0
+        port: {{ .Values.authV2.hydra.adminPort }}
+
+    urls:
+      self:
+        issuer: {{ .Values.network.authUrl }}
+      login: {{ .Values.network.authUrl }}/login
+      consent: {{ .Values.network.authUrl }}/consent
+      logout: {{ .Values.network.authUrl }}/logout
+      error: {{ .Values.network.authUrl }}/auth-error
+
+    oauth2:
+      pkce:
+        enforced: true
+      expose_internal_errors: false
+      grant:
+        refresh_token:
+          rotation_grace_period: 5m0s
+
+    # The guard stays on; the token hook is the sole exception.
+    clients:
+      http:
+        disallow_private_ip_ranges: true
+        private_ip_exception_urls:
+          - {{ include "greptile.hydraTokenHookUrl" . }}
+
+    oidc:
+      dynamic_client_registration:
+        enabled: true
+        default_scope:
+          - read
+          - write
+          - openid
+          - offline_access
+
+    strategies:
+      access_token: jwt
+      scope: wildcard
+
+    ttl:
+      access_token: 30m0s
+      refresh_token: 720h0m0s
+      auth_code: 10m0s
+{{- end }}

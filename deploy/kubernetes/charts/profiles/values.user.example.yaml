@@ -7,8 +7,10 @@ global:
     - name: regcred
 
 network:
-  appUrl: "https://greptile.example.com"
-  webhookUrl: "https://greptile.example.com/webhook"
+  appUrl: "http://greptile.local"
+  webhookUrl: "http://greptile.local/webhook"
+  apiUrl: "http://greptile.local/api" # Maybe http://api.greptile.local/
+  authUrl: "https://auth.greptile.local" # must be https
 
 hatchet:
   apiUrl: "http://hatchet-stack-api.default.svc.cluster.local:8080"
@@ -78,6 +80,14 @@ ingress:
   web:
     enabled: true
     # Optional: defaults to hostname/path from network.appUrl.
+    host: ""
+    path: /
+    tls:
+      enabled: false
+      secretName: ""
+  auth:
+    enabled: true
+    # Optional: defaults to hostname/path from network.authUrl.
     host: ""
     path: /
     tls:

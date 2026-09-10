@@ -1,6 +1,8 @@
 {{- range $name, $component := .Values.components }}
 {{- $isJackson := eq $name "jackson" }}
-{{- if and $component.enabled (or (not $isJackson) $.Values.saml.enabled) }}
+{{- $isAuth := eq $name "auth" }}
+{{- $isAuthV2 := eq $name "auth-v2" }}
+{{- if and $component.enabled (or (not $isJackson) $.Values.saml.enabled) (or (not $isAuth) (not $.Values.authV2.enabled)) (or (not $isAuthV2) $.Values.authV2.enabled) }}
 ---
 apiVersion: apps/v1
 kind: Deployment
