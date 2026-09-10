@@ -27,6 +27,15 @@ github:
 # pgbouncer:
 #   enabled: false
 
+# Optional: only when routing through Azure OpenAI via llmproxy.
+# Set the key at secrets.native.AZURE_OPENAI_API_KEY below, and uncomment the azure
+# model block in charts/greptile/files/llmproxy-config.yaml.
+# components:
+#   llmproxy:
+#     componentEnv:
+#       AZURE_OPENAI_BASE_URL: "https://YOUR-RESOURCE.openai.azure.com/"
+#       AZURE_OPENAI_API_VERSION: "2024-07-18"
+
 secrets:
   mode: native
   native:
@@ -45,7 +54,7 @@ secrets:
     WEB_TRIGGER_SECRET: "REPLACE_ME"
 
     # Required for llmproxy model calls.
-    ANTHROPIC_KEY: "REPLACE_ME"
+    ANTHROPIC_API_KEY: "REPLACE_ME"
 
     # Required for GitHub integration + webhook handling.
     GITHUB_WEBHOOK_SECRET: "REPLACE_ME"
@@ -58,8 +67,8 @@ secrets:
     # SMTP_PASSWORD: "REPLACE_ME"
 
     # Optional: uncomment if you route through OpenAI/Azure/Bedrock via llmproxy config.
-    # OPENAI_KEY: ""
-    # AZURE_OPENAI_KEY: ""
+    # OPENAI_API_KEY: ""
+    # AZURE_OPENAI_API_KEY: ""
     # AWS_ACCESS_KEY_ID: ""
     # AWS_SECRET_ACCESS_KEY: ""
 

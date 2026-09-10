@@ -175,10 +175,11 @@ email:
     tls: "true"
     rejectUnauthorized: "true"
 
+# LLM provider base URLs (rendered into llmproxy); override per-deploy via components.llmproxy.extraEnv.
 llm:
   anthropicBaseUrl: "https://api.anthropic.com"
   openaiBaseUrl: "https://api.openai.com/v1/"
-  azureOpenaiUrl: "https://onboardai.openai.azure.com/"
+  azureOpenaiUrl: "" # BYO URL
   azureOpenaiApiVersion: "2024-07-18"
   awsRegion: "us-east-1"
 
@@ -208,9 +209,9 @@ secrets:
     AUTH_GITHUB_ID: ""
     AUTH_GITHUB_SECRET: ""
     SMTP_PASSWORD: ""
-    ANTHROPIC_KEY: ""
-    OPENAI_KEY: ""
-    AZURE_OPENAI_KEY: ""
+    ANTHROPIC_API_KEY: ""
+    OPENAI_API_KEY: ""
+    AZURE_OPENAI_API_KEY: ""
     AWS_ACCESS_KEY_ID: ""
     AWS_SECRET_ACCESS_KEY: ""
     AUTH_BOXYHQ_API_KEY: ""
