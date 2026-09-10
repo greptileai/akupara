@@ -33,13 +33,8 @@ log() {
 
 # Generate random 32-character alphanumeric string
 generate_random_string() {
-  # Generate enough base64 output that filtering non-alphanumerics still leaves 32 chars.
-  if command -v openssl >/dev/null 2>&1; then
-    openssl rand -base64 48 | tr -d '\n' | LC_ALL=C tr -dc 'A-Za-z0-9' | head -c 32
-  # Fallback: use /dev/urandom (may block on low-entropy systems)
-  else
-    LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 32
-  fi
+  # Enough base64 that filtering non-alphanumerics still leaves 32 chars.
+  openssl rand -base64 48 | tr -d '\n' | LC_ALL=C tr -dc 'A-Za-z0-9' | head -c 32
 }
 
 # Generate LiteLLM master key (must start with 'sk-' for virtual key compatibility)
@@ -54,21 +49,6 @@ key_has_value_in_file() {
   local key="$1"
   local file="$2"
   [[ -f "$file" ]] && grep -qE "^${key}=.+" "$file" 2>/dev/null
-}
-
-# Get value of a key from a file
-get_value_from_file() {
-  local key="$1"
-  local file="$2"
-  if [[ -f "$file" ]]; then
-    grep -E "^${key}=" "$file" 2>/dev/null | head -n1 | cut -d'=' -f2- | tr -d "'\""
-  fi
-}
-
-# Check if secret exists (in .env or .env.greptile-generated)
-secret_exists() {
-  local key="$1"
-  key_has_value_in_file "$key" "$ENV_FILE" || key_has_value_in_file "$key" "$SECRETS_FILE"
 }
 
 # Parse arguments
