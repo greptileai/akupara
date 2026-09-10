@@ -56,6 +56,18 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- printf "%s-pgbouncer" (include "greptile.fullname" .) -}}
 {{- end -}}
 
+{{- define "greptile.redisName" -}}
+{{- printf "%s-redis" (include "greptile.fullname" .) -}}
+{{- end -}}
+
+{{- define "greptile.redisHost" -}}
+{{- .Values.redis.external.host | default (include "greptile.redisName" .) -}}
+{{- end -}}
+
+{{- define "greptile.redisUrl" -}}
+{{- printf "%s:6379" (include "greptile.redisHost" .) -}}
+{{- end -}}
+
 {{- define "greptile.componentName" -}}
 {{- printf "%s-%s" (include "greptile.fullname" .root) .name -}}
 {{- end -}}
@@ -164,3 +176,4 @@ vector
 {{- define "greptile.vectorDatabaseUrl" -}}
 {{- printf "postgresql://%s:%s@%s:%s/%s" (include "greptile.databaseUser" .) (include "greptile.databasePassword" .) (include "greptile.databaseHost" .) (include "greptile.databasePort" .) (include "greptile.vectorDatabaseName" .) -}}
 {{- end -}}
+

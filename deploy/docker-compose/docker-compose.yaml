@@ -152,6 +152,18 @@ services:
     profiles:
       - greptile
 
+  greptile-redis:
+    image: valkey/valkey:8.1-alpine
+    container_name: greptile-redis
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+    profiles:
+      - greptile
+
   greptile-db-migration:
     image: ${CONTAINER_REGISTRY}/db-migration-job:${GREPTILE_TAG}
     depends_on:

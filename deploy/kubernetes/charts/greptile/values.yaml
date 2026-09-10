@@ -96,6 +96,20 @@ storage:
     accessModes:
       - ReadWriteMany
 
+redis:
+  image:
+    repository: valkey/valkey
+    tag: "8.1-alpine"
+  # Point at an existing instance (port 6379) instead of deploying one.
+  external:
+    host: ""
+    # Set true when the external instance terminates TLS.
+    tls: false
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
 env:
   shared:
     ONPREM: "true"

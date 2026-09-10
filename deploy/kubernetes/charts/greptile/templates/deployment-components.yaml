@@ -81,6 +81,12 @@ spec:
           env:
             - name: COMPONENT_NAME
               value: {{ $name | quote }}
+            - name: REDIS_HOST
+              value: {{ include "greptile.redisHost" $ | quote }}
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_USE_TLS
+              value: {{ $.Values.redis.external.tls | quote }}
             {{- range $secretKey := $component.secretEnv }}
             - name: {{ $secretKey }}
               valueFrom:

@@ -73,6 +73,7 @@ kubectl logs deploy/greptile-web
 Minimum healthy set for a bundled-database install:
 - `greptile-postgres`
 - `greptile-pgbouncer`
+- `greptile-redis`
 - `greptile-api`
 - `greptile-auth`
 - `greptile-web`
