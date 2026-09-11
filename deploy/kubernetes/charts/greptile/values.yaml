@@ -17,6 +17,8 @@ global:
 network:
   appUrl: "http://greptile.local"
   webhookUrl: "http://greptile.local/webhook"
+  apiUrl: "http://greptile.local/api" # Maybe http://api.greptile.local/
+  authUrl: "https://auth.greptile.local" # must always be https
 
 hatchet:
   apiUrl: "http://hatchet-stack-api.default.svc.cluster.local:8080"
@@ -96,6 +98,20 @@ storage:
     accessModes:
       - ReadWriteMany
 
+redis:
+  image:
+    repository: valkey/valkey
+    tag: "8.1-alpine"
+  # Point at an existing instance (port 6379) instead of deploying one.
+  external:
+    host: ""
+    # Set true when the external instance terminates TLS.
+    tls: false
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
 env:
   shared:
     ONPREM: "true"
@@ -115,7 +131,10 @@ env:
     TREX_SETTINGS_ENABLED: "{{ .Values.appConfig.trexSettingsEnabled }}"
     REPO_CLUSTERS_ENABLED: "{{ .Values.appConfig.repoClustersEnabled }}"
     HEADLESS_REVIEW_ENABLED: "{{ .Values.appConfig.headlessReviewEnabled }}"
-    AUTH_MIGRATION_ENABLED: "{{ .Values.appConfig.authMigrationEnabled }}"
+    AUTH_MIGRATION_ENABLED: "{{ .Values.authV2.enabled }}"
+    GREPTILE_AUTH_V2_URL: "{{ .Values.network.authUrl }}"
+    HYDRA_ISSUER_URL: "{{ .Values.network.authUrl }}"
+    AUTH_BOXYHQ_URL: "{{ .Values.saml.externalUrl }}"
 
 appConfig:
   authSamlOnly: "false"
@@ -131,7 +150,6 @@ appConfig:
   trexSettingsEnabled: "false"
   repoClustersEnabled: "true"
   headlessReviewEnabled: "true"
-  authMigrationEnabled: "false"
 
 github:
   enabled: "false"
@@ -166,10 +184,11 @@ email:
     tls: "true"
     rejectUnauthorized: "true"
 
+# LLM provider base URLs (rendered into llmproxy); override per-deploy via components.llmproxy.extraEnv.
 llm:
   anthropicBaseUrl: "https://api.anthropic.com"
   openaiBaseUrl: "https://api.openai.com/v1/"
-  azureOpenaiUrl: "https://onboardai.openai.azure.com/"
+  azureOpenaiUrl: "" # BYO URL
   azureOpenaiApiVersion: "2024-07-18"
   awsRegion: "us-east-1"
 
@@ -179,6 +198,23 @@ saml:
   hostUrl: ""
   idpEnabled: "true"
   dbSsl: "false"
+
+# The default auth mode (Ory Hydra + the auth-v2 component); replaces the legacy
+# auth component. Set enabled: false for legacy auth; docs/operations.md covers migrating.
+authV2:
+  enabled: true
+  hookUrl: "" # override when hydra cannot reach auth-v2 in-cluster
+  hydra:
+    image:
+      repository: "hydra"
+      tag: ""
+      pullPolicy: IfNotPresent
+    publicPort: 4444
+    adminPort: 4445
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
 
 secrets:
   mode: native
@@ -199,9 +235,9 @@ secrets:
     AUTH_GITHUB_ID: ""
     AUTH_GITHUB_SECRET: ""
     SMTP_PASSWORD: ""
-    ANTHROPIC_KEY: ""
-    OPENAI_KEY: ""
-    AZURE_OPENAI_KEY: ""
+    ANTHROPIC_API_KEY: ""
+    OPENAI_API_KEY: ""
+    AZURE_OPENAI_API_KEY: ""
     AWS_ACCESS_KEY_ID: ""
     AWS_SECRET_ACCESS_KEY: ""
     AUTH_BOXYHQ_API_KEY: ""
@@ -240,10 +276,11 @@ components:
       port: 3000
     extraEnv: {}
     componentEnv:
+      DATABASE_CONNECTION_LIMIT: "4"
       APP_URL: "{{ .Values.network.appUrl }}"
       NEXTAUTH_URL: "{{ .Values.network.appUrl }}"
       GREPTILE_WEB_URL: "{{ .Values.network.appUrl }}"
-      GREPTILE_AUTH_SERVER: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"auth\") }}:{{ .Values.components.auth.service.port }}"
+      GREPTILE_AUTH_SERVER: "{{ if .Values.authV2.enabled }}http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"auth-v2\") }}:{{ (index .Values.components \"auth-v2\").service.port }}{{ else }}http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"auth\") }}:{{ .Values.components.auth.service.port }}{{ end }}"
       GREPTILE_API_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"api\") }}:{{ .Values.components.api.service.port }}"
       GREPTILE_WEBHOOK_URL: "{{ .Values.network.webhookUrl }}"
       BILLING_ENABLED: "false"
@@ -283,9 +320,37 @@ components:
       port: 3001
     extraEnv: {}
     componentEnv:
+      DATABASE_CONNECTION_LIMIT: "4"
       APP_URL: "{{ .Values.network.appUrl }}"
       GREPTILE_WEB_URL: "{{ .Values.network.appUrl }}"
       EMAIL_FROM: "{{ .Values.email.from }}"
+    envFromConfigMap: []
+    envFromSecret: []
+    volumes: []
+    volumeMounts: []
+
+  auth-v2:
+    enabled: true
+    replicas: 1
+    image:
+      repository: auth-v2
+      tag: ""
+    containerPort: 3002
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 3002
+    extraEnv: {}
+    componentEnv:
+      DATABASE_CONNECTION_LIMIT: "4"
+      PORT: "3002"
+      PUBLIC_URL: "{{ .Values.network.authUrl }}"
+      GREPTILE_WEB_URL: "{{ .Values.network.appUrl }}"
+      EMAIL_FROM: "{{ .Values.email.from }}"
+      API_AUDIENCE: "{{ .Values.network.apiUrl }}/mcp"
+      HYDRA_ADMIN_URL: "http://{{ include \"greptile.fullname\" . }}-hydra:{{ .Values.authV2.hydra.adminPort }}"
+      HYDRA_PUBLIC_URL: "http://{{ include \"greptile.fullname\" . }}-hydra:{{ .Values.authV2.hydra.publicPort }}"
+      HYDRA_INTERNAL_URL: "http://{{ include \"greptile.fullname\" . }}-hydra:{{ .Values.authV2.hydra.publicPort }}"
     envFromConfigMap: []
     envFromSecret: []
     volumes: []
@@ -304,6 +369,7 @@ components:
       port: 3002
     extraEnv: {}
     componentEnv:
+      DATABASE_CONNECTION_LIMIT: "8"
       PORT: "3002"
       APP_URL: "{{ .Values.network.appUrl }}"
       GREPTILE_WEB_URL: "{{ .Values.network.appUrl }}"
@@ -313,6 +379,8 @@ components:
       BILLING: "false"
       ANALYTICS: "false"
       NOTIFICATIONS: "false"
+      OAUTH_AUDIENCE: "{{ if .Values.authV2.enabled }}{{ .Values.network.apiUrl }}/mcp{{ end }}"
+      OAUTH_ISSUER: "{{ if .Values.authV2.enabled }}{{ .Values.network.authUrl }}{{ end }}"
     envFromConfigMap: []
     envFromSecret: []
     volumes: []
@@ -331,6 +399,7 @@ components:
       port: 3003
     extraEnv: {}
     componentEnv:
+      DATABASE_CONNECTION_LIMIT: "10"
       PARENT_DIR: "/mnt/data/"
       PORT: "3003"
       EMAIL_PROVIDER: "{{ .Values.email.provider }}"
@@ -372,6 +441,7 @@ components:
       port: 3005
     extraEnv: {}
     componentEnv:
+      DATABASE_CONNECTION_LIMIT: "5"
       PORT: "3005"
       NFS_WORKING_DIR: "/mnt/efs"
       GREPTILE_API_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"api\") }}:{{ .Values.components.api.service.port }}"
@@ -414,6 +484,7 @@ components:
       port: 3007
     extraEnv: {}
     componentEnv:
+      DATABASE_CONNECTION_LIMIT: "4"
       PORT: "3007"
       ANALYTICS: "false"
     envFromConfigMap: []
@@ -434,6 +505,7 @@ components:
       port: 8080
     extraEnv: {}
     componentEnv:
+      DATABASE_CONNECTION_LIMIT: "10"
       PORT: "8080"
       EMAIL_PROVIDER: "{{ .Values.email.provider }}"
       SMTP_HOST: "{{ .Values.email.smtp.host }}"
@@ -517,8 +589,19 @@ components:
 ingress:
   enabled: true
   className: nginx
-  annotations: {}
+  annotations:
+    # Chunked session cookies exceed nginx's 4k default header buffer.
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
   web:
+    enabled: true
+    host: ""
+    path: ""
+    pathType: Prefix
+    tls:
+      enabled: false
+      secretName: ""
+  auth:
     enabled: true
     host: ""
     path: ""

@@ -53,6 +53,8 @@ spec:
               value: {{ include "greptile.databaseUrl" . | quote }}
             - name: DIRECT_URL
               value: {{ include "greptile.databaseUrl" . | quote }}
+            - name: DATABASE_CONNECTION_LIMIT
+              value: "5"
           resources:
             {{- toYaml .Values.migrations.db.resources | nindent 12 }}
 {{- end }}

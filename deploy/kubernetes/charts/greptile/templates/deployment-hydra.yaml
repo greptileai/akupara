@@ -1,0 +1,178 @@
+{{- if .Values.authV2.enabled }}
+{{- if not (hasPrefix "https://" .Values.network.authUrl) }}
+{{- fail (printf "network.authUrl requires https, got %q. Set network.authUrl and network.apiUrl (docs/operations.md), or set authV2.enabled: false" .Values.network.authUrl) }}
+{{- end }}
+{{- $legacyAuth := lookup "apps/v1" "Deployment" .Release.Namespace (printf "%s-auth" (include "greptile.fullname" .)) }}
+{{- if and $legacyAuth (or (contains "greptile.local" .Values.network.authUrl) (contains "greptile.local" .Values.network.apiUrl)) }}
+{{- fail "auth v2 would replace the legacy auth this release is running, but network.authUrl or network.apiUrl is not set. Set both to migrate (docs/operations.md), or set authV2.enabled: false" }}
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "greptile.fullname" . }}-hydra
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: hydra
+spec:
+  replicas: 1 # hydra migrates its schema on boot
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "greptile.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: hydra
+  template:
+    metadata:
+      annotations:
+        # Config is read at boot; roll the pod when it changes.
+        checksum/hydra-config: {{ include (print .Template.BasePath "/configmap-hydra-config.yaml") . | sha256sum }}
+        {{- with .Values.global.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "greptile.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: hydra
+    spec:
+      serviceAccountName: {{ include "greptile.serviceAccountName" . }}
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: hydra
+          image: {{ include "greptile.image" (dict "root" . "repository" .Values.authV2.hydra.image.repository "tag" .Values.authV2.hydra.image.tag) }}
+          imagePullPolicy: {{ default .Values.global.pullPolicy .Values.authV2.hydra.image.pullPolicy }}
+          {{- with .Values.global.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: http-public
+              containerPort: {{ .Values.authV2.hydra.publicPort }}
+              protocol: TCP
+            - name: http-admin
+              containerPort: {{ .Values.authV2.hydra.adminPort }}
+              protocol: TCP
+          env:
+            # Direct db host, not pgbouncer: hydra migrates its schema on boot.
+            - name: DSN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.secretName" . }}
+                  key: DIRECT_URL
+            - name: HYDRA_AUTO_MIGRATE
+              value: "true"
+            - name: SECRETS_SYSTEM
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.secretName" . }}
+                  key: HYDRA_SYSTEM_SECRET
+            # Consumed by the image entrypoint, which seeds the OAuth clients on boot.
+            - name: HYDRA_WEB_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.secretName" . }}
+                  key: HYDRA_WEB_CLIENT_SECRET
+            - name: APP_URL
+              value: {{ .Values.network.appUrl | quote }}
+            - name: AUTH_URL
+              value: {{ .Values.network.authUrl | quote }}
+            - name: API_AUDIENCE
+              value: {{ printf "%s/mcp" .Values.network.apiUrl | quote }}
+            - name: OAUTH2_TOKEN_HOOK_URL
+              value: {{ include "greptile.hydraTokenHookUrl" . | quote }}
+            - name: OAUTH2_TOKEN_HOOK_AUTH_TYPE
+              value: "api_key"
+            - name: OAUTH2_TOKEN_HOOK_AUTH_CONFIG_VALUE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.secretName" . }}
+                  key: HYDRA_TOKEN_HOOK_SECRET
+            - name: OAUTH2_TOKEN_HOOK_AUTH_CONFIG_IN
+              value: "header"
+            - name: OAUTH2_TOKEN_HOOK_AUTH_CONFIG_NAME
+              value: "X-Greptile-Hydra-Token"
+          volumeMounts:
+            - name: hydra-config
+              mountPath: /etc/hydra/hydra.yml
+              subPath: hydra.yml
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http-public
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.authV2.hydra.resources | nindent 12 }}
+      volumes:
+        - name: hydra-config
+          configMap:
+            name: {{ include "greptile.fullname" . }}-hydra-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "greptile.fullname" . }}-hydra
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: hydra
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.authV2.hydra.publicPort }}
+      targetPort: {{ .Values.authV2.hydra.publicPort }}
+      protocol: TCP
+      name: http-public
+    - port: {{ .Values.authV2.hydra.adminPort }}
+      targetPort: {{ .Values.authV2.hydra.adminPort }}
+      protocol: TCP
+      name: http-admin
+  selector:
+    {{- include "greptile.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: hydra
+---
+# The admin API (token introspection, consent, client management) is unauthenticated;
+# only auth-v2 may reach it. The public port stays open for the ingress and services.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "greptile.fullname" . }}-hydra
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: hydra
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "greptile.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: hydra
+  policyTypes:
+    - Ingress
+  ingress:
+    - ports:
+        - port: {{ .Values.authV2.hydra.publicPort }}
+          protocol: TCP
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "greptile.selectorLabels" . | nindent 14 }}
+              app.kubernetes.io/component: auth-v2
+      ports:
+        - port: {{ .Values.authV2.hydra.adminPort }}
+          protocol: TCP
+{{- end }}

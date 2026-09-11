@@ -1,0 +1,36 @@
+{{- if and .Values.ingress.enabled .Values.ingress.auth.enabled .Values.authV2.enabled (index .Values.components "auth-v2").enabled (index .Values.components "auth-v2").service.enabled }}
+{{- $authHost := regexFind "^[^/:]+" (regexReplaceAll "^https?://" .Values.network.authUrl "") -}}
+{{- $authPathRaw := regexReplaceAll "^https?://[^/]+" .Values.network.authUrl "" -}}
+{{- $authPath := default "/" $authPathRaw -}}
+{{- $host := default $authHost .Values.ingress.auth.host -}}
+{{- $path := default $authPath .Values.ingress.auth.path -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "greptile.fullname" . }}-auth
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+    - host: {{ $host | quote }}
+      http:
+        paths:
+          - path: {{ $path | quote }}
+            pathType: {{ .Values.ingress.auth.pathType }}
+            backend:
+              service:
+                name: {{ include "greptile.componentName" (dict "root" . "name" "auth-v2") }}
+                port:
+                  number: {{ (index .Values.components "auth-v2").service.port }}
+  {{- if .Values.ingress.auth.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ $host | quote }}
+      secretName: {{ .Values.ingress.auth.tls.secretName }}
+  {{- end }}
+{{- end }}

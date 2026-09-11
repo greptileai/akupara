@@ -33,7 +33,7 @@ escape_replacement() {
 get_yaml_value() {
   local key="$1"
   local line
-  line=$(grep -E "^[[:space:]]${key}:" "$VALUES_FILE" | head -n1 || true)
+  line=$(grep -E "^[[:space:]]*${key}:" "$VALUES_FILE" | head -n1 || true)
   line="${line#*:}"
   line="$(printf '%s' "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
   line="${line%\"}"
@@ -166,31 +166,27 @@ EOF
   set_yaml_value_if_placeholder "HATCHET_CLIENT_TOKEN" "$token"
 }
 
-main() {
-  require_cmd openssl
-  require_cmd perl
+require_cmd openssl
+require_cmd perl
 
-  if [[ ! -f "$EXAMPLE_FILE" ]]; then
-    fail "Missing example values file at ${EXAMPLE_FILE}"
-  fi
+if [[ ! -f "$EXAMPLE_FILE" ]]; then
+  fail "Missing example values file at ${EXAMPLE_FILE}"
+fi
 
-  if [[ ! -f "$VALUES_FILE" ]]; then
-    cp "$EXAMPLE_FILE" "$VALUES_FILE"
-    log "Created ${VALUES_FILE} from example"
-  fi
+if [[ ! -f "$VALUES_FILE" ]]; then
+  cp "$EXAMPLE_FILE" "$VALUES_FILE"
+  log "Created ${VALUES_FILE} from example"
+fi
 
-  set_yaml_value_if_placeholder "JWT_SECRET" "$(openssl rand -base64 48 | tr -d '\n')"
-  set_yaml_value_if_placeholder "TOKEN_ENCRYPTION_KEY" "$(openssl rand -hex 16)"
-  set_yaml_value_if_placeholder "LITELLM_MASTER_KEY" "$(openssl rand -hex 32)"
-  set_yaml_value_if_placeholder "WEB_TRIGGER_SECRET" "$(openssl rand -base64 48 | tr -d '\n' | LC_ALL=C tr -dc 'A-Za-z0-9' | head -c 32)"
+set_yaml_value_if_placeholder "JWT_SECRET" "$(openssl rand -base64 48 | tr -d '\n')"
+set_yaml_value_if_placeholder "TOKEN_ENCRYPTION_KEY" "$(openssl rand -hex 16)"
+set_yaml_value_if_placeholder "LITELLM_MASTER_KEY" "$(openssl rand -hex 32)"
+set_yaml_value_if_placeholder "WEB_TRIGGER_SECRET" "$(openssl rand -base64 48 | tr -d '\n' | LC_ALL=C tr -dc 'A-Za-z0-9' | head -c 32)"
 
-  if is_placeholder_value "$(get_yaml_value "HATCHET_CLIENT_TOKEN")"; then
-    generate_hatchet_token
-  else
-    log "Keeping existing HATCHET_CLIENT_TOKEN"
-  fi
+if is_placeholder_value "$(get_yaml_value "HATCHET_CLIENT_TOKEN")"; then
+  generate_hatchet_token
+else
+  log "Keeping existing HATCHET_CLIENT_TOKEN"
+fi
 
-  log "Finished bootstrapping ${VALUES_FILE}"
-}
-
-main "$@"
+log "Finished bootstrapping ${VALUES_FILE}"
