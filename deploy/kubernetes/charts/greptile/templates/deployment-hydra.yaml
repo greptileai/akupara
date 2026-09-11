@@ -115,7 +115,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /health/ready
-              port: http-admin
+              port: http-public
             initialDelaySeconds: 5
             periodSeconds: 10
           resources:
@@ -146,4 +146,33 @@ spec:
   selector:
     {{- include "greptile.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: hydra
+---
+# The admin API (token introspection, consent, client management) is unauthenticated;
+# only auth-v2 may reach it. The public port stays open for the ingress and services.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "greptile.fullname" . }}-hydra
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: hydra
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "greptile.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: hydra
+  policyTypes:
+    - Ingress
+  ingress:
+    - ports:
+        - port: {{ .Values.authV2.hydra.publicPort }}
+          protocol: TCP
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "greptile.selectorLabels" . | nindent 14 }}
+              app.kubernetes.io/component: auth-v2
+      ports:
+        - port: {{ .Values.authV2.hydra.adminPort }}
+          protocol: TCP
 {{- end }}
