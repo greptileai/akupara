@@ -200,7 +200,6 @@ authV2:
   enabled: true
   hookUrl: "" # override when hydra cannot reach auth-v2 in-cluster
   hydra:
-    replicas: 1 # keep at 1: hydra migrates its schema on boot
     image:
       repository: "hydra"
       tag: ""
@@ -584,7 +583,10 @@ components:
 ingress:
   enabled: true
   className: nginx
-  annotations: {}
+  annotations:
+    # Chunked session cookies exceed nginx's 4k default header buffer.
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
   web:
     enabled: true
     host: ""

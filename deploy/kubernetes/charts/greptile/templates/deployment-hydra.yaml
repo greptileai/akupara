@@ -3,8 +3,8 @@
 {{- fail (printf "network.authUrl requires https, got %q. Set network.authUrl and network.apiUrl (docs/operations.md), or set authV2.enabled: false" .Values.network.authUrl) }}
 {{- end }}
 {{- $legacyAuth := lookup "apps/v1" "Deployment" .Release.Namespace (printf "%s-auth" (include "greptile.fullname" .)) }}
-{{- if and $legacyAuth (contains "greptile.local" .Values.network.apiUrl) }}
-{{- fail "auth v2 would replace the legacy auth this release is running, but network.apiUrl is not set. Set it to migrate (docs/operations.md), or set authV2.enabled: false" }}
+{{- if and $legacyAuth (or (contains "greptile.local" .Values.network.authUrl) (contains "greptile.local" .Values.network.apiUrl)) }}
+{{- fail "auth v2 would replace the legacy auth this release is running, but network.authUrl or network.apiUrl is not set. Set both to migrate (docs/operations.md), or set authV2.enabled: false" }}
 {{- end }}
 apiVersion: apps/v1
 kind: Deployment
@@ -14,7 +14,7 @@ metadata:
     {{- include "greptile.labels" . | nindent 4 }}
     app.kubernetes.io/component: hydra
 spec:
-  replicas: {{ .Values.authV2.hydra.replicas }}
+  replicas: 1 # hydra migrates its schema on boot
   strategy:
     type: Recreate
   selector:
@@ -38,6 +38,10 @@ spec:
       imagePullSecrets:
         {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
       {{- end }}
+      {{- with .Values.global.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.global.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -54,6 +58,10 @@ spec:
         - name: hydra
           image: {{ include "greptile.image" (dict "root" . "repository" .Values.authV2.hydra.image.repository "tag" .Values.authV2.hydra.image.tag) }}
           imagePullPolicy: {{ default .Values.global.pullPolicy .Values.authV2.hydra.image.pullPolicy }}
+          {{- with .Values.global.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           ports:
             - name: http-public
               containerPort: {{ .Values.authV2.hydra.publicPort }}
@@ -104,6 +112,12 @@ spec:
             - name: hydra-config
               mountPath: /etc/hydra/hydra.yml
               subPath: hydra.yml
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http-admin
+            initialDelaySeconds: 5
+            periodSeconds: 10
           resources:
             {{- toYaml .Values.authV2.hydra.resources | nindent 12 }}
       volumes:

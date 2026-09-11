@@ -45,7 +45,8 @@ This script:
 Edit `./charts/profiles/values.user.yaml`:
 - `global.registry`, `global.tag`
 - `network.*` — the public origins, including `network.apiUrl` and `network.authUrl` (the OIDC issuer, must be https; auth v2 is the default auth mode, set `authV2.enabled: false` for legacy auth)
-- relevant providider specific API keys
+- `ingress.auth.tls.enabled` and `ingress.auth.tls.secretName` — the auth ingress must serve the https issuer with a certificate the web and api pods trust, since they call it server-side
+- relevant provider specific API keys
 
 You may also choose to use `secrets.mode=external`
 

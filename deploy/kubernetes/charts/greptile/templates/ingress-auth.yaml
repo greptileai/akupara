@@ -10,13 +10,10 @@ metadata:
   name: {{ include "greptile.fullname" . }}-auth
   labels:
     {{- include "greptile.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
   annotations:
-    # OAuth state cookies exceed nginx's 4k default buffer.
-    nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
-    nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
-    {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
-    {{- end }}
+  {{- end }}
 spec:
   ingressClassName: {{ .Values.ingress.className }}
   rules:

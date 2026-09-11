@@ -18,6 +18,8 @@ Enable `saml.enabled=true` and `components.jackson.enabled=true`, then provide J
 Auth v2 (OAuth) is the default auth mode. A legacy install upgrading without an auth
 origin fails with a message naming the required value. To switch:
 1. Set `network.authUrl` (the https OIDC issuer) and `network.apiUrl` (public api origin).
+   Give the auth ingress a certificate (`ingress.auth.tls`) that the web and api pods trust;
+   they call the issuer server-side for token exchange and JWKS.
 2. `helm upgrade`. This removes the legacy `greptile-auth` component and signs every user
    out — they re-authenticate through auth v2. Do it off-hours.
 
