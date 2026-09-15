@@ -7,7 +7,15 @@ We offer two methods of deployment - `docker-compose` and `kubernetes`. We stron
 
 ![Current self-hosted Greptile architecture](Greptile_architecture.current.svg)
 
-The SVG is generated from `Greptile_architecture.current.d2` with D2's TALA layout.
+The SVG is generated from `Greptile_architecture.current.d2` with D2 v0.9.0.
+TALA is bundled with that release. The renderer exits if another D2 version is
+installed, preventing unrelated layout or serialization changes.
+
+Install the exact [D2 v0.9.0 release](https://github.com/d2lang/d2/releases/tag/v0.9.0), then regenerate the SVG:
+
+```bash
+bash ./render-architecture.sh
+```
 
 Follow the `README.md` guide in the `/deploy/docker-compose` directory.
 

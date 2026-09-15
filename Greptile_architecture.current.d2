@@ -5,10 +5,17 @@
 # - deploy/kubernetes/charts/greptile/values.yaml
 # - greptilia origin/main application topology
 #
-# Render with: d2 --layout tala Greptile_architecture.current.d2 Greptile_architecture.current.svg
+# Render with: bash ./render-architecture.sh
+# The renderer pins D2 v0.9.0. TALA is configured below.
 #
 # This is a system-context diagram. Hatchet is shown as one workflow queue;
 # see deployment manifests for its internal services and persistent dependencies.
+
+vars: {
+  d2-config: {
+    layout-engine: tala
+  }
+}
 
 direction: down
 
