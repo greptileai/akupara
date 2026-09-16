@@ -1,0 +1,3 @@
+{{- if not .Values.authV2.enabled }}
+Enable Greptile CLI and MCP for your team by migrating to Auth v2 — see docs/operations.md for details.
+{{- end }}
