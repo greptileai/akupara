@@ -1,0 +1,247 @@
+# Current self-hosted Greptile architecture.
+#
+# Sources of truth:
+# - deploy/docker-compose/docker-compose.yaml
+# - deploy/kubernetes/charts/greptile/values.yaml
+# - greptilia origin/main application topology
+#
+# Render with: bash ./render-architecture.sh
+# The renderer pins D2 v0.9.0. TALA is configured below.
+#
+# This is a system-context diagram. Hatchet is shown as one workflow queue;
+# see deployment manifests for its internal services and persistent dependencies.
+
+vars: {
+  d2-config: {
+    layout-engine: tala
+  }
+}
+
+direction: down
+
+classes: {
+  greptile_service: {
+    shape: rectangle
+    style: {
+      fill: "#DFF0D8"
+      stroke: "#5B8C5A"
+      stroke-width: 2
+      border-radius: 8
+    }
+  }
+  platform_dependency: {
+    shape: rectangle
+    style: {
+      fill: "#D9EAF7"
+      stroke: "#4E7D9B"
+      stroke-width: 2
+      border-radius: 8
+    }
+  }
+  optional_service: {
+    shape: rectangle
+    style: {
+      fill: "#FFF3E0"
+      stroke: "#C17B00"
+      stroke-width: 2
+      stroke-dash: 3
+      border-radius: 8
+    }
+  }
+  external_service: {
+    shape: rectangle
+    style: {
+      fill: "#E9E1F5"
+      stroke: "#8064A2"
+      stroke-width: 2
+      stroke-dash: 3
+      border-radius: 8
+    }
+  }
+  data_store: {
+    shape: cylinder
+    style: {
+      fill: "#D9EAF7"
+      stroke: "#4E7D9B"
+      stroke-width: 2
+    }
+  }
+  person: {
+    shape: person
+    width: 90
+    height: 110
+    style: {
+      fill: "#FFF3CD"
+      stroke: "#A07800"
+      stroke-width: 2
+    }
+  }
+}
+
+user: User {
+  class: person
+}
+
+api_client: "CLI / API\nclient" {
+  class: person
+}
+
+scm: "SCM provider\n(GitHub Enterprise or GitLab)" {
+  class: external_service
+}
+
+llm_provider: "LLM provider" {
+  class: external_service
+}
+
+legend: {
+  label: "Legend"
+  near: bottom-left
+  direction: down
+  style: {
+    fill: "#FFFFFF"
+    stroke: "#7D8B74"
+    stroke-width: 2
+    border-radius: 8
+  }
+
+  greptile_service: "Greptile service" {
+    class: greptile_service
+  }
+
+  self_hosted_dependency: "Self-hosted dependency or data store" {
+    class: platform_dependency
+  }
+
+  optional_integration: "Optional self-hosted integration" {
+    class: optional_service
+  }
+
+  external_service: "External service" {
+    class: external_service
+  }
+
+  actor: "User or API client" {
+    class: person
+  }
+}
+
+customer_environment: {
+  label: "Customer environment"
+  direction: down
+  style: {
+    fill: "#FBFCFA"
+    stroke: "#7D8B74"
+    stroke-width: 2
+    border-radius: 12
+  }
+
+  greptile: {
+    label: "Greptile services"
+    direction: right
+    style: {
+      fill: "#F4F9F1"
+      stroke: "#93B986"
+      border-radius: 10
+    }
+
+    web: Web {
+      class: greptile_service
+    }
+
+    auth: Auth {
+      class: greptile_service
+    }
+
+    api: API {
+      class: greptile_service
+    }
+
+    webhook: Webhook {
+      class: greptile_service
+    }
+
+    worker: Worker {
+      class: greptile_service
+    }
+
+    chunker: "Indexer / Chunker" {
+      class: greptile_service
+    }
+
+    jobs: Jobs {
+      class: greptile_service
+    }
+
+    llm_proxy: "LLM Proxy\n(LiteLLM)" {
+      class: greptile_service
+    }
+
+    jackson: "Jackson\n(optional SAML/SSO)" {
+      class: optional_service
+    }
+  }
+
+  workflow: {
+    label: "Workflow queue"
+    direction: right
+    style: {
+      fill: "#F3F8FC"
+      stroke: "#9BB9D0"
+      border-radius: 10
+    }
+
+    hatchet: "Hatchet\n(workflow queue)" {
+      class: platform_dependency
+      shape: queue
+    }
+  }
+
+  data: {
+    label: "Greptile data"
+    direction: right
+    style: {
+      fill: "#F3F8FC"
+      stroke: "#9BB9D0"
+      border-radius: 10
+    }
+
+    postgres: "Greptile PostgreSQL\n+ pgvector" {
+      class: data_store
+    }
+  }
+}
+
+# Public entry points. Kubernetes exposes Web and Webhook by default. The API
+# endpoint is deployment-specific, so its edge is dashed.
+user -> customer_environment.greptile.web: uses dashboard
+api_client -> customer_environment.greptile.api: calls API {
+  style.stroke-dash: 3
+}
+scm -> customer_environment.greptile.webhook: sends webhook events
+
+# Interactive and authentication paths.
+customer_environment.greptile.web -> customer_environment.greptile.auth: signs in through
+customer_environment.greptile.web -> customer_environment.greptile.api: sends application requests to
+customer_environment.greptile.web -> customer_environment.greptile.jackson: uses when SAML is enabled {
+  style.stroke-dash: 3
+}
+
+# Workflow producers and consumers.
+customer_environment.greptile.api -> customer_environment.workflow.hatchet: starts review and indexing workflows
+customer_environment.greptile.webhook -> customer_environment.workflow.hatchet: dispatches review and repository-sync events
+customer_environment.greptile.jobs -> customer_environment.workflow.hatchet: schedules recurring workflows
+customer_environment.workflow.hatchet -> customer_environment.greptile.worker: dispatches review workflows to
+customer_environment.workflow.hatchet -> customer_environment.greptile.chunker: dispatches indexing workflows to
+
+# Review and indexing data paths.
+customer_environment.greptile.worker -> scm: reads pull requests and posts review comments
+customer_environment.greptile.worker -> customer_environment.greptile.llm_proxy: sends model requests to
+customer_environment.greptile.worker -> customer_environment.data.postgres: stores review state in
+customer_environment.greptile.chunker -> scm: fetches repositories from
+customer_environment.greptile.chunker -> customer_environment.greptile.llm_proxy: sends embedding requests to
+customer_environment.greptile.chunker -> customer_environment.data.postgres: stores indexes and metadata in
+customer_environment.greptile.llm_proxy -> llm_provider: routes model requests to
+
+# The other Greptile application services also use the shared PostgreSQL
+# database; those edges are omitted for legibility.

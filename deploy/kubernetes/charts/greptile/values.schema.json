@@ -110,6 +110,16 @@
         }
       }
     },
+    "features": {
+      "type": "object",
+      "required": ["feature_flags"],
+      "properties": {
+        "feature_flags": {
+          "type": "object",
+          "additionalProperties": { "type": "boolean" }
+        }
+      }
+    },
     "env": {
       "type": "object",
       "properties": {
