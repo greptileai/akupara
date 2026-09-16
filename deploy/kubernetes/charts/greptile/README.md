@@ -26,3 +26,16 @@ This chart deploys Greptile application workloads on Kubernetes with parity to t
 - `postgres.enabled=true` uses bundled Bitnami Postgres.
 - Set `postgres.enabled=false` and `externalDatabase.*` for managed DB.
 - Default exposure is Ingress + ClusterIP.
+
+## Feature flags
+
+Set static boolean flags under `features.feature_flags`. The chart serializes
+the map into `FEATURE_FLAGS_JSON` in the shared ConfigMap, which every Greptile
+component receives.
+
+```yaml
+features:
+  feature_flags:
+    new-review-flow: true
+    beta-summary: false
+```
