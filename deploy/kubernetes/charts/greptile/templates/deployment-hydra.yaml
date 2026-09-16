@@ -77,7 +77,7 @@ spec:
                   name: {{ include "greptile.secretName" . }}
                   key: DIRECT_URL
             - name: HYDRA_AUTO_MIGRATE
-              value: "true"
+              value: "false"
             - name: SECRETS_SYSTEM
               valueFrom:
                 secretKeyRef:
