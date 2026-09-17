@@ -1,24 +1,22 @@
-# Greptile Infrastructure
+# Self Hosted Greptile
 
-We offer two methods of deployment - `docker-compose` and `kubernetes`. We strongly recommend using the `docker-compose` method as this is simpler and more flexible.
+This repository provides deployment artifacts and documentation for self-hosted [Greptile](https://www.greptile.com/). It is intended for operators and IT administrators who install and maintain Greptile in their own environment.
 
-## The onprem setup repository for Greptile (docker-compose)
-### Self-hosted architecture
+## Architecture
 
-![Current self-hosted Greptile architecture](Greptile_architecture.current.svg)
+Greptile runs as independently scalable services. The stack depends on Hatchet for task orchestration and PostgreSQL for persistence. See [Architecture overview](docs/reference/architecture.md) for the service list. The following diagram shows the current self-hosted architecture:
 
-The SVG is generated from `Greptile_architecture.current.d2` with D2 v0.9.0.
-TALA is bundled with that release. The renderer exits if another D2 version is
-installed, preventing unrelated layout or serialization changes.
+![Current self-hosted Greptile architecture](architecture_diagram/Greptile_architecture.current.svg)
 
-Install the exact [D2 v0.9.0 release](https://github.com/d2lang/d2/releases/tag/v0.9.0), then regenerate the SVG:
+## Deployment options
+We offer two methods of deployment - `docker-compose` and `kubernetes`.
 
-```bash
-bash ./render-architecture.sh
-```
+1. Method via docker-compose: Easy single node setup, suited for smaller teams. See [Install with Docker Compose](docs/installation/docker-compose.md).
+2. Method via kubernetes: Enterprise ready setup. See [Install with Kubernetes](docs/installation/kubernetes.md).
 
-Follow the `README.md` guide in the `/deploy/docker-compose` directory.
 
-## The onprem setup repository for Greptile (kubernetes)
-
-Please check the README.md under `deploy/kubernetes/` on how to deploy Greptile in a Kubernetes cluster.
+## Documentation
+- **Installation:** [Requirements](docs/installation/requirements.md) · [Install with Docker Compose](docs/installation/docker-compose.md) · [Install with Kubernetes](docs/installation/kubernetes.md)
+- **Configuration:** [Networking](docs/configuration/networking.md) · [GitHub App creation](docs/configuration/github_app_creation.md) · [LLM providers](docs/configuration/llm-providers.md) · [Single sign-on (SSO)](docs/configuration/sso.md)
+- **Operations:** [Upgrade](docs/operations/upgrade.md) · [Scaling](docs/operations/scaling.md) · [Troubleshooting](docs/operations/troubleshooting.md)
+- **Reference:** [Architecture overview](docs/reference/architecture.md)
