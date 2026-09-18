@@ -94,6 +94,8 @@ Also configure:
 
 If you use a self-managed Postgres instance, update every environment variable starting with `DB_`.
 
+Optional static feature flags go in `FEATURE_FLAGS_JSON` as a JSON object with boolean values. Leave it as `'{}'` unless Greptile asks you to enable a flag.
+
 ## 6. Start Greptile
 
 ```bash

@@ -86,6 +86,17 @@ Edit `./charts/profiles/values.user.yaml` and set:
 - GitHub and model API keys — see [GitHub App creation](../configuration/github_app_creation.md) and [LLM providers](../configuration/llm-providers.md)
 - Or switch to `secrets.mode=external`
 
+### Feature flags
+
+Set static boolean flags under `features.feature_flags`. The chart serializes the map into `FEATURE_FLAGS_JSON` in the shared ConfigMap, which every Greptile component receives.
+
+```yaml
+features:
+  feature_flags:
+    new-review-flow: true
+    beta-summary: false
+```
+
 ### Secrets modes
 
 **Native (default):** `secrets.mode=native` with keys in `secrets.native.*`. Prefer `./scripts/init-values.sh` for fresh installs.

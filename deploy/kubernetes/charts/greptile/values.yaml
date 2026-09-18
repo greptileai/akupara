@@ -96,10 +96,15 @@ storage:
     accessModes:
       - ReadWriteMany
 
+features:
+  # Static on-prem feature flags. Values must be booleans.
+  feature_flags: {}
+
 env:
   shared:
     ONPREM: "true"
     NODE_ENV: "production"
+    FEATURE_FLAGS_JSON: "{{ .Values.features.feature_flags | toJson }}"
     HATCHET_CLIENT_TLS_STRATEGY: "{{ .Values.hatchet.tlsStrategy }}"
     HATCHET_CLIENT_GRPC_BROADCAST_ADDRESS: "{{ .Values.hatchet.grpcUrl }}"
     HATCHET_CLIENT_SERVER_URL: "{{ .Values.hatchet.apiUrl }}"
