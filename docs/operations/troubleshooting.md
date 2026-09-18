@@ -85,6 +85,6 @@ If SAML login fails:
 
 - Jackson must be served over HTTPS
 - Jackson allowed redirect URLs must include the web origin and `<web>/login/saml`
-- `SamlConnection.tenant_id` must match the user's email domain
+- `SamlConnection.saml_tenant_id` must match the Jackson tenant key, normally the user's email domain
 
 See [SSO](../configuration/sso.md).
