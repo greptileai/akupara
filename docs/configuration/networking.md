@@ -33,7 +33,24 @@ Notes:
 - `APP_URL` / `NEXTAUTH_URL` must be the URL users and OAuth providers actually open. Use `https://<your_dns_name>` once a custom domain is in place.
 - `GREPTILE_WEBHOOK_URL` is the in-cluster address used between Greptile services. External GitHub/GitLab webhooks should target the public webhook endpoint, for example `http://<ip_address>:3007/webhook` or `https://<your_dns_name>/webhook`.
 
-By default the stack publishes `3000` (web), `3007` (webhook), and `8080` (Hatchet). Caddy also terminates TLS on `80`/`443` when you add hostname site blocks. Do not expose ports you do not need.
+Compose publishes several ports on all host interfaces. Restrict them with a host firewall.
+
+**Expose externally:**
+
+- `3000` — Greptile web UI
+- `3007` — webhook receiver (GitHub / GitLab)
+- `8080` — Hatchet admin UI
+- `5225` — Jackson / SAML (only if you use SSO)
+
+**Keep internal:**
+
+- `5432` — PostgreSQL
+- `5673` / `15673` — RabbitMQ AMQP and management UI
+- `7077` — Hatchet gRPC
+- `3001` — auth
+- `3002` — API
+- `4000` — LiteLLM proxy
+- `8086` — jobs
 
 ### Custom domains (Caddy)
 
@@ -53,11 +70,16 @@ To add a hostname for Greptile:
 
 ```
 https://CustomGreptileDomain.com {
+        handle /webhook* {
+                reverse_proxy greptile-webhook:3007
+        }
         handle /* {
                 reverse_proxy greptile-web:3000
         }
 }
 ```
+
+Route `/webhook` to `greptile-webhook` before the catch-all. Otherwise `https://<your_dns_name>/webhook` hits the web UI and GitHub/GitLab deliveries never start reviews. You can instead keep webhooks on `http://<ip_address>:3007/webhook` or put them on a separate hostname.
 
 3. Recreate Caddy:
 
@@ -65,7 +87,7 @@ https://CustomGreptileDomain.com {
 docker compose --profile hatchet up --force-recreate -d hatchet-caddy
 ```
 
-Update `APP_URL` and `NEXTAUTH_URL` in `.env` to the HTTPS hostname.
+Update `APP_URL` and `NEXTAUTH_URL` in `.env` to the HTTPS hostname. Register the GitHub/GitLab webhook URL as `https://<your_dns_name>/webhook` if you use the `/webhook` handler above.
 
 Caddy obtains certificates automatically with Let's Encrypt. That requires egress to the public internet. If the host cannot reach Let's Encrypt, configure TLS another way. Caddy supports [custom certificates](https://caddyserver.com/docs/caddyfile/directives/tls).
 
