@@ -99,11 +99,9 @@ Log in to the Postgres database.
    - **Allowed redirect URLs:** your web URL, for example `https://app.example.com`
    - **Default redirect URL:** `<web_service>/login/saml` for the default self-hosted legacy auth path, for example `https://app.example.com/login/saml`
 
-   If `AUTH_MIGRATION_ENABLED=true` and auth-v2 is deployed, use the auth-v2 callback `<auth_service>/login/saml/acs` as the default redirect URL and include both the auth-v2 and web URLs in the allowed redirect list.
-
 4. Send the generated setup link to the person who will configure the identity provider.
 
-After they complete setup, users can sign in to the web service with SSO. SSO connection setup does not automatically grant every domain user membership: use invitations, or enable domain auto-join if that feature is available in the deployed application version.
+After they complete setup, the first successful SAML login enables domain auto-join by default unless an administrator has selected invite-only. Users are added when they sign in with a verified matching domain email. Use invitations while setup is incomplete or auto-join is disabled. Older self-hosted image versions may not include the auto-join behavior.
 
 ## Kubernetes
 
