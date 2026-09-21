@@ -457,7 +457,7 @@ components:
       DEFAULT_EXPERIMENT_VARIANT: "{{ .Values.appConfig.defaultExperimentVariant }}"
       DEFAULT_DYNAMIC_ROUTER: "{{ .Values.appConfig.defaultDynamicRouter }}"
       # If using gpt-based models, uncomment the following lines (and appConfig above).
-      # GPT variant expects gpt-5.5; alias via LiteLLM if unavailable. See docs/install.md.
+      # GPT variant expects gpt-5.5; alias via LiteLLM if unavailable. See docs/configuration/llm-providers.md.
       # REVIEW_WORKFLOW_ROUTING_ENABLED: "{{ .Values.appConfig.reviewWorkflowRoutingEnabled }}"
       # DEFAULT_NATIVE_ROUTING_POLICY: "{{ .Values.appConfig.defaultNativeRoutingPolicy }}"
     envFromConfigMap: []
