@@ -54,6 +54,26 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      initContainers:
+        # Hydra shares the greptile database, so Hydra's tables
+        # need to wait for the db-migration hook to run once.
+        - name: wait-for-db-migration
+          image: docker.io/bitnamilegacy/postgresql:17.6.0-debian-12-r4
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              until psql "$DSN" -qAtc 'select 1 from _prisma_migrations limit 1' >/dev/null 2>&1; do
+                echo "waiting for the greptile db migration"
+                sleep 2
+              done
+          env:
+            - name: DSN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.secretName" . }}
+                  key: DIRECT_URL
       containers:
         - name: hydra
           image: {{ include "greptile.image" (dict "root" . "repository" .Values.authV2.hydra.image.repository "tag" .Values.authV2.hydra.image.tag) }}
@@ -77,7 +97,7 @@ spec:
                   name: {{ include "greptile.secretName" . }}
                   key: DIRECT_URL
             - name: HYDRA_AUTO_MIGRATE
-              value: "false"
+              value: "true"
             - name: SECRETS_SYSTEM
               valueFrom:
                 secretKeyRef:

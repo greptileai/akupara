@@ -64,6 +64,7 @@ Confirm Hatchet UI shows registered workers (`chunker`, `worker`).
 | Worker review sandbox failed | `greptile-worker` is allowed to run privileged with `SYS_ADMIN` and mount `/sys/fs/cgroup` |
 | No reviews generated | `HATCHET_CLIENT_TOKEN` and Hatchet API/gRPC endpoints |
 | Login 502s or redirects to a pod hostname | The auth host's ingress needs `nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"` — OAuth cookies exceed nginx's 4k default |
+| `greptile-hydra` stuck in `Init` on a first install | It waits for the `greptile-db-migration` hook; check that job's logs. If the install itself timed out, the tooling waited for deployments before running hooks (Helm `--wait`, Terraform `helm_release` default); install without it once |
 | Login hangs on a CGNAT cluster (pod CIDR `100.64.0.0/10`) | Hydra can't reach a 100.64 pod IP. Set `components.auth-v2.service.type: NodePort` with a pinned `nodePort`, and `authV2.hookUrl` to `http://<node-ip>:<nodePort>/api/hooks/token` |
 
 ### LLM errors
