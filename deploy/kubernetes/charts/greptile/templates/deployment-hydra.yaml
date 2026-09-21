@@ -1,10 +1,10 @@
 {{- if .Values.authV2.enabled }}
 {{- if not (hasPrefix "https://" .Values.network.authUrl) }}
-{{- fail (printf "network.authUrl requires https, got %q. Set network.authUrl and network.apiUrl (docs/operations.md), or set authV2.enabled: false" .Values.network.authUrl) }}
+{{- fail (printf "network.authUrl requires https, got %q. Set network.authUrl and network.apiUrl (docs/operations/upgrade.md), or set authV2.enabled: false" .Values.network.authUrl) }}
 {{- end }}
 {{- $legacyAuth := lookup "apps/v1" "Deployment" .Release.Namespace (printf "%s-auth" (include "greptile.fullname" .)) }}
 {{- if and $legacyAuth (or (contains "greptile.local" .Values.network.authUrl) (contains "greptile.local" .Values.network.apiUrl)) }}
-{{- fail "auth v2 would replace the legacy auth this release is running, but network.authUrl or network.apiUrl is not set. Set both to migrate (docs/operations.md), or set authV2.enabled: false" }}
+{{- fail "auth v2 would replace the legacy auth this release is running, but network.authUrl or network.apiUrl is not set. Set both to migrate (docs/operations/upgrade.md), or set authV2.enabled: false" }}
 {{- end }}
 apiVersion: apps/v1
 kind: Deployment

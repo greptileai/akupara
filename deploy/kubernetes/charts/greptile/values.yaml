@@ -205,7 +205,7 @@ saml:
   dbSsl: "false"
 
 # The default auth mode (Ory Hydra + the auth-v2 component); replaces the legacy
-# auth component. Set enabled: false for legacy auth; docs/operations.md covers migrating.
+# auth component. Set enabled: false for legacy auth; docs/operations/upgrade.md covers migrating.
 authV2:
   enabled: true
   hookUrl: "" # override when hydra cannot reach auth-v2 in-cluster
