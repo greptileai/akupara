@@ -120,6 +120,8 @@ env:
     TREX_SETTINGS_ENABLED: "{{ .Values.appConfig.trexSettingsEnabled }}"
     REPO_CLUSTERS_ENABLED: "{{ .Values.appConfig.repoClustersEnabled }}"
     HEADLESS_REVIEW_ENABLED: "{{ .Values.appConfig.headlessReviewEnabled }}"
+    AUTO_APPROVE_ENABLED: "{{ .Values.appConfig.autoApproveEnabled }}"
+    APPROVAL_RISK_ENABLED: "{{ .Values.appConfig.approvalRiskEnabled }}"
     AUTH_MIGRATION_ENABLED: "{{ .Values.appConfig.authMigrationEnabled }}"
 
 appConfig:
@@ -136,6 +138,8 @@ appConfig:
   trexSettingsEnabled: "false"
   repoClustersEnabled: "true"
   headlessReviewEnabled: "true"
+  autoApproveEnabled: "true"
+  approvalRiskEnabled: "true"
   authMigrationEnabled: "false"
 
 github:
