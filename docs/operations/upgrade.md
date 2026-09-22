@@ -4,6 +4,8 @@ Greptile ships as versioned container images. Greptile provides the image tag fo
 
 Always take a database backup before upgrading. The bundled Postgres instance stores application metadata and vectors.
 
+Check the release notes for the target tag before upgrading. Release notes list any new environment variables for that release. Apply every listed variable before you roll the stack. On Docker Compose, add them to `.env`. On Kubernetes, new chart defaults apply during `helm upgrade`; change `charts/profiles/values.user.yaml` when the release notes tell you to override a default.
+
 ## Docker Compose
 
 1. Confirm registry access still works:
@@ -15,13 +17,15 @@ Always take a database backup before upgrading. The bundled Postgres instance st
 
 2. Set `GREPTILE_TAG` in `.env` to the tag Greptile gave you. Leave `HATCHET_TAG` unchanged unless the release notes say otherwise.
 
-3. Pull and recreate Greptile services:
+3. Add any new environment variables listed in the release notes to `.env`.
+
+4. Pull and recreate Greptile services:
 
    ```bash
    ./bin/start-greptile.sh
    ```
 
-4. Confirm containers are healthy:
+5. Confirm containers are healthy:
 
    ```bash
    docker compose ps
@@ -33,7 +37,8 @@ Database migrations run as the `greptile-db-migration` service on startup. If th
 ## Kubernetes
 
 1. Update `global.tag` (and `global.registry` if needed) in `charts/profiles/values.user.yaml`.
-2. Apply the chart:
+2. If the release notes list environment variable overrides, set them in `values.user.yaml`.
+3. Apply the chart:
 
    ```bash
    cd deploy/kubernetes
@@ -42,7 +47,7 @@ Database migrations run as the `greptile-db-migration` service on startup. If th
      -f ./charts/profiles/values.user.yaml
    ```
 
-3. Watch the rollout:
+4. Watch the rollout:
 
    ```bash
    kubectl get pods -l app.kubernetes.io/instance=greptile
