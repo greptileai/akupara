@@ -2,7 +2,7 @@
 
 global:
   registry: "REPLACE_ME_REGISTRY"
-  tag: "REPLACE_ME_TAG"
+  tag: "202609.10"
   imagePullSecrets:
     - name: regcred
 
