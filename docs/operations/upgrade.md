@@ -49,7 +49,7 @@ Database migrations run as the `greptile-db-migration` service on startup. If th
    helm status greptile
    ```
 
-The chart runs a post-install / post-upgrade migration job and deletes it after success (`hook-succeeded`). `kubectl logs job/greptile-db-migration` is only available while the hook is running, or after a failure (the job is kept). A failed migration job means the new version did not finish applying schema changes; fix connectivity or credentials before retrying the upgrade.
+Each install or upgrade runs a migration job named for the release revision (`greptile-db-migration-<revision>`, see `helm history greptile`). It waits for any earlier migration job still running, and is deleted a day after it finishes. Helm does not wait for it to finish unless you pass `--wait-for-jobs`, so a failed migration may not fail the release; check `kubectl get jobs` after upgrading. A failed migration job means the new version did not finish applying schema changes; fix connectivity or credentials before retrying the upgrade.
 
 Hatchet is a separate Helm release. Only upgrade `hatchet-stack` when the Greptile release notes require a newer Hatchet version, and keep `hatchet.*` URLs and `HATCHET_CLIENT_TOKEN` in sync.
 

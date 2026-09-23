@@ -56,7 +56,7 @@ spec:
       {{- end }}
       initContainers:
         # Hydra shares the greptile database, so Hydra's tables
-        # need to wait for the db-migration hook to run once.
+        # need to wait for the db-migration job to run once.
         - name: wait-for-db-migration
           image: docker.io/bitnamilegacy/postgresql:17.6.0-debian-12-r4
           imagePullPolicy: IfNotPresent
