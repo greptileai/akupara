@@ -136,6 +136,8 @@ env:
     TREX_SETTINGS_ENABLED: "{{ .Values.appConfig.trexSettingsEnabled }}"
     REPO_CLUSTERS_ENABLED: "{{ .Values.appConfig.repoClustersEnabled }}"
     HEADLESS_REVIEW_ENABLED: "{{ .Values.appConfig.headlessReviewEnabled }}"
+    AUTO_APPROVE_ENABLED: "{{ .Values.appConfig.autoApproveEnabled }}"
+    APPROVAL_RISK_ENABLED: "{{ .Values.appConfig.approvalRiskEnabled }}"
     AUTH_MIGRATION_ENABLED: "{{ .Values.authV2.enabled }}"
     GREPTILE_AUTH_V2_URL: "{{ .Values.network.authUrl }}"
     HYDRA_ISSUER_URL: "{{ .Values.network.authUrl }}"
@@ -155,6 +157,8 @@ appConfig:
   trexSettingsEnabled: "false"
   repoClustersEnabled: "true"
   headlessReviewEnabled: "true"
+  autoApproveEnabled: "true"
+  approvalRiskEnabled: "true"
 
 github:
   enabled: "false"

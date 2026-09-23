@@ -138,7 +138,9 @@
         "reviewWorkflowRoutingEnabled": { "type": "string" },
         "defaultNativeRoutingPolicy": { "type": "string" },
         "trexSettingsEnabled": { "type": "string" },
-        "repoClustersEnabled": { "type": "string" }
+        "repoClustersEnabled": { "type": "string" },
+        "autoApproveEnabled": { "type": "string" },
+        "approvalRiskEnabled": { "type": "string" }
       }
     },
     "github": {
