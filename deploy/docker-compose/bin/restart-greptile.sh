@@ -91,11 +91,12 @@ else
     exit 0
 fi
 
-# Source env files for docker-compose variable interpolation
+# Export generated secrets for docker-compose variable interpolation; values set in .env take precedence
 if [[ -f .env.greptile-generated ]]; then
-  set -a
-  source .env.greptile-generated
-  set +a
+  while IFS='=' read -r key value; do
+    [[ "$key" =~ ^#.*$ || -z "$key" ]] && continue
+    grep -qE "^${key}=.+" .env || export "${key}=${value}"
+  done < .env.greptile-generated
 fi
 
 # Determine compose profiles
