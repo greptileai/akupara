@@ -1,6 +1,6 @@
 {{- if and .Values.o11y.enabled .Values.ingress.enabled .Values.ingress.grafana.enabled }}
 {{- $grafanaUrl := required "network.grafanaUrl is required when o11y.enabled (or set ingress.grafana.enabled=false and port-forward)" .Values.network.grafanaUrl }}
-{{- $host := regexFind "^[^/]+" (regexReplaceAll "^https?://" $grafanaUrl "") }}
+{{- $host := regexFind "^[^/:]+" (regexReplaceAll "^https?://" $grafanaUrl "") }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:

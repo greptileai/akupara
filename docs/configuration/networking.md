@@ -105,6 +105,16 @@ https://customJacksonDomain.com {
 
 Then continue with [SSO](./sso.md).
 
+### Grafana (optional)
+
+The optional [observability stack](../operations/observability.md) publishes no host port. Serve Grafana through Caddy at `GRAFANA_URL`:
+
+```
+https://grafana.example.com {
+        reverse_proxy greptile-lgtm:3000
+}
+```
+
 ## Kubernetes
 
 ### URLs

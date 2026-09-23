@@ -66,9 +66,10 @@ In `.env`:
 
 ```
 O11Y_ENABLED='true'
+GRAFANA_URL='https://grafana.example.com'
 ```
 
-`./bin/start-greptile.sh` and `./bin/restart-greptile.sh` then add `docker-compose.o11y.yaml`, which runs the `greptile-lgtm` container and sets the endpoint on every Greptile service. Grafana listens on port 3030 (web owns 3000), with its root URL set to `http://${IP_ADDRESS}:3030`. Log in as `admin` with the `GF_SECURITY_ADMIN_PASSWORD` value from `.env.greptile-generated`. Data lives in the `lgtm_data` volume. Manual compose commands need both files (`docker compose -f docker-compose.yaml -f docker-compose.o11y.yaml ...`); `docker logs greptile-lgtm` works without them.
+`./bin/start-greptile.sh` and `./bin/restart-greptile.sh` then add `docker-compose.o11y.yaml`, which runs the `greptile-lgtm` container and sets the endpoint on every Greptile service. Grafana publishes no host port. Set `GRAFANA_URL` in `.env` and serve that hostname through Caddy (see [Networking](../configuration/networking.md#grafana-optional)); it is also Grafana's root URL. Log in as `admin` with `GF_SECURITY_ADMIN_PASSWORD` from `.env.greptile-generated`, or from `.env` if you set it there. Data lives in the `lgtm_data` volume. Manual compose commands need both files (`docker compose -f docker-compose.yaml -f docker-compose.o11y.yaml ...`); `docker logs greptile-lgtm` works without them.
 
 ## What you will see
 
