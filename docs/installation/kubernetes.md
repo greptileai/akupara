@@ -74,6 +74,7 @@ kubectl get svc hatchet-stack-api hatchet-stack-engine
 - Generates `LITELLM_MASTER_KEY`
 - Generates `WEB_TRIGGER_SECRET`
 - Generates `WEBHOOK_SECRET`
+- Generates `GF_SECURITY_ADMIN_PASSWORD` (Grafana admin login, used only when `o11y.enabled`)
 - Attempts to generate `HATCHET_CLIENT_TOKEN` from the running Hatchet release
 
 Hatchet must already be deployed and reachable for automatic `HATCHET_CLIENT_TOKEN` generation to succeed.
@@ -118,6 +119,9 @@ Required when `authV2.enabled` (the default):
 - `DIRECT_URL` (hydra's DSN), `CSRF_SECRET`, `HYDRA_SYSTEM_SECRET`, `HYDRA_TOKEN_HOOK_SECRET`
 - `HYDRA_WEB_CLIENT_SECRET` — must stay stable across upgrades; rotating it desyncs the seeded web OAuth client
 
+Required when `o11y.enabled`:
+- `GF_SECURITY_ADMIN_PASSWORD`
+
 The remaining app secrets are consumed via `envFrom` (whole-secret) and so are not required at container start, but the app needs them: `DATABASE_URL`, `VECTOR_DB_URL`, `JWT_SECRET`, `TOKEN_ENCRYPTION_KEY`, `WEB_TRIGGER_SECRET`, `WEBHOOK_SECRET`, `HATCHET_CLIENT_TOKEN`, the `GITHUB_*` / `AUTH_GITHUB_*` keys, and `SMTP_PASSWORD`.
 
 ### Worker sandboxing
@@ -129,6 +133,10 @@ The `worker` deployment runs privileged with `SYS_ADMIN` and a `/sys/fs/cgroup` 
 The chart includes PgBouncer with transaction pooling and basic timeout protections, plus a Postgres `idle_in_transaction_session_timeout` of `5min`. These are sensible defaults for fresh installs; they do not replace backups, monitoring, or capacity planning.
 
 To use managed Postgres instead of the bundled chart, disable `postgres` and set `externalDatabase.*` in values.
+
+### Observability (optional)
+
+Most deployments already run an observability platform. Point Greptile at its OTLP/HTTP collector by setting `OTEL_EXPORTER_OTLP_ENDPOINT` under `env.shared`. Set `o11y.enabled=true` instead to run a bundled Grafana LGTM stack, which pins every component's endpoint to itself. See [Observability](../operations/observability.md).
 
 ## 5. Deploy Greptile
 

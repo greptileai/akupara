@@ -1,0 +1,33 @@
+{{- if and .Values.o11y.enabled .Values.ingress.enabled .Values.ingress.grafana.enabled }}
+{{- $grafanaUrl := required "network.grafanaUrl is required when o11y.enabled (or set ingress.grafana.enabled=false and port-forward)" .Values.network.grafanaUrl }}
+{{- $host := regexFind "^[^/]+" (regexReplaceAll "^https?://" $grafanaUrl "") }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "greptile.fullname" . }}-grafana
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+    - host: {{ $host | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "greptile.lgtmName" . }}
+                port:
+                  number: 3000
+  {{- if .Values.ingress.grafana.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ $host | quote }}
+      secretName: {{ .Values.ingress.grafana.tls.secretName }}
+  {{- end }}
+{{- end }}
