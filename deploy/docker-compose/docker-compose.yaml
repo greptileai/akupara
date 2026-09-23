@@ -286,6 +286,7 @@ services:
     env_file:
       - .env.greptile-generated
     environment:
+      - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - PORT=4000
       # Map common.env variable names to what the config file expects
       - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL}
