@@ -172,6 +172,7 @@ services:
       - .env.hatchet-generated
       - .env  # User config last (takes precedence)
     environment:
+      - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - AUTH_BOXYHQ_SAML_ISSUER=${AUTH_BOXYHQ_URL}
       - BILLING_ENABLED=${BILLING}
       - NEXT_PUBLIC_BILLING=${BILLING}
@@ -188,6 +189,8 @@ services:
       - .env.greptile-generated
       - .env.hatchet-generated
       - .env
+    environment:
+      - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
     ports:
       - "3001:3001"
     profiles:
@@ -201,6 +204,7 @@ services:
       - .env.hatchet-generated
       - .env
     environment:
+      - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - URL=${API_URL}
       - PORT=3002
     ports:
@@ -216,6 +220,7 @@ services:
       - .env.hatchet-generated
       - .env
     environment:
+      - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - PARENT_DIR=/mnt/data/
       - PORT=3003
     volumes:
@@ -231,6 +236,7 @@ services:
       - .env.hatchet-generated
       - .env
     environment:
+      - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - PORT=3007
     ports:
       - "3007:3007"
@@ -250,6 +256,7 @@ services:
       - .env.hatchet-generated
       - .env
     environment:
+      - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - PORT=3005
       - NFS_WORKING_DIR=/mnt/efs
     profiles:
@@ -266,6 +273,7 @@ services:
       - .env.hatchet-generated
       - .env
     environment:
+      - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - PORT=8080
     ports:
       - "8086:8080"

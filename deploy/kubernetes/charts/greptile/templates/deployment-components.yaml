@@ -81,6 +81,8 @@ spec:
           env:
             - name: COMPONENT_NAME
               value: {{ $name | quote }}
+            - name: OTEL_SERVICE_VERSION
+              value: {{ default $.Values.global.tag $component.image.tag | quote }}
             {{- range $secretKey := $component.secretEnv }}
             - name: {{ $secretKey }}
               valueFrom:
