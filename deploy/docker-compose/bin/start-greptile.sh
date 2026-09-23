@@ -31,6 +31,13 @@ fi
 # Generate application secrets if not already set
 "${SCRIPT_DIR}/generate-secrets.sh"
 
+# Source env files for docker-compose variable interpolation
+if [[ -f .env.greptile-generated ]]; then
+  set -a
+  source .env.greptile-generated
+  set +a
+fi
+
 COMPOSE_PROFILES="--profile greptile"
 
 echo "Starting Database..."
