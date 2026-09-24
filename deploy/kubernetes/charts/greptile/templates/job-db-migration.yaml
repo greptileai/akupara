@@ -1,38 +1,54 @@
 {{- if .Values.migrations.db.enabled }}
+{{- range $isHook := list false true }}
+---
 apiVersion: batch/v1
 kind: Job
 metadata:
-  # A Job's pod template is immutable, so each revision gets a new Job.
-  name: {{ include "greptile.fullname" . }}-db-migration-{{ .Release.Revision }}
+  {{- if $isHook }}
+  # Helm waits for hooks and fails the release when one fails. This copy queues
+  # behind the revision Job's lock, then finds nothing pending or hits its failure.
+  name: {{ include "greptile.fullname" $ }}-db-migration
+  {{- else }}
+  # Runs alongside the Deployments, so hydra (which waits on the schema) can start
+  # under --wait. A Job's pod template is immutable, so each revision gets a new Job.
+  name: {{ include "greptile.fullname" $ }}-db-migration-{{ $.Release.Revision }}
+  {{- end }}
   labels:
-    {{- include "greptile.labels" . | nindent 4 }}
+    {{- include "greptile.labels" $ | nindent 4 }}
   annotations:
+    {{- if $isHook }}
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    {{- else }}
     # Helm would delete the previous revision's Job on upgrade, even mid-migration;
     # ttlSecondsAfterFinished cleans it up instead.
     "helm.sh/resource-policy": keep
+    {{- end }}
 spec:
   backoffLimit: 1
+  {{- if not $isHook }}
   ttlSecondsAfterFinished: 86400
+  {{- end }}
   template:
     metadata:
       labels:
-        {{- include "greptile.selectorLabels" . | nindent 8 }}
+        {{- include "greptile.selectorLabels" $ | nindent 8 }}
         app.kubernetes.io/component: db-migration
     spec:
       restartPolicy: Never
-      {{- if .Values.global.imagePullSecrets }}
+      {{- if $.Values.global.imagePullSecrets }}
       imagePullSecrets:
-        {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+        {{- toYaml $.Values.global.imagePullSecrets | nindent 8 }}
       {{- end }}
-      {{- with .Values.global.nodeSelector }}
+      {{- with $.Values.global.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.global.tolerations }}
+      {{- with $.Values.global.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.global.affinity }}
+      {{- with $.Values.global.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -50,13 +66,13 @@ spec:
               done
           envFrom:
             - configMapRef:
-                name: {{ include "greptile.fullname" . }}-env
+                name: {{ include "greptile.fullname" $ }}-env
             - secretRef:
-                name: {{ include "greptile.secretName" . }}
+                name: {{ include "greptile.secretName" $ }}
       containers:
         - name: db-migration
-          image: {{ include "greptile.image" (dict "root" . "repository" .Values.migrations.db.image.repository "tag" .Values.migrations.db.image.tag) }}
-          imagePullPolicy: {{ .Values.migrations.db.image.pullPolicy }}
+          image: {{ include "greptile.image" (dict "root" $ "repository" $.Values.migrations.db.image.repository "tag" $.Values.migrations.db.image.tag) }}
+          imagePullPolicy: {{ $.Values.migrations.db.image.pullPolicy }}
           # Queue behind any running migration Job. Poll with try-lock: a session
           # blocked on a lock holds a snapshot that CREATE INDEX CONCURRENTLY waits
           # on, which deadlocks. The lock lives as long as the psql coprocess.
@@ -78,17 +94,18 @@ spec:
               echo "select pg_advisory_unlock(hashtext('greptile-db-migration'));" >&"${LOCK[1]}"
           envFrom:
             - configMapRef:
-                name: {{ include "greptile.fullname" . }}-env
+                name: {{ include "greptile.fullname" $ }}-env
             - secretRef:
-                name: {{ include "greptile.secretName" . }}
+                name: {{ include "greptile.secretName" $ }}
           env:
             # Migrations should use direct Postgres, not PgBouncer.
             - name: DATABASE_URL
-              value: {{ include "greptile.databaseUrl" . | quote }}
+              value: {{ include "greptile.databaseUrl" $ | quote }}
             - name: DIRECT_URL
-              value: {{ include "greptile.databaseUrl" . | quote }}
+              value: {{ include "greptile.databaseUrl" $ | quote }}
             - name: DATABASE_CONNECTION_LIMIT
               value: "5"
           resources:
-            {{- toYaml .Values.migrations.db.resources | nindent 12 }}
+            {{- toYaml $.Values.migrations.db.resources | nindent 12 }}
+{{- end }}
 {{- end }}
