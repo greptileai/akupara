@@ -183,6 +183,7 @@ set_yaml_value_if_placeholder "TOKEN_ENCRYPTION_KEY" "$(openssl rand -hex 16)"
 set_yaml_value_if_placeholder "LITELLM_MASTER_KEY" "$(openssl rand -hex 32)"
 set_yaml_value_if_placeholder "WEB_TRIGGER_SECRET" "$(openssl rand -base64 48 | tr -d '\n' | LC_ALL=C tr -dc 'A-Za-z0-9' | head -c 32)"
 set_yaml_value_if_placeholder "WEBHOOK_SECRET" "$(openssl rand -hex 32)"
+set_yaml_value_if_placeholder "GF_SECURITY_ADMIN_PASSWORD" "$(openssl rand -hex 16)"
 
 if is_placeholder_value "$(get_yaml_value "HATCHET_CLIENT_TOKEN")"; then
   generate_hatchet_token

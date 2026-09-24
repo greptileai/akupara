@@ -91,11 +91,12 @@ else
     exit 0
 fi
 
-# Source env files for docker-compose variable interpolation
+# Export generated secrets for docker-compose variable interpolation; values set in .env take precedence
 if [[ -f .env.greptile-generated ]]; then
-  set -a
-  source .env.greptile-generated
-  set +a
+  while IFS='=' read -r key value; do
+    [[ "$key" =~ ^#.*$ || -z "$key" ]] && continue
+    grep -qE "^${key}=.+" .env || export "${key}=${value}"
+  done < .env.greptile-generated
 fi
 
 # Determine compose profiles
@@ -105,11 +106,22 @@ if [[ "${AUTH_SAML_ONLY:-false}" == "true" ]]; then
     COMPOSE_PROFILES="$COMPOSE_PROFILES --profile saml"
 fi
 
+# Bundled observability stack: the override runs it and pins every service's OTLP endpoint to it
+COMPOSE_FILES=""
+O11Y_ENABLED=$(grep -E "^O11Y_ENABLED=" .env | cut -d'=' -f2 | tr -d '"' | tr -d "'" || echo "false")
+if [[ "${O11Y_ENABLED:-false}" == "true" ]]; then
+    echo "Observability enabled - adding docker-compose.o11y.yaml..."
+    COMPOSE_FILES="-f docker-compose.yaml -f docker-compose.o11y.yaml"
+elif docker container inspect greptile-lgtm > /dev/null 2>&1; then
+    echo "Observability disabled - removing greptile-lgtm (lgtm_data volume is kept)..."
+    docker rm -f greptile-lgtm
+fi
+
 # Recreate services to pick up new env vars
 # Using --force-recreate ensures containers are recreated with new environment variables
 # Note: This does NOT recreate volumes - volumes are preserved (data remains intact)
 echo "Recreating Greptile services..."
-docker compose $COMPOSE_PROFILES up -d --force-recreate
+docker compose $COMPOSE_FILES $COMPOSE_PROFILES up -d --force-recreate
 
 # Save new checksum
 echo "$current_checksum" > "$CHECKSUM_FILE"

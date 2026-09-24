@@ -18,5 +18,5 @@ We offer two methods of deployment - `docker-compose` and `kubernetes`.
 ## Documentation
 - **Installation:** [Requirements](docs/installation/requirements.md) · [Install with Docker Compose](docs/installation/docker-compose.md) · [Install with Kubernetes](docs/installation/kubernetes.md)
 - **Configuration:** [Networking](docs/configuration/networking.md) · [GitHub App creation](docs/configuration/github_app_creation.md) · [LLM providers](docs/configuration/llm-providers.md) · [Single sign-on (SSO)](docs/configuration/sso.md)
-- **Operations:** [Upgrade](docs/operations/upgrade.md) · [Scaling](docs/operations/scaling.md) · [Troubleshooting](docs/operations/troubleshooting.md)
+- **Operations:** [Upgrade](docs/operations/upgrade.md) · [Scaling](docs/operations/scaling.md) · [Troubleshooting](docs/operations/troubleshooting.md) · [Observability](docs/operations/observability.md)
 - **Reference:** [Architecture overview](docs/reference/architecture.md)

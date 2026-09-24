@@ -19,6 +19,7 @@ network:
   webhookUrl: "http://greptile.local/webhook"
   apiUrl: "http://greptile.local/api" # Maybe http://api.greptile.local/
   authUrl: "https://auth.greptile.local" # must always be https
+  grafanaUrl: "" # bundled o11y Grafana; required when o11y.enabled and ingress.grafana.enabled
 
 hatchet:
   apiUrl: "http://hatchet-stack-api.default.svc.cluster.local:8080"
@@ -111,6 +112,22 @@ redis:
     requests:
       cpu: 250m
       memory: 512Mi
+
+o11y:
+  # Bundled Grafana LGTM stack (collector + Loki + Tempo + Prometheus + Grafana).
+  # When enabled, every component gets OTEL_EXPORTER_OTLP_ENDPOINT pointed at it.
+  enabled: false
+  image:
+    repository: grafana/otel-lgtm
+    tag: "0.33.1"
+  persistence:
+    enabled: true
+    size: 20Gi
+    storageClass: ""
+  resources:
+    requests:
+      cpu: 250m
+      memory: 2Gi
 
 features:
   # Static on-prem feature flags. Values must be booleans.
@@ -256,6 +273,7 @@ secrets:
     JACKSON_ADMIN_CREDENTIALS: ""
     JACKSON_PUBLIC_KEY: ""
     JACKSON_PRIVATE_KEY: ""
+    GF_SECURITY_ADMIN_PASSWORD: ""
   external:
     secretStoreRef:
       name: ""
@@ -623,6 +641,12 @@ ingress:
     host: ""
     path: ""
     pathType: Prefix
+    tls:
+      enabled: false
+      secretName: ""
+  # Grafana from the bundled o11y stack. Only rendered when o11y.enabled; host comes from network.grafanaUrl.
+  grafana:
+    enabled: true
     tls:
       enabled: false
       secretName: ""

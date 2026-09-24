@@ -14,6 +14,7 @@
 #   - TOKEN_ENCRYPTION_KEY
 #   - LITELLM_MASTER_KEY
 #   - WEB_TRIGGER_SECRET
+#   - GF_SECURITY_ADMIN_PASSWORD
 #
 # Options:
 #   --check-only  Only check if secrets exist, don't generate
@@ -86,6 +87,7 @@ SECRETS_TO_GENERATE=(
   "TOKEN_ENCRYPTION_KEY"
   "LITELLM_MASTER_KEY"
   "WEB_TRIGGER_SECRET"
+  "GF_SECURITY_ADMIN_PASSWORD"
 )
 
 missing_secrets=()

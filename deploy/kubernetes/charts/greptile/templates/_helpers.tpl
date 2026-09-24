@@ -184,3 +184,7 @@ vector
 {{- printf "http://%s:%v/api/hooks/token" (include "greptile.componentName" (dict "root" . "name" "auth-v2")) (index .Values.components "auth-v2").service.port -}}
 {{- end -}}
 {{- end -}}
+
+{{- define "greptile.lgtmName" -}}
+{{- printf "%s-lgtm" (include "greptile.fullname" .) -}}
+{{- end -}}

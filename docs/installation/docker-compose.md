@@ -96,6 +96,8 @@ If you use a self-managed Postgres instance, update every environment variable s
 
 Optional static feature flags go in `FEATURE_FLAGS_JSON` as a JSON object with boolean values. Leave it as `'{}'` unless Greptile asks you to enable a flag.
 
+Optional observability can be enabled by setting `O11Y_ENABLED='true'` and `GRAFANA_URL`. See [Observability](../operations/observability.md).
+
 ## 6. Start Greptile
 
 ```bash
