@@ -10,7 +10,7 @@ All commands below run from `deploy/kubernetes/` unless noted.
 - `charts/profiles` — values profiles, including `values.user.example.yaml`
 - `scripts/` — validation and bootstrap helpers
 
-The chart deploys Greptile workloads only: `web`, `auth`, `api`, `chunker`, `worker`, `webhook`, `jobs`, `llmproxy`, optional Jackson for SAML, and an optional bundled Postgres. Hatchet is installed separately.
+The chart deploys Greptile workloads only: `web`, `auth-v2` and `hydra` (legacy `auth` when `authV2.enabled: false`), `api`, `chunker`, `worker`, `webhook`, `jobs`, `llmproxy`, `redis`, optional Jackson for SAML, and an optional bundled Postgres. Hatchet is installed separately.
 
 ## 1. Install an ingress controller
 
@@ -73,6 +73,8 @@ kubectl get svc hatchet-stack-api hatchet-stack-engine
 - Generates `TOKEN_ENCRYPTION_KEY`
 - Generates `LITELLM_MASTER_KEY`
 - Generates `WEB_TRIGGER_SECRET`
+- Generates `WEBHOOK_SECRET`
+- Generates `GF_SECURITY_ADMIN_PASSWORD` (Grafana admin login, used only when `o11y.enabled`)
 - Attempts to generate `HATCHET_CLIENT_TOKEN` from the running Hatchet release
 
 Hatchet must already be deployed and reachable for automatic `HATCHET_CLIENT_TOKEN` generation to succeed.
@@ -82,7 +84,7 @@ Hatchet must already be deployed and reachable for automatic `HATCHET_CLIENT_TOK
 Edit `./charts/profiles/values.user.yaml` and set:
 
 - `global.registry`, `global.tag`
-- `network.appUrl` and `network.webhookUrl` — see [Networking](../configuration/networking.md)
+- `network.appUrl`, `network.webhookUrl`, `network.apiUrl`, and `network.authUrl` (the https OIDC issuer) — see [Networking](../configuration/networking.md)
 - GitHub and model API keys — see [GitHub App creation](../configuration/github_app_creation.md) and [LLM providers](../configuration/llm-providers.md)
 - Or switch to `secrets.mode=external`
 
@@ -103,6 +105,25 @@ features:
 
 **External Secrets Operator:** set `secrets.mode=external` and configure `secrets.external.secretStoreRef` and `secrets.external.data`. The chart renders an `ExternalSecret` targeting the same secret name consumed by all workloads.
 
+In native mode the chart generates the keys below; in external mode your store must supply them. The keys marked required are pulled by an explicit `secretKeyRef`, so a missing one leaves the pod in `CreateContainerConfigError` (feature-gated keys only when that feature is on):
+
+Always required (llmproxy):
+- `LITELLM_MASTER_KEY`, `LLM_PROXY_KEY`
+- `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `AZURE_OPENAI_API_KEY`
+- `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`
+
+Required when `pgbouncer.enabled` (the default):
+- `DB_PASSWORD`
+
+Required when `authV2.enabled` (the default):
+- `DIRECT_URL` (hydra's DSN), `CSRF_SECRET`, `HYDRA_SYSTEM_SECRET`, `HYDRA_TOKEN_HOOK_SECRET`
+- `HYDRA_WEB_CLIENT_SECRET` — must stay stable across upgrades; rotating it desyncs the seeded web OAuth client
+
+Required when `o11y.enabled`:
+- `GF_SECURITY_ADMIN_PASSWORD`
+
+The remaining app secrets are consumed via `envFrom` (whole-secret) and so are not required at container start, but the app needs them: `DATABASE_URL`, `VECTOR_DB_URL`, `JWT_SECRET`, `TOKEN_ENCRYPTION_KEY`, `WEB_TRIGGER_SECRET`, `WEBHOOK_SECRET`, `HATCHET_CLIENT_TOKEN`, the `GITHUB_*` / `AUTH_GITHUB_*` keys, and `SMTP_PASSWORD`.
+
 ### Worker sandboxing
 
 The `worker` deployment runs privileged with `SYS_ADMIN` and a `/sys/fs/cgroup` mount so review sandboxing can work. Clusters with restrictive pod security policies must allow this.
@@ -112,6 +133,10 @@ The `worker` deployment runs privileged with `SYS_ADMIN` and a `/sys/fs/cgroup` 
 The chart includes PgBouncer with transaction pooling and basic timeout protections, plus a Postgres `idle_in_transaction_session_timeout` of `5min`. These are sensible defaults for fresh installs; they do not replace backups, monitoring, or capacity planning.
 
 To use managed Postgres instead of the bundled chart, disable `postgres` and set `externalDatabase.*` in values.
+
+### Observability (optional)
+
+Most deployments already run an observability platform. Point Greptile at its OTLP/HTTP collector by setting `OTEL_EXPORTER_OTLP_ENDPOINT` under `env.shared`. Set `o11y.enabled=true` instead to run a bundled Grafana LGTM stack, which pins every component's endpoint to itself. See [Observability](../operations/observability.md).
 
 ## 5. Deploy Greptile
 
@@ -134,14 +159,18 @@ Minimum healthy set for a bundled-database install:
 
 - `greptile-postgres`
 - `greptile-pgbouncer`
+- `greptile-redis`
 - `greptile-api`
-- `greptile-auth`
+- `greptile-auth-v2`
+- `greptile-hydra`
 - `greptile-web`
 - `greptile-webhook`
 - `greptile-worker`
 - `greptile-chunker`
 - `greptile-jobs`
 - `greptile-llmproxy`
+
+With auth v2 (the default), `greptile-auth` is replaced by `greptile-auth-v2` and `greptile-hydra`.
 
 Confirm Hatchet UI shows registered workers (`chunker`, `worker`).
 

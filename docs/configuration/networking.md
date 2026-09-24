@@ -105,6 +105,16 @@ https://customJacksonDomain.com {
 
 Then continue with [SSO](./sso.md).
 
+### Grafana (optional)
+
+The optional [observability stack](../operations/observability.md) publishes no host port. Serve Grafana through Caddy at `GRAFANA_URL`:
+
+```
+https://grafana.example.com {
+        reverse_proxy greptile-lgtm:3000
+}
+```
+
 ## Kubernetes
 
 ### URLs
@@ -115,11 +125,16 @@ In `charts/profiles/values.user.yaml`:
 network:
   appUrl: "https://greptile.example.com"
   webhookUrl: "https://greptile.example.com/webhook"
+  apiUrl: "https://greptile.example.com/api"
+  authUrl: "https://auth.greptile.example.com" # must be https
 ```
 
-The chart creates two Ingress resources when `ingress.enabled` is true:
+`network.authUrl` is the OIDC issuer for auth v2 (the default auth mode) and must be https. The web and api pods call it server-side for token exchange and JWKS, so the auth ingress must serve a certificate they trust (`ingress.auth.tls`). Set `authV2.enabled: false` for legacy auth.
+
+The chart creates three Ingress resources when `ingress.enabled` is true:
 
 - **Web** — host and path default from `network.appUrl`
+- **Auth** — host and path default from `network.authUrl`
 - **Webhook** — host and path default from `network.webhookUrl`
 
 Install an ingress controller before deploying. Greptile does not install one. See [Kubernetes install](../installation/kubernetes.md).
@@ -139,6 +154,13 @@ ingress:
     tls:
       enabled: true
       secretName: greptile-web-tls
+  auth:
+    enabled: true
+    host: ""
+    path: /
+    tls:
+      enabled: true
+      secretName: greptile-auth-tls
   webhook:
     enabled: true
     host: ""

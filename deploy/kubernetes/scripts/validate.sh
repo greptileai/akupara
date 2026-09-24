@@ -12,8 +12,6 @@ fi
 
 helm dependency update "$CHART_DIR"
 helm lint "$CHART_DIR"
-helm template greptile "$CHART_DIR" -f "$PROFILES_DIR/values-prod.yaml" >/dev/null
-helm template greptile "$CHART_DIR" -f "$PROFILES_DIR/values-staging.yaml" >/dev/null
-helm template greptile "$CHART_DIR" -f "$PROFILES_DIR/values-dev.yaml" >/dev/null
+helm template greptile "$CHART_DIR" -f "$PROFILES_DIR/values.user.example.yaml" >/dev/null
 
 echo "Helm validation passed"

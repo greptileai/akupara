@@ -63,6 +63,10 @@ Confirm Hatchet UI shows registered workers (`chunker`, `worker`).
 | DB migration job failed | DB connectivity and credentials |
 | Worker review sandbox failed | `greptile-worker` is allowed to run privileged with `SYS_ADMIN` and mount `/sys/fs/cgroup` |
 | No reviews generated | `HATCHET_CLIENT_TOKEN` and Hatchet API/gRPC endpoints |
+| Login 502s or redirects to a pod hostname | The auth host's ingress needs `nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"` — OAuth cookies exceed nginx's 4k default |
+| `greptile-hydra` stuck in `Init` on a first install | It waits for the first database migration; check the logs of the `greptile-db-migration-1-*` jobs |
+| `helm upgrade` times out while a migration job from an earlier revision is still running | That job holds the migration lock, and newer migration jobs wait behind it. Its logs show where it is stuck, usually a table lock held by another session. Clear the blocker and it finishes; otherwise it is stopped after an hour. A migration stopped mid-way leaves a failed migration that `prisma migrate resolve` must clear |
+| Login hangs on a CGNAT cluster (pod CIDR `100.64.0.0/10`) | Hydra can't reach a 100.64 pod IP. Set `components.auth-v2.service.type: NodePort` with a pinned `nodePort`, and `authV2.hookUrl` to `http://<node-ip>:<nodePort>/api/hooks/token` |
 
 ### LLM errors
 
@@ -85,6 +89,7 @@ If SAML login fails:
 
 - Jackson must be served over HTTPS
 - Jackson allowed redirect URLs must include the web origin and `<web>/login/saml`
+- With auth v2 on Kubernetes, the allowed redirect URLs must also include `network.authUrl`; otherwise login returns 403 (`Redirect URL is not allowed`)
 - `SamlConnection.saml_tenant_id` must match the Jackson tenant key, normally the user's email domain
 
 See [SSO](../configuration/sso.md).

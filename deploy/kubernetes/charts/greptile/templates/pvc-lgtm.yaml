@@ -1,0 +1,18 @@
+{{- if and .Values.o11y.enabled .Values.o11y.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "greptile.lgtmName" . }}-data
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+    app.kubernetes.io/component: lgtm
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.o11y.persistence.size }}
+  {{- if .Values.o11y.persistence.storageClass }}
+  storageClassName: {{ .Values.o11y.persistence.storageClass }}
+  {{- end }}
+{{- end }}

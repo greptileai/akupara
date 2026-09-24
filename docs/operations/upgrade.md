@@ -54,9 +54,20 @@ Database migrations run as the `greptile-db-migration` service on startup. If th
    helm status greptile
    ```
 
-The chart runs a post-install / post-upgrade migration job and deletes it after success (`hook-succeeded`). `kubectl logs job/greptile-db-migration` is only available while the hook is running, or after a failure (the job is kept). A failed migration job means the new version did not finish applying schema changes; fix connectivity or credentials before retrying the upgrade.
+Each install or upgrade runs the migration in two jobs that take turns on a database lock: `greptile-db-migration-<revision>-<suffix>` runs alongside the rollout, and the `greptile-db-migration-<revision>-<suffix>-hook` hook is what Helm waits for. The second to run finds nothing to apply, and a failed migration fails the release. The failure is in the logs of one of the two jobs (`kubectl get jobs`; `helm history greptile` shows the revision). Jobs are deleted a day after they finish, and a migration job still running after an hour is stopped. A failed migration job means the new version did not finish applying schema changes; fix connectivity or credentials before retrying the upgrade.
 
 Hatchet is a separate Helm release. Only upgrade `hatchet-stack` when the Greptile release notes require a newer Hatchet version, and keep `hatchet.*` URLs and `HATCHET_CLIENT_TOKEN` in sync.
+
+### Migrating to auth v2
+
+Auth v2 (OAuth) is the default auth mode. A legacy install upgrading without an auth origin fails with a message naming the required value. To switch:
+
+1. Set `network.authUrl` (the https OIDC issuer) and `network.apiUrl` (public api origin). Give the auth ingress a certificate (`ingress.auth.tls`) that the web and api pods trust; they call the issuer server-side for token exchange and JWKS. See [Networking](../configuration/networking.md).
+2. `helm upgrade`. This removes the legacy `greptile-auth` component and signs every user out — they re-authenticate through auth v2. Do it off-hours.
+
+To stay on legacy auth, set `authV2.enabled: false`.
+
+The four auth secrets (`CSRF_SECRET`, `HYDRA_SYSTEM_SECRET`, `HYDRA_WEB_CLIENT_SECRET`, `HYDRA_TOKEN_HOOK_SECRET`) generate on first install and persist across upgrades; `secrets.mode=external` must supply them (`HYDRA_WEB_CLIENT_SECRET` must be stable).
 
 ## After every upgrade
 

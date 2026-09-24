@@ -18,21 +18,21 @@ Set keys and base URLs in `deploy/docker-compose/.env`. Leave unused providers u
 ```bash
 # Anthropic
 ANTHROPIC_BASE_URL='https://api.anthropic.com'
-ANTHROPIC_KEY='sk-ant-secret_key'
+ANTHROPIC_API_KEY='sk-ant-secret_key'
 
 # OpenAI
-OPENAI_API_BASE_URL='https://api.openai.com/v1/'
-OPENAI_KEY='sk-openai_key'
+OPENAI_BASE_URL='https://api.openai.com/v1/'
+OPENAI_API_KEY='sk-openai_key'
 
 # Azure OpenAI
-AZURE_OPENAI_URL='https://onboardai.openai.azure.com/'
-AZURE_OPENAI_KEY='azure_key'
+AZURE_OPENAI_BASE_URL='https://onboardai.openai.azure.com/'
+AZURE_OPENAI_API_KEY='azure_key'
 AZURE_OPENAI_API_VERSION='2024-07-18'
 
 # AWS Bedrock
 AWS_ACCESS_KEY_ID='aws_access_key'
 AWS_SECRET_ACCESS_KEY='aws_secret_key'
-AWS_REGION='us-east-1'
+AWS_REGION_NAME='us-east-1'
 ```
 
 For Bedrock, create a long-term access key under **AWS Bedrock > API Keys > Long-term API Keys** first.
@@ -43,9 +43,9 @@ Model routing lives in `deploy/docker-compose/llmproxy-config.yaml`. Bedrock and
 
 Put API keys in `secrets.native.*` (or your external secret store):
 
-- `ANTHROPIC_KEY` (required for default Anthropic routing)
-- `OPENAI_KEY`
-- `AZURE_OPENAI_KEY`
+- `ANTHROPIC_API_KEY` (required for default Anthropic routing)
+- `OPENAI_API_KEY`
+- `AZURE_OPENAI_API_KEY`
 - `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`
 
 LiteLLM config is `charts/greptile/files/llmproxy-config.yaml`. Chart values also expose `llm.anthropicBaseUrl`, `llm.openaiBaseUrl`, and `llm.azureOpenaiUrl`.
