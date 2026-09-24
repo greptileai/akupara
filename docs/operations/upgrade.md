@@ -54,7 +54,7 @@ Database migrations run as the `greptile-db-migration` service on startup. If th
    helm status greptile
    ```
 
-Each install or upgrade runs the migration in two jobs that take turns on a database lock: `greptile-db-migration-<revision>` runs alongside the rollout and is deleted a day after it finishes, and the `greptile-db-migration` hook is what Helm waits for. The second to run finds nothing to apply, and a failed migration fails the release. The failure is in the logs of one of the two jobs (`helm history greptile` shows the revision). A failed migration job means the new version did not finish applying schema changes; fix connectivity or credentials before retrying the upgrade.
+Each install or upgrade runs the migration in two jobs that take turns on a database lock: `greptile-db-migration-<revision>` runs alongside the rollout and stays until the next upgrade, and the `greptile-db-migration` hook is what Helm waits for. The second to run finds nothing to apply, and a failed migration fails the release. The failure is in the logs of one of the two jobs (`helm history greptile` shows the revision). A failed migration job means the new version did not finish applying schema changes; fix connectivity or credentials before retrying the upgrade.
 
 Hatchet is a separate Helm release. Only upgrade `hatchet-stack` when the Greptile release notes require a newer Hatchet version, and keep `hatchet.*` URLs and `HATCHET_CLIENT_TOKEN` in sync.
 

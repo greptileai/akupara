@@ -59,6 +59,9 @@ if [[ ! -f .env ]]; then
     exit 1
 fi
 
+# Generate application secrets if not already set
+"${SCRIPT_DIR}/generate-secrets.sh"
+
 # Function to calculate checksum of env files
 calculate_checksum() {
     local checksum=""

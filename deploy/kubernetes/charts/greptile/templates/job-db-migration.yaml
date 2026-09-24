@@ -15,20 +15,13 @@ metadata:
   {{- end }}
   labels:
     {{- include "greptile.labels" $ | nindent 4 }}
+  {{- if $isHook }}
   annotations:
-    {{- if $isHook }}
     "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
-    {{- else }}
-    # Helm would delete the previous revision's Job on upgrade, even mid-migration;
-    # ttlSecondsAfterFinished cleans it up instead.
-    "helm.sh/resource-policy": keep
-    {{- end }}
+  {{- end }}
 spec:
   backoffLimit: 1
-  {{- if not $isHook }}
-  ttlSecondsAfterFinished: 86400
-  {{- end }}
   template:
     metadata:
       labels:
