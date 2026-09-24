@@ -1,30 +1,33 @@
 {{- if .Values.migrations.db.enabled }}
+{{- $suffix := randAlphaNum 5 | lower }}
+{{- $name := printf "%s-db-migration" (include "greptile.fullname" .) | trunc 46 | trimSuffix "-" }}
 {{- range $isHook := list false true }}
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
-  {{- if $isHook }}
-  # Helm waits for hooks and fails the release when one fails. This copy queues
-  # behind the revision Job's lock, then finds nothing pending or hits its failure.
-  # Named per revision so the next upgrade's before-hook-creation can't delete one
-  # still migrating after a timed-out upgrade.
-  name: {{ include "greptile.fullname" $ }}-db-migration-{{ $.Release.Revision }}-hook
-  {{- else }}
-  # Runs alongside the Deployments, so hydra (which waits on the schema) can start
-  # under --wait. A Job's pod template is immutable, so each revision gets a new Job.
-  name: {{ include "greptile.fullname" $ }}-db-migration-{{ $.Release.Revision }}
-  {{- end }}
+  # New names every render: a Job's pod template is immutable, and a Job kept from
+  # an earlier revision or install must not collide. The prefix is cut so the
+  # revision, suffix, and "-hook" still fit the 63-character limit.
+  name: {{ $name }}-{{ $.Release.Revision }}-{{ $suffix }}{{ if $isHook }}-hook{{ end }}
   labels:
     {{- include "greptile.labels" $ | nindent 4 }}
-  {{- if $isHook }}
   annotations:
+    {{- if $isHook }}
+    # Helm waits for hooks and fails the release when one fails. This copy queues
+    # behind the revision Job's lock, then finds nothing pending or hits its failure.
     "helm.sh/hook": post-install,post-upgrade
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
-  {{- end }}
+    {{- else }}
+    # Runs alongside the Deployments, so hydra (which waits on the schema) can start
+    # under --wait. Kept so an upgrade never deletes it mid-migration.
+    "helm.sh/resource-policy": keep
+    {{- end }}
 spec:
   backoffLimit: 1
-  # Cleans up Jobs Helm stops tracking, such as those from a timed-out upgrade.
+  # A hung migration holds the lock; this stops it blocking later upgrades forever.
+  activeDeadlineSeconds: 3600
+  # Kept and abandoned Jobs are cleaned up here instead of by Helm.
   ttlSecondsAfterFinished: 86400
   template:
     metadata:
