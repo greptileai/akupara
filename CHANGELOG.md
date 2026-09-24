@@ -3,11 +3,10 @@
 ### Added
 
 - Add Bitbucket Data Center support, including bot-token connections and signed webhook delivery.
-- Add improved Gitea webhook setup, including a repository-level fallback when organization-wide webhook permissions are unavailable.
 - Add configurable pull-request auto-approval, including path-based filters and approval-risk instructions.
 - Add custom roles, a read-only Viewer role, and optional directory-group role mappings.
 - Add an Available providers view for configured review-context integrations.
-- Support Claude Sonnet 4.6 and Claude Opus 4.6.
+- Support Claude Sonnet 5 and Claude Opus 5.
 
 ### Changed
 
