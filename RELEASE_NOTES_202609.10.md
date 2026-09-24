@@ -16,7 +16,7 @@ Follow the [self-hosted upgrade guide](https://github.com/greptileai/akupara/blo
 
 - Legacy integration connections may require reconnection after the database migration.
 - A new feature which adds an auto-approval and an approval-risk setting in the Web UI needs to be unlocked via two environment variables first: `AUTO_APPROVE_ENABLED='true'` and `APPROVAL_RISK_ENABLED='true'`; no pull request is auto-approved until an administrator configures auto-approval.
-- Unused model aliases have been removed from [litellm-config.yaml](deploy/kubernetes/charts/greptile/files/llmproxy-config.yaml). Review that file and update your copy as needed.
+- Unused model aliases have been removed from [llmproxy-config.yaml](deploy/kubernetes/charts/greptile/files/llmproxy-config.yaml). Review that file and update your copy as needed.
 
 ## What's changed
 
