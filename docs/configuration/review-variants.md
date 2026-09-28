@@ -16,21 +16,27 @@ Both policies are already seeded when the migration job runs. Pick one by settin
 
 ## Worker environment
 
-Set these on the worker for either policy:
+Set these on the worker for either policy. Restart the worker afterward. The proxy does not read them.
 
-| Env var                           | YAML                                                  | Value                            |
-| --------------------------------- | ----------------------------------------------------- | -------------------------------- |
-| `REVIEW_WORKFLOW_ROUTING_ENABLED` | `services.worker.review_workflow_routing_enabled`     | `true`                           |
-| `DEFAULT_NATIVE_ROUTING_POLICY`   | `services.reviews.experiments.default_native_routing` | One of the policies below        |
+**Docker Compose** — set in `deploy/docker-compose/.env`:
 
-`DEFAULT_EXPERIMENT_VARIANT` is the legacy fallback for headless reviews and the last Hatchet retry when native routing fails. `opus` is rewritten to the proxy alias `review-deep` (`claude-opus-4-6` in the hosted config). Leave it only if that alias exists.
+```bash
+REVIEW_WORKFLOW_ROUTING_ENABLED=true
+DEFAULT_NATIVE_ROUTING_POLICY=<one of the policies below>
+```
+
+**Kubernetes** — uncomment in chart values:
+
+- `appConfig.reviewWorkflowRoutingEnabled` set to `"true"`
+- `appConfig.defaultNativeRoutingPolicy` set to one of the policies below
+- The matching `REVIEW_WORKFLOW_ROUTING_ENABLED` and `DEFAULT_NATIVE_ROUTING_POLICY` entries under `components.worker.componentEnv`
+
+Those worker entries are commented out. Setting only `appConfig` does not pass the variables to the worker.
 
 | Variant     | `DEFAULT_NATIVE_ROUTING_POLICY`    | Harness     |
 | ----------- | ---------------------------------- | ----------- |
 | rsv11       | `native-rsv11-stndrd4-expansion@3` | Claude Code |
 | greptile-v5 | `greptile-v5point1@2`              | OpenCode    |
-
-Restart the worker after changing these. The proxy does not read them.
 
 ## LiteLLM: rsv11
 
