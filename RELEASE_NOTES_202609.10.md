@@ -14,6 +14,7 @@ Follow the [self-hosted upgrade guide](https://github.com/greptileai/akupara/blo
 
 ### Upgrade notes
 
+- If using the review variant `rsv11` (check the env vars DEFAULT_EXPERIMENT_VARIANT and the DEFAULT_DYNAMIC_ROUTER), make sure to remove these two env vars and replace it with: `REVIEW_WORKFLOW_ROUTING_ENABLED=true` and `DEFAULT_NATIVE_ROUTING_POLICY=native-rsv11-stndrd4-expansion@3`. Otherwise the quality of subsequent reviews might degrade.
 - Legacy integration connections may require reconnection after the database migration.
 - A new feature which adds an auto-approval and an approval-risk setting in the Web UI needs to be unlocked via two environment variables first: `AUTO_APPROVE_ENABLED='true'` and `APPROVAL_RISK_ENABLED='true'`; no pull request is auto-approved until an administrator configures auto-approval.
 - Unused model aliases have been removed from [llmproxy-config.yaml](deploy/kubernetes/charts/greptile/files/llmproxy-config.yaml). Review that file and update your copy as needed.
