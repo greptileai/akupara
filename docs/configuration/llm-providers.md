@@ -52,19 +52,24 @@ LiteLLM config is `charts/greptile/files/llmproxy-config.yaml`. Chart values als
 
 ## GPT-based review routing
 
-If you use GPT for reviews, enable the GPT routing variant.
+Docker Compose and the Helm chart default to the rsv11 policy: `REVIEW_WORKFLOW_ROUTING_ENABLED=true` and `DEFAULT_NATIVE_ROUTING_POLICY=native-rsv11-stndrd4-expansion@3`. See `docs/configuration/review-variants.md` for the supported policies.
 
-**Docker Compose** — uncomment in `.env`:
+If you use GPT for reviews, set the GPT routing policy instead.
+
+**Docker Compose** — in `.env`:
 
 ```bash
 REVIEW_WORKFLOW_ROUTING_ENABLED=true
 DEFAULT_NATIVE_ROUTING_POLICY=native-rod-gpt-simp-v6-composed-primary@1
 ```
 
-**Kubernetes** — uncomment in chart values:
+**Kubernetes** — override `appConfig` in chart values. The worker already maps these onto `REVIEW_WORKFLOW_ROUTING_ENABLED` and `DEFAULT_NATIVE_ROUTING_POLICY`:
 
-- `appConfig.reviewWorkflowRoutingEnabled` / `appConfig.defaultNativeRoutingPolicy`
-- The matching `REVIEW_WORKFLOW_ROUTING_ENABLED` and `DEFAULT_NATIVE_ROUTING_POLICY` entries under `components.worker.componentEnv`
+```yaml
+appConfig:
+  reviewWorkflowRoutingEnabled: "true"
+  defaultNativeRoutingPolicy: "native-rod-gpt-simp-v6-composed-primary@1"
+```
 
 The GPT variant expects `gpt-5.5` by default. If `gpt-5.5` is not available from your provider, add a LiteLLM alias under `router_settings.model_group_alias` mapping `gpt-5.5` to a GPT model you do have:
 
