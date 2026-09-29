@@ -16,7 +16,7 @@ Both policies are already seeded when the migration job runs. Pick one by settin
 
 ## Worker environment
 
-Set these on the worker for either policy. Restart the worker afterward. The proxy does not read them.
+Set these on the worker for either policy.
 
 **Docker Compose** — set in `deploy/docker-compose/.env`:
 
@@ -24,6 +24,8 @@ Set these on the worker for either policy. Restart the worker afterward. The pro
 REVIEW_WORKFLOW_ROUTING_ENABLED=true
 DEFAULT_NATIVE_ROUTING_POLICY=<one of the policies below>
 ```
+
+Recreate the worker so it loads the new environment. From `deploy/docker-compose`, run `./bin/restart-greptile.sh`, or `docker compose up -d --force-recreate greptile-worker`.
 
 **Kubernetes** — uncomment in chart values:
 
