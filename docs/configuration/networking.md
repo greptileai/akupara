@@ -185,21 +185,22 @@ The images use different runtimes, so the setting differs per service:
 | `chunker`, `worker` | Debian 12 | Bun, git | `NODE_EXTRA_CA_CERTS=<ca.pem>` and `GIT_SSL_CAINFO=<ca.pem>` |
 | `llmproxy` | Wolfi | Python 3.13 (LiteLLM) | `SSL_CERT_FILE=<bundle.pem>` |
 | `jackson` (SAML) | Alpine 3.23 | Node 24 | `NODE_EXTRA_CA_CERTS=<ca.pem>` |
-| `hydra` | Alpine 3.21 | Go | None. Its only outbound call is the token hook, which is in-cluster `http://`. Leave `authV2.hookUrl` empty. |
+| `hydra` | Alpine 3.21 | Go | None. Its only outbound call is the token hook, which is plain `http://` (in-cluster by default, or the NodePort address from [Troubleshooting](../operations/troubleshooting.md) on CGNAT clusters). |
 | `postgres`, `pgbouncer`, `redis`, `lgtm`, `db-migration` | — | — | None. They make no outbound calls to your services. |
 
 What each setting does:
 
 - `NODE_EXTRA_CA_CERTS` adds your CA to the runtime's built-in roots. Public endpoints keep working. Bun honors it the same way Node does. `api`, `webhook`, `jobs`, and `auth` ship no system CA bundle and no `update-ca-certificates`, so adding the CA to the OS trust store is not an option there.
 - `GIT_SSL_CAINFO` is required for clones and fetches. git ignores `NODE_EXTRA_CA_CERTS` and `SSL_CERT_FILE`. A file containing only your CA is enough; git still trusts the system roots.
-- `SSL_CERT_FILE` **replaces** LiteLLM's default (certifi) bundle. Point it at a bundle that contains the public roots and your CA, or calls to public LLM providers fail. Build one with `cat /etc/ssl/certs/ca-certificates.crt ca.pem > bundle.pem`.
+- `SSL_CERT_FILE` **replaces** LiteLLM's default (certifi) bundle. Point it at a bundle that contains the public roots and your CA, or calls to public LLM providers fail. Build one with `cat /etc/ssl/certs/ca-certificates.crt ca.pem > bundle.pem` (`/etc/ssl/cert.pem` on macOS).
 - Python 3.13 enforces strict X.509 checks. `llmproxy` rejects a CA certificate that has no Key Usage extension (`CA cert does not include key usage extension`). Enterprise CAs normally include it. Hand-made test CAs often don't.
 
 ### Kubernetes
 
-Store the CA, and the combined bundle if `llmproxy` needs it, in a ConfigMap:
+Store the CA, and the combined bundle if `llmproxy` needs it, in a ConfigMap in the Greptile release namespace:
 
 ```bash
+# macOS: /etc/ssl/cert.pem instead of /etc/ssl/certs/ca-certificates.crt
 cat /etc/ssl/certs/ca-certificates.crt ca.pem > bundle.pem
 kubectl create configmap greptile-custom-ca --from-file=ca.pem --from-file=bundle.pem
 ```
@@ -261,7 +262,7 @@ components:
         readOnly: true
 ```
 
-Repeat the `web` block for `auth-v2`, `api`, `webhook`, `jobs`, and `jackson` if SAML is enabled. Repeat the `worker` block for `chunker`, using its default `shared-workdir` mount at `/mnt`. Restart the components after `helm upgrade`, because a ConfigMap change alone does not roll pods.
+Repeat the `web` block for `auth-v2` (`auth` when `authV2.enabled: false`), `api`, `webhook`, `jobs`, and `jackson` if SAML is enabled. For `chunker`, set the same variables as `worker` and add `custom-ca` next to its own default `shared-workdir` volume (mounted at `/mnt`); it has no `cgroupfs` mount. Restart the components after `helm upgrade`, because a ConfigMap change alone does not roll pods.
 
 Check a service against an internal host:
 
