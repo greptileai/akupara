@@ -200,8 +200,9 @@ What each setting does:
 Store the CA, and the combined bundle if `llmproxy` needs it, in a ConfigMap in the Greptile release namespace:
 
 ```bash
-# macOS: /etc/ssl/cert.pem instead of /etc/ssl/certs/ca-certificates.crt
-cat /etc/ssl/certs/ca-certificates.crt ca.pem > bundle.pem
+roots=/etc/ssl/certs/ca-certificates.crt
+[[ "$(uname)" == "Darwin" ]] && roots=/etc/ssl/cert.pem
+cat "$roots" ca.pem > bundle.pem || rm bundle.pem
 kubectl create configmap greptile-custom-ca --from-file=ca.pem --from-file=bundle.pem
 ```
 
