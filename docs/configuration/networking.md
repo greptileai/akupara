@@ -129,7 +129,7 @@ network:
   authUrl: "https://auth.greptile.example.com" # must be https
 ```
 
-`network.authUrl` is the OIDC issuer for auth v2 (the default auth mode) and must be https. The web and api pods call it server-side for token exchange and JWKS, so the auth ingress must serve a certificate they trust (`ingress.auth.tls`, or a private CA per [Custom certificate authorities](#custom-certificate-authorities)). `network.appUrl` must also be https under auth v2: Hydra rejects http OAuth redirect URIs on any host other than `localhost`. Set `authV2.enabled: false` for legacy auth.
+`network.authUrl` is the OIDC issuer for auth v2 (the default auth mode) and must be https. The web and api pods call it server-side for token exchange and JWKS, so the auth ingress must serve a certificate they trust (`ingress.auth.tls`, or a private CA per [Custom certificate authorities](#custom-certificate-authorities)). `network.appUrl` must also be https under auth v2: Hydra rejects http OAuth redirect URIs on any host other than `localhost`, so serve the web host over TLS too (`ingress.web.tls`, or a TLS proxy in front of the ingress). Set `authV2.enabled: false` for legacy auth.
 
 The chart creates three Ingress resources when `ingress.enabled` is true:
 
@@ -261,7 +261,7 @@ components:
         readOnly: true
 ```
 
-Repeat the `web` block for `auth-v2`, `api`, `webhook`, and `jobs`. Repeat the `worker` block for `chunker`, using its default `shared-workdir` mount at `/mnt`. Restart the components after `helm upgrade`, because a ConfigMap change alone does not roll pods.
+Repeat the `web` block for `auth-v2`, `api`, `webhook`, `jobs`, and `jackson` if SAML is enabled. Repeat the `worker` block for `chunker`, using its default `shared-workdir` mount at `/mnt`. Restart the components after `helm upgrade`, because a ConfigMap change alone does not roll pods.
 
 Check a service against an internal host:
 
@@ -296,6 +296,8 @@ services:
   greptile-jobs:
     volumes: ["./certs:/etc/greptile-ca:ro"]
   greptile-indexer-chunker:
+    volumes: ["./certs:/etc/greptile-ca:ro"]
+  saml-jackson:
     volumes: ["./certs:/etc/greptile-ca:ro"]
   greptile-llmproxy:
     volumes: ["./certs:/etc/greptile-ca:ro"]
