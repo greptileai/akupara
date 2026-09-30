@@ -7,7 +7,7 @@ global:
     - name: regcred
 
 network:
-  appUrl: "http://greptile.local"
+  appUrl: "https://greptile.local" # must be https with auth v2
   webhookUrl: "http://greptile.local/webhook"
   apiUrl: "http://greptile.local/api" # Maybe http://api.greptile.local/
   authUrl: "https://auth.greptile.local" # must be https

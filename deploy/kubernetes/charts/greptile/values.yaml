@@ -15,7 +15,7 @@ global:
   affinity: {}
 
 network:
-  appUrl: "http://greptile.local"
+  appUrl: "https://greptile.local" # https: auth v2 (Hydra) rejects http OAuth redirect URIs
   webhookUrl: "http://greptile.local/webhook"
   apiUrl: "http://greptile.local/api" # Maybe http://api.greptile.local/
   authUrl: "https://auth.greptile.local" # must always be https
@@ -190,6 +190,9 @@ github:
   enterpriseAppUrl: "https://github.example.com/apps/dummy-greptile-app"
   enterpriseAppId: "0"
 
+gitea:
+  enabled: "true"
+
 integrations:
   linearEnabled: "false"
   slackEnabled: "false"
@@ -314,6 +317,7 @@ components:
       ANALYTICS: "false"
       PYLON_ENABLED: "false"
       GITHUB_ENTERPRISE_ENABLED: "{{ .Values.github.enterpriseEnabled }}"
+      GITEA_ENABLED: "{{ .Values.gitea.enabled }}"
       LINEAR_ENABLED: "{{ .Values.integrations.linearEnabled }}"
       SLACK_ENABLED: "{{ .Values.integrations.slackEnabled }}"
       GOOGLE_DRIVE_ENABLED: "{{ .Values.integrations.googleDriveEnabled }}"
