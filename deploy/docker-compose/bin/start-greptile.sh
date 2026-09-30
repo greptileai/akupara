@@ -64,7 +64,11 @@ COMPOSE_FILES=""
 O11Y_ENABLED=$(grep -E "^O11Y_ENABLED=" .env | cut -d'=' -f2 | tr -d '"' | tr -d "'" || echo "false")
 if [[ "${O11Y_ENABLED:-false}" == "true" ]]; then
     echo "Observability enabled - adding docker-compose.o11y.yaml..."
-    COMPOSE_FILES="-f docker-compose.yaml -f docker-compose.o11y.yaml"
+    COMPOSE_FILES="-f docker-compose.yaml"
+    if [[ -f docker-compose.override.yaml ]]; then
+        COMPOSE_FILES="$COMPOSE_FILES -f docker-compose.override.yaml"
+    fi
+    COMPOSE_FILES="$COMPOSE_FILES -f docker-compose.o11y.yaml"
 elif docker container inspect greptile-lgtm > /dev/null 2>&1; then
     echo "Observability disabled - removing greptile-lgtm (lgtm_data volume is kept)..."
     docker rm -f greptile-lgtm
