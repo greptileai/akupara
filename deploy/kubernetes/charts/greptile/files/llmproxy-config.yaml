@@ -63,6 +63,7 @@ model_list:
         api_key: "os.environ/OPENAI_API_KEY"
         reasoning_effort: low
         allowed_openai_params: [reasoning_effort]
+        additional_drop_params: [temperature, top_p, top_logprobs, logprobs]
     #  Example of bedrock
     # - model_name: bedrock/*
     #   litellm_params:
