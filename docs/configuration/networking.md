@@ -206,7 +206,7 @@ cat "$roots" ca.pem > bundle.pem || rm bundle.pem
 kubectl create configmap greptile-custom-ca --from-file=ca.pem --from-file=bundle.pem
 ```
 
-Mount it and set the variable per component. `volumes` and `volumeMounts` are lists, so an override replaces the chart defaults. Copy a component's default entries from `values.yaml` into your override. `chunker`, `worker`, and `llmproxy` have defaults; the other components do not.
+Mount it and set the variable per component. `volumes` and `volumeMounts` are lists, so an override replaces the chart defaults. Copy a component's default entries from `values.yaml` into your override. `web`, `api`, `chunker`, `worker`, and `llmproxy` have defaults; the other components do not. `web`, `api`, and `worker` mount `knowledge-base` at `/var/lib/greptile/artifacts`; keep that entry when you override their volumes.
 
 ```yaml
 components:
@@ -214,10 +214,16 @@ components:
     componentEnv:
       NODE_EXTRA_CA_CERTS: /etc/greptile-ca/ca.pem
     volumes:
+      - name: knowledge-base
+        persistentVolumeClaim:
+          claimName: ""
+          storage: knowledgeBase
       - name: custom-ca
         configMap:
           name: greptile-custom-ca
     volumeMounts:
+      - name: knowledge-base
+        mountPath: /var/lib/greptile/artifacts
       - name: custom-ca
         mountPath: /etc/greptile-ca
         readOnly: true
@@ -229,6 +235,10 @@ components:
       - name: shared-workdir
         persistentVolumeClaim:
           claimName: ""
+      - name: knowledge-base
+        persistentVolumeClaim:
+          claimName: ""
+          storage: knowledgeBase
       - name: cgroupfs
         hostPath:
           path: /sys/fs/cgroup
@@ -239,6 +249,8 @@ components:
     volumeMounts:
       - name: shared-workdir
         mountPath: /mnt/efs
+      - name: knowledge-base
+        mountPath: /var/lib/greptile/artifacts
       - name: cgroupfs
         mountPath: /sys/fs/cgroup
       - name: custom-ca
@@ -263,7 +275,7 @@ components:
         readOnly: true
 ```
 
-Repeat the `web` block for `auth-v2` (`auth` when `authV2.enabled: false`), `api`, `webhook`, `jobs`, and `jackson` if SAML is enabled. For `chunker`, set the same variables as `worker` and add `custom-ca` next to its own default `shared-workdir` volume (mounted at `/mnt`); it has no `cgroupfs` mount. Restart the components after `helm upgrade`, because a ConfigMap change alone does not roll pods.
+Repeat the `web` block for `api`, including its `knowledge-base` volume. For `auth-v2` (`auth` when `authV2.enabled: false`), `webhook`, `jobs`, and `jackson` if SAML is enabled, use only the `custom-ca` volume. For `chunker`, set the same variables as `worker` and add `custom-ca` next to its own default `shared-workdir` volume (mounted at `/mnt`); it has no `cgroupfs` mount and no knowledge-base volume. Restart the components after `helm upgrade`, because a ConfigMap change alone does not roll pods.
 
 Check a service against an internal host:
 

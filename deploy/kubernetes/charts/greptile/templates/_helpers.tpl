@@ -52,6 +52,10 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- printf "%s-shared-workdir" (include "greptile.fullname" .) -}}
 {{- end -}}
 
+{{- define "greptile.knowledgeBasePvcName" -}}
+{{- printf "%s-knowledge-base" (include "greptile.fullname" .) -}}
+{{- end -}}
+
 {{- define "greptile.pgbouncerName" -}}
 {{- printf "%s-pgbouncer" (include "greptile.fullname" .) -}}
 {{- end -}}

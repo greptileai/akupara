@@ -120,7 +120,15 @@ spec:
         - name: {{ $vol.name }}
           {{- if $vol.persistentVolumeClaim }}
           persistentVolumeClaim:
-            claimName: {{ default (include "greptile.sharedPvcName" $) $vol.persistentVolumeClaim.claimName }}
+            {{- $claimName := $vol.persistentVolumeClaim.claimName }}
+            {{- if not $claimName }}
+              {{- if eq ($vol.persistentVolumeClaim.storage | default "") "knowledgeBase" }}
+                {{- $claimName = include "greptile.knowledgeBasePvcName" $ }}
+              {{- else }}
+                {{- $claimName = include "greptile.sharedPvcName" $ }}
+              {{- end }}
+            {{- end }}
+            claimName: {{ $claimName }}
           {{- end }}
           {{- if $vol.configMap }}
           configMap:

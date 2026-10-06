@@ -98,6 +98,13 @@ storage:
     storageClass: ""
     accessModes:
       - ReadWriteMany
+  # Shared file:// artifact store mounted on web, api, and worker.
+  knowledgeBase:
+    enabled: true
+    size: 100Gi
+    storageClass: ""
+    accessModes:
+      - ReadWriteMany
 
 redis:
   image:
@@ -159,6 +166,12 @@ env:
     GREPTILE_AUTH_V2_URL: "{{ .Values.network.authUrl }}"
     HYDRA_ISSUER_URL: "{{ .Values.network.authUrl }}"
     AUTH_BOXYHQ_URL: "{{ .Values.saml.externalUrl }}"
+    KNOWLEDGE_BASE_SYNTHESIS_ENABLED: "true"
+    KNOWLEDGE_BASE_BUCKET: "file:///var/lib/greptile/artifacts"
+    KNOWLEDGE_BASE_MIN_REVIEW_COUNT: "0"
+    KNOWLEDGE_BASE_MATERIALIZATION_ENABLED: "true"
+    KNOWLEDGE_BASE_VIEWER_ENABLED: "true"
+    DEFAULT_KNOWLEDGE_BASE_ROUTING_POLICY: "kb-gen-roll@5"
 
 appConfig:
   authSamlOnly: "false"
@@ -329,8 +342,14 @@ components:
       SMTP_REJECT_UNAUTHORIZED: "{{ .Values.email.smtp.rejectUnauthorized }}"
     envFromConfigMap: []
     envFromSecret: []
-    volumes: []
-    volumeMounts: []
+    volumes:
+      - name: knowledge-base
+        persistentVolumeClaim:
+          claimName: ""
+          storage: knowledgeBase
+    volumeMounts:
+      - name: knowledge-base
+        mountPath: /var/lib/greptile/artifacts
 
   auth:
     enabled: true
@@ -408,8 +427,14 @@ components:
       OAUTH_ISSUER: "{{ if .Values.authV2.enabled }}{{ .Values.network.authUrl }}{{ end }}"
     envFromConfigMap: []
     envFromSecret: []
-    volumes: []
-    volumeMounts: []
+    volumes:
+      - name: knowledge-base
+        persistentVolumeClaim:
+          claimName: ""
+          storage: knowledgeBase
+    volumeMounts:
+      - name: knowledge-base
+        mountPath: /var/lib/greptile/artifacts
 
   chunker:
     enabled: true
@@ -483,6 +508,10 @@ components:
       - name: shared-workdir
         persistentVolumeClaim:
           claimName: ""
+      - name: knowledge-base
+        persistentVolumeClaim:
+          claimName: ""
+          storage: knowledgeBase
       - name: cgroupfs
         hostPath:
           path: /sys/fs/cgroup
@@ -490,6 +519,8 @@ components:
     volumeMounts:
       - name: shared-workdir
         mountPath: /mnt/efs
+      - name: knowledge-base
+        mountPath: /var/lib/greptile/artifacts
       - name: cgroupfs
         mountPath: /sys/fs/cgroup
 
@@ -539,6 +570,7 @@ components:
       LLM_PROXY_BASE_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"llmproxy\") }}:{{ .Values.components.llmproxy.containerPort }}"
       APP_URL: "{{ .Values.network.appUrl }}"
       GREPTILE_APP_URL: "{{ .Values.network.appUrl }}"
+      FILE_CHANGE_ACTIVITY_ENABLED: "true"
     envFromConfigMap: []
     envFromSecret: []
     volumes: []
