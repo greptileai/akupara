@@ -98,7 +98,7 @@ storage:
     storageClass: ""
     accessModes:
       - ReadWriteMany
-  # Shared file:// artifact store mounted on web, api, and worker.
+  # Shared file:// artifact store mounted on web, api, worker, and jobs.
   knowledgeBase:
     enabled: true
     size: 100Gi
@@ -571,10 +571,17 @@ components:
       APP_URL: "{{ .Values.network.appUrl }}"
       GREPTILE_APP_URL: "{{ .Values.network.appUrl }}"
       FILE_CHANGE_ACTIVITY_ENABLED: "true"
+      FILE_CHANGE_ACTIVITY_BUCKET: "file:///var/lib/greptile/artifacts"
     envFromConfigMap: []
     envFromSecret: []
-    volumes: []
-    volumeMounts: []
+    volumes:
+      - name: knowledge-base
+        persistentVolumeClaim:
+          claimName: ""
+          storage: knowledgeBase
+    volumeMounts:
+      - name: knowledge-base
+        mountPath: /var/lib/greptile/artifacts
 
   llmproxy:
     enabled: true
