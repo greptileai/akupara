@@ -8,26 +8,31 @@ The worker must receive all three settings:
 
 | Setting | Expected value |
 | --- | --- |
-| `FEATURE_FLAGS_JSON` | `{"effort-levels":true}` |
+| `FEATURE_FLAGS_JSON` | `{"effort-levels":true,"new-scm-ui":true}` |
 | `REVIEW_WORKFLOW_ROUTING_ENABLED` | `true` |
 | `DEFAULT_NATIVE_ROUTING_POLICY` | `v5.2-tiers@2` |
 
-The LiteLLM configuration must contain explicit `gpt-6-sol` and `gpt-5.6-luna` entries, plus the `dsv4-flash-leased-nothink` alias. The entries must allow `reasoning_effort` and use Responses API mode.
+Whitespace in `FEATURE_FLAGS_JSON` can differ between Compose and Helm. Both `effort-levels` and `new-scm-ui` must be `true`.
+
+The LiteLLM configuration must contain explicit `gpt-6-sol`, `gpt-6-luna`, and `gpt-5.6-luna` entries, plus the `dsv4-flash-leased-nothink` alias. The explicit entries must allow `reasoning_effort` and use Responses API mode. The Kubernetes chart routes `acknowledged-judge` to `gpt-6-luna`.
 
 For Docker Compose:
 
 ```bash
 docker compose exec greptile-worker sh -c \
   'printenv | grep -E "FEATURE_FLAGS_JSON|REVIEW_WORKFLOW_ROUTING_ENABLED|DEFAULT_NATIVE_ROUTING_POLICY"'
-docker compose exec greptile-llmproxy sed -n '1,65p' /app/config.yaml
+docker compose exec greptile-llmproxy sed -n '1,72p' /app/config.yaml
 ```
 
-For Kubernetes, inspect the rendered worker environment and LiteLLM ConfigMap for the same values:
+For Kubernetes, these names match the `greptile` release from the install guide. `FEATURE_FLAGS_JSON` is in the shared ConfigMap. The routing settings are in the worker ConfigMap.
 
 ```bash
-kubectl get configmap <release>-greptile-worker-env -o yaml
-kubectl get configmap <release>-greptile-llmproxy-config -o yaml
+kubectl get configmap greptile-env -o yaml
+kubectl get configmap greptile-worker-env -o yaml
+kubectl get configmap greptile-llmproxy-config -o yaml
 ```
+
+If the release name does not already contain `greptile`, Helm prefixes these names with `<release>-`.
 
 ## Run an end-to-end check
 
@@ -44,7 +49,7 @@ docker compose logs --since=30m greptile-worker
 Kubernetes:
 
 ```bash
-kubectl logs deployment/<release>-greptile-worker --since=30m
+kubectl logs deploy/greptile-worker --since=30m
 ```
 
 Find the `ExperimentRouting resolved native review workflow` event. Confirm:
@@ -62,7 +67,7 @@ Check LiteLLM for routing or provider errors:
 ```bash
 docker compose logs --since=30m greptile-llmproxy
 # or
-kubectl logs deployment/<release>-greptile-llmproxy --since=30m
+kubectl logs deploy/greptile-llmproxy --since=30m
 ```
 
 For definitive confirmation, inspect the audit log at your OpenAI-compatible provider or gateway. For the review agent, confirm:
@@ -79,5 +84,6 @@ LiteLLM logs identify failed routing and unsupported parameters, but the provide
 
 - Missing `v5.2-tiers@2` or `rk-v5.2-*` in the worker result: deploy the database migration that seeds the v5.2 policy and variants.
 - The worker selects Base for every user: ensure `FEATURE_FLAGS_JSON` includes `"effort-levels":true`.
-- LiteLLM reports a missing model or unsupported parameter: make sure the configured OpenAI-compatible endpoint exposes `gpt-6-sol` and `gpt-5.6-luna` and supports the Responses API.
+- The tier picker is missing in the UI: ensure `FEATURE_FLAGS_JSON` includes `"new-scm-ui":true`.
+- LiteLLM reports a missing model or unsupported parameter: make sure the configured OpenAI-compatible endpoint exposes `gpt-6-sol`, `gpt-6-luna`, and `gpt-5.6-luna` and supports the Responses API.
 
