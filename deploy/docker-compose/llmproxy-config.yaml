@@ -19,6 +19,14 @@ model_list:
         supports_function_calling: true
         supports_vision: true
         supports_response_schema: true
+    - model_name: gpt-6-luna
+      litellm_params:
+        model: openai/gpt-6-luna
+        api_base: "os.environ/OPENAI_BASE_URL"
+        api_key: "os.environ/OPENAI_API_KEY"
+        # LiteLLM's generic GPT adapter otherwise drops Luna's reasoning effort.
+        allowed_openai_params: [reasoning_effort]
+        additional_drop_params: [temperature, top_p, top_logprobs, logprobs]
     - model_name: gpt-5.6-luna
       litellm_params:
         model: openai/gpt-5.6-luna
