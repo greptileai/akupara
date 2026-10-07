@@ -21,7 +21,7 @@ For Docker Compose:
 ```bash
 docker compose exec greptile-worker sh -c \
   'printenv | grep -E "FEATURE_FLAGS_JSON|REVIEW_WORKFLOW_ROUTING_ENABLED|DEFAULT_NATIVE_ROUTING_POLICY"'
-docker compose exec greptile-llmproxy sed -n '1,72p' /app/config.yaml
+docker compose exec greptile-llmproxy sed -n '1,87p' /app/config.yaml
 ```
 
 For Kubernetes, these names match the `greptile` release from the install guide. `FEATURE_FLAGS_JSON` is in the shared ConfigMap. The routing settings are in the worker ConfigMap.

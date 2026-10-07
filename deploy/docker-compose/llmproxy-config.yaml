@@ -19,6 +19,21 @@ model_list:
         supports_function_calling: true
         supports_vision: true
         supports_response_schema: true
+    # greptile-v5.3 primary reviewer. Must stay ahead of gpt-* so reasoning
+    # effort and Responses mode apply, including xhigh and service_tier.
+    - model_name: gpt-6.1-sol
+      litellm_params:
+        model: openai/gpt-6.1-sol
+        api_base: "os.environ/OPENAI_BASE_URL"
+        api_key: "os.environ/OPENAI_API_KEY"
+        allowed_openai_params: [reasoning_effort, service_tier]
+        additional_drop_params: [temperature, top_p, top_logprobs, logprobs]
+      model_info:
+        mode: responses
+        supports_reasoning: true
+        supports_function_calling: true
+        supports_vision: true
+        supports_response_schema: true
     - model_name: gpt-6-luna
       litellm_params:
         model: openai/gpt-6-luna
