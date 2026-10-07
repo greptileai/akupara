@@ -108,9 +108,9 @@ router_settings:
   routing_strategy: simple-shuffle # Literal["simple-shuffle", "least-busy", "usage-based-routing","latency-based-routing"]
   model_group_alias:
     "api-chat-completion": "gpt-5.4-nano"
-    "addressed-judge": "gpt-5.4-nano" # could also be gpt-5.6-luna
-    "acknowledged-judge": "gpt-5.4-mini" # could also be gpt-5.6-luna
-    "comment-analytics": "gpt-5.4-nano" # could also be gpt-5.6-luna
+    "addressed-judge": "gpt-5.6-luna"
+    "acknowledged-judge": "gpt-6-luna"
+    "comment-analytics": "gpt-5.6-luna"
     "comment-classifier": "gpt-5.4-nano"
     "post-review-gate": "gpt-5.4-nano"
     "rule-optimization": "gpt-5.4-nano"
@@ -122,7 +122,7 @@ router_settings:
     "review-deep": "claude-opus-4-6"
     "review-light": "claude-haiku-4-5-20251001"
     "refiner": "claude-sonnet-4-6"
-    "reply-agent": "claude-sonnet-4-6" # could also be gpt-5.6-luna
+    "reply-agent": "gpt-5.6-luna"
 
   num_retries: 2
   timeout: 120 # seconds

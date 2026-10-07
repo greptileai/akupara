@@ -14,7 +14,7 @@ The worker must receive all three settings:
 
 Whitespace in `FEATURE_FLAGS_JSON` can differ between Compose and Helm. Both `effort-levels` and `new-scm-ui` must be `true`.
 
-The LiteLLM configuration must contain explicit `gpt-6-sol`, `gpt-6-luna`, and `gpt-5.6-luna` entries, plus the `dsv4-flash-leased-nothink` alias. The explicit entries must allow `reasoning_effort` and use Responses API mode. The Kubernetes chart routes `acknowledged-judge` to `gpt-6-luna`.
+The LiteLLM configuration must contain explicit `gpt-6-sol`, `gpt-6-luna`, and `gpt-5.6-luna` entries, plus the `dsv4-flash-leased-nothink` alias. The explicit entries must allow `reasoning_effort` and use Responses API mode. Docker Compose and the Helm chart both route `acknowledged-judge` to `gpt-6-luna`.
 
 For Docker Compose:
 
