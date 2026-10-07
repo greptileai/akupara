@@ -206,7 +206,7 @@ cat "$roots" ca.pem > bundle.pem || rm bundle.pem
 kubectl create configmap greptile-custom-ca --from-file=ca.pem --from-file=bundle.pem
 ```
 
-Mount it and set the variable per component. `volumes` and `volumeMounts` are lists, so an override replaces the chart defaults. Copy a component's default entries from `values.yaml` into your override. `web`, `api`, `chunker`, `worker`, and `llmproxy` have defaults; the other components do not. `web`, `api`, `worker`, and `jobs` mount `knowledge-base` at `/var/lib/greptile/artifacts`; keep that entry when you override their volumes.
+Mount it and set the variable per component. `volumes` and `volumeMounts` are lists, so an override replaces the chart defaults. Copy a component's default entries from `values.yaml` into your override. `web`, `api`, `chunker`, `worker`, `jobs`, and `llmproxy` have defaults; the other components do not. `web`, `api`, `worker`, and `jobs` mount `knowledge-base` at `/var/lib/greptile/artifacts`; keep that entry when you override their volumes.
 
 ```yaml
 components:

@@ -1,3 +1,6 @@
+{{- $renderedVolumes := list }}
+{{- $renderedMounts := list }}
+{{- $omitMount := false }}
 {{- range $name, $component := .Values.components }}
 {{- $isJackson := eq $name "jackson" }}
 {{- $isAuth := eq $name "auth" }}
@@ -110,13 +113,31 @@ spec:
           {{- end }}
           resources:
             {{- toYaml $component.resources | nindent 12 }}
-          {{- with $component.volumeMounts }}
+          {{- $renderedVolumes = list }}
+          {{- range $vol := $component.volumes }}
+            {{- if not (include "greptile.omitManagedKnowledgeBaseVolume" (dict "root" $ "vol" $vol)) }}
+              {{- $renderedVolumes = append $renderedVolumes $vol }}
+            {{- end }}
+          {{- end }}
+          {{- $renderedMounts = list }}
+          {{- range $mount := $component.volumeMounts }}
+            {{- $omitMount = false }}
+            {{- range $vol := $component.volumes }}
+              {{- if and (eq $vol.name $mount.name) (include "greptile.omitManagedKnowledgeBaseVolume" (dict "root" $ "vol" $vol)) }}
+                {{- $omitMount = true }}
+              {{- end }}
+            {{- end }}
+            {{- if not $omitMount }}
+              {{- $renderedMounts = append $renderedMounts $mount }}
+            {{- end }}
+          {{- end }}
+          {{- with $renderedMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- if $component.volumes }}
+      {{- with $renderedVolumes }}
       volumes:
-        {{- range $vol := $component.volumes }}
+        {{- range $vol := . }}
         - name: {{ $vol.name }}
           {{- if $vol.persistentVolumeClaim }}
           persistentVolumeClaim:

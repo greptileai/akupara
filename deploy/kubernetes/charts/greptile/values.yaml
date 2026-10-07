@@ -99,6 +99,7 @@ storage:
     accessModes:
       - ReadWriteMany
   # Shared file:// artifact store mounted on web, api, worker, and jobs.
+  # enabled: false skips this claim and those default mounts. A volume claimName keeps an existing claim.
   knowledgeBase:
     enabled: true
     size: 100Gi

@@ -56,6 +56,14 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- printf "%s-knowledge-base" (include "greptile.fullname" .) -}}
 {{- end -}}
 
+{{/* Drop the chart-managed knowledge-base volume when its PVC is disabled. An explicit claimName stays. */}}
+{{- define "greptile.omitManagedKnowledgeBaseVolume" -}}
+{{- $vol := .vol -}}
+{{- if and $vol.persistentVolumeClaim (eq ($vol.persistentVolumeClaim.storage | default "") "knowledgeBase") (not $vol.persistentVolumeClaim.claimName) (not .root.Values.storage.knowledgeBase.enabled) -}}
+true
+{{- end -}}
+{{- end -}}
+
 {{- define "greptile.pgbouncerName" -}}
 {{- printf "%s-pgbouncer" (include "greptile.fullname" .) -}}
 {{- end -}}
