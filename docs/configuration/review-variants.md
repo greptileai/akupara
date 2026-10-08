@@ -29,7 +29,7 @@ FEATURE_FLAGS_JSON='{"effort-levels":true}'
 
 `FEATURE_FLAGS_JSON` is shared by every Greptile container. With `effort-levels` set to `true`, Base, Plus, and Apex are available. Set `effort-levels` to `false` to disable Plus and Apex for the whole instance. Every review then runs at Base, which limits inference cost.
 
-Set `DEFAULT_NATIVE_ROUTING_POLICY` to `v5.2-tiers@2` when the deployment does not have access to `gpt-6.1-sol` yet. Docker Compose and the Helm chart ship that value.
+Set `DEFAULT_NATIVE_ROUTING_POLICY` to `v5.2-tiers@2` when the deployment does not have access to `gpt-6.1-sol` yet. Docker Compose and the Helm chart ship `greptile-v5.3@6`.
 
 Recreate the worker so it loads the environment. From `deploy/docker-compose`, run `./bin/restart-greptile.sh`, or `docker compose up -d --force-recreate greptile-worker`.
 
