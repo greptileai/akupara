@@ -134,7 +134,6 @@ features:
   # Required to select the Base, Plus, and Apex review tiers in v5.2-tiers@2.
   feature_flags:
     effort-levels: true
-    new-scm-ui: true
 
 env:
   shared:
@@ -168,7 +167,7 @@ appConfig:
   # Enable native routing for the Base, Plus, and Apex review tiers.
   # see docs/configuration/review-variants.md for more details
   reviewWorkflowRoutingEnabled: "true"
-  defaultNativeRoutingPolicy: "v5.2-tiers@2"
+  defaultNativeRoutingPolicy: "greptile-v5.3@6"
   trexSettingsEnabled: "false"
   repoClustersEnabled: "true"
   headlessReviewEnabled: "true"

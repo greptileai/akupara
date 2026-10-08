@@ -4,43 +4,14 @@ model_list:
         model: anthropic/claude-*
         api_base: "os.environ/ANTHROPIC_BASE_URL"
         api_key: "os.environ/ANTHROPIC_API_KEY"
-    # Exact entries preserve reasoning effort and use the Responses API required
-    # by the Base, Plus, and Apex review variants.
-    - model_name: gpt-6-sol
+    # Longer than gpt-*, so gpt-6-sol, gpt-6.1-sol, and gpt-6-luna keep reasoning
+    # effort, service_tier, and Responses API mode. Other GPT models stay on gpt-*.
+    - model_name: gpt-6*
       litellm_params:
-        model: openai/gpt-6-sol
-        api_base: "os.environ/OPENAI_BASE_URL"
-        api_key: "os.environ/OPENAI_API_KEY"
-        allowed_openai_params: [reasoning_effort]
-        additional_drop_params: [temperature, top_p, top_logprobs, logprobs]
-      model_info:
-        mode: responses
-        supports_reasoning: true
-        supports_function_calling: true
-        supports_vision: true
-        supports_response_schema: true
-    # greptile-v5.3 primary reviewer. Must stay ahead of gpt-* so reasoning
-    # effort and Responses mode apply, including xhigh and service_tier.
-    - model_name: gpt-6.1-sol
-      litellm_params:
-        model: openai/gpt-6.1-sol
+        model: openai/gpt-6*
         api_base: "os.environ/OPENAI_BASE_URL"
         api_key: "os.environ/OPENAI_API_KEY"
         allowed_openai_params: [reasoning_effort, service_tier]
-        additional_drop_params: [temperature, top_p, top_logprobs, logprobs]
-      model_info:
-        mode: responses
-        supports_reasoning: true
-        supports_function_calling: true
-        supports_vision: true
-        supports_response_schema: true
-    - model_name: gpt-6-luna
-      litellm_params:
-        model: openai/gpt-6-luna
-        api_base: "os.environ/OPENAI_BASE_URL"
-        api_key: "os.environ/OPENAI_API_KEY"
-        # LiteLLM's generic GPT adapter otherwise drops Luna's reasoning effort.
-        allowed_openai_params: [reasoning_effort]
         additional_drop_params: [temperature, top_p, top_logprobs, logprobs]
       model_info:
         mode: responses
@@ -85,6 +56,8 @@ model_list:
         reasoning_effort: low
         allowed_openai_params: [reasoning_effort]
         additional_drop_params: [temperature, top_p, top_logprobs, logprobs]
+      model_info:
+        mode: responses
     #  Example of bedrock
     # - model_name: bedrock/*
     #   litellm_params:
