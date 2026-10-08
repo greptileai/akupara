@@ -191,6 +191,8 @@ services:
       - PYLON_ENABLED=false
     ports:
       - "3000:3000"
+    volumes:
+      - knowledge_base:/var/lib/greptile/artifacts
     profiles:
       - greptile
 
@@ -217,6 +219,8 @@ services:
       - PORT=3002
     ports:
       - "3002:3002"
+    volumes:
+      - knowledge_base:/var/lib/greptile/artifacts
     profiles:
       - greptile
 
@@ -268,6 +272,7 @@ services:
       - greptile
     volumes:
       - cloned_repositories:/mnt/efs
+      - knowledge_base:/var/lib/greptile/artifacts
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
 
   greptile-jobs:
@@ -279,8 +284,12 @@ services:
       - .env
     environment:
       - PORT=8080
+      - FILE_CHANGE_ACTIVITY_ENABLED=true
+      - FILE_CHANGE_ACTIVITY_BUCKET=file:///var/lib/greptile/artifacts
     ports:
       - "8086:8080"
+    volumes:
+      - knowledge_base:/var/lib/greptile/artifacts
     profiles:
       - greptile
 
@@ -353,3 +362,4 @@ volumes:
   caddy_data: {}
   caddy_config: {}
   cloned_repositories: {}
+  knowledge_base: {}
