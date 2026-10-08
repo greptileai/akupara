@@ -168,6 +168,7 @@ env:
     HYDRA_ISSUER_URL: "{{ .Values.network.authUrl }}"
     AUTH_BOXYHQ_URL: "{{ .Values.saml.externalUrl }}"
     KNOWLEDGE_BASE_SYNTHESIS_ENABLED: "true"
+    KNOWLEDGE_BASE_SYNTHESIS_DEFAULT_ENABLED: "true"
     KNOWLEDGE_BASE_BUCKET: "file:///var/lib/greptile/artifacts"
     KNOWLEDGE_BASE_MIN_REVIEW_COUNT: "0"
     KNOWLEDGE_BASE_MATERIALIZATION_ENABLED: "true"
