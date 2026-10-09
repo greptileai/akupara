@@ -1,4 +1,4 @@
-{{- if and .Values.ingress.enabled .Values.ingress.webhook.enabled .Values.components.webhook.enabled }}
+{{- if and .Values.ingress.enabled .Values.ingress.webhook.enabled .Values.components.webhook.enabled (ne .Values.components.webhook.service.enabled false) }}
 {{- $webhookHost := regexFind "^[^/]+" (regexReplaceAll "^https?://" .Values.network.webhookUrl "") -}}
 {{- $webhookPathRaw := regexReplaceAll "^https?://[^/]+" .Values.network.webhookUrl "" -}}
 {{- $webhookPath := default "/webhook" $webhookPathRaw -}}

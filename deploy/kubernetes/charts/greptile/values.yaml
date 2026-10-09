@@ -314,6 +314,7 @@ components:
       tag: ""
     containerPort: 3000
     service:
+      enabled: true
       type: ClusterIP
       port: 3000
     extraEnv: {}
@@ -364,6 +365,7 @@ components:
       tag: ""
     containerPort: 3001
     service:
+      enabled: true
       type: ClusterIP
       port: 3001
     extraEnv: {}
@@ -385,6 +387,7 @@ components:
       tag: ""
     containerPort: 3002
     service:
+      enabled: true
       type: ClusterIP
       port: 3002
     extraEnv: {}
@@ -411,6 +414,7 @@ components:
       tag: ""
     containerPort: 3002
     service:
+      enabled: true
       type: ClusterIP
       port: 3002
     extraEnv: {}
@@ -446,6 +450,7 @@ components:
       tag: ""
     containerPort: 3003
     service:
+      enabled: false
       type: ClusterIP
       port: 3003
     extraEnv: {}
@@ -487,6 +492,7 @@ components:
         add:
           - SYS_ADMIN
     service:
+      enabled: false
       type: ClusterIP
       port: 3005
     extraEnv: {}
@@ -532,6 +538,7 @@ components:
       tag: ""
     containerPort: 3007
     service:
+      enabled: true
       type: ClusterIP
       port: 3007
     extraEnv: {}
@@ -552,6 +559,7 @@ components:
       tag: ""
     containerPort: 8080
     service:
+      enabled: false
       type: ClusterIP
       port: 8080
     extraEnv: {}
@@ -589,6 +597,7 @@ components:
       tag: ""
     containerPort: 4000
     service:
+      enabled: true
       type: ClusterIP
       port: 4000
     extraEnv: {}
@@ -627,6 +636,7 @@ components:
       tag: "26.2.0"
     containerPort: 5225
     service:
+      enabled: true
       type: ClusterIP
       port: 5225
     extraEnv: {}
@@ -645,6 +655,16 @@ components:
       - DATABASE_URL
       - DB_URL
       - WEBHOOK_SECRET
+    # Jackson env name: shared secret key
+    secretEnvMap:
+      DB_ENCRYPTION_KEY: JACKSON_DB_ENCRYPTION_KEY
+      JACKSON_API_KEYS: AUTH_BOXYHQ_API_KEY
+      SAML_AUDIENCE: AUTH_BOXYHQ_SAML_ID
+      CLIENT_SECRET_VERIFIER: AUTH_BOXYHQ_SAML_SECRET
+      NEXTAUTH_ADMIN_CREDENTIALS: JACKSON_ADMIN_CREDENTIALS
+      NEXTAUTH_SECRET: JWT_SECRET
+      PUBLIC_KEY: JACKSON_PUBLIC_KEY
+      PRIVATE_KEY: JACKSON_PRIVATE_KEY
     volumes: []
     volumeMounts: []
 
