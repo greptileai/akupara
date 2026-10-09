@@ -185,7 +185,7 @@ services:
       - .env  # User config last (takes precedence)
     environment:
       - AUTH_BOXYHQ_SAML_ISSUER=${AUTH_BOXYHQ_URL}
-      - BILLING_ENABLED=${BILLING}
+      - BILLING=${BILLING}
       - NEXT_PUBLIC_BILLING=${BILLING}
       - NEXT_PUBLIC_ANALYTICS=${ANALYTICS}
       - PYLON_ENABLED=false

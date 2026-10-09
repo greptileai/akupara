@@ -2,7 +2,7 @@
 {{- $isJackson := eq $name "jackson" }}
 {{- $isAuth := eq $name "auth" }}
 {{- $isAuthV2 := eq $name "auth-v2" }}
-{{- if and $component.enabled $component.service.enabled (or (not $isJackson) $.Values.saml.enabled) (or (not $isAuth) (not $.Values.authV2.enabled)) (or (not $isAuthV2) $.Values.authV2.enabled) }}
+{{- if and $component.enabled (or (not $isJackson) $.Values.saml.enabled) (or (not $isAuth) (not $.Values.authV2.enabled)) (or (not $isAuthV2) $.Values.authV2.enabled) }}
 ---
 apiVersion: v1
 kind: Service

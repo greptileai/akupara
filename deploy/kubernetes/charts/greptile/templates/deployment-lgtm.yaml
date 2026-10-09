@@ -80,9 +80,33 @@ spec:
               value: "false"
             - name: GF_NEWS_NEWS_FEED_ENABLED
               value: "false"
+            - name: GF_CLOUD_MIGRATION_ENABLED
+              value: "false"
+            - name: GF_ANALYTICS_FEEDBACK_LINKS_ENABLED
+              value: "false"
+            - name: GF_FEATURE_TOGGLES_feedbackButton
+              value: "false"
+            - name: GF_PLUGINS_DISABLE_PLUGINS
+              value: grafana-llm-app,grafana-pyroscope-app
+            - name: GF_SNAPSHOTS_EXTERNAL_ENABLED
+              value: "false"
+            - name: GF_PUBLIC_DASHBOARDS_ENABLED
+              value: "false"
+            - name: GF_PROVISIONING_ENABLED
+              value: "false"
+            - name: GF_PLUGINS_PREINSTALL_AUTO_UPDATE
+              value: "false"
+            - name: GF_AUTH_ANONYMOUS_HIDE_VERSION
+              value: "true"
+            # - name: GF_SECURITY_DISABLE_GRAVATAR
+            #   value: "true"
             {{- with .Values.network.grafanaUrl }}
             - name: GF_SERVER_ROOT_URL
               value: {{ . | quote }}
+            {{- end }}
+            {{- range $k, $v := .Values.o11y.extraEnv }}
+            - name: {{ $k }}
+              value: {{ $v | quote }}
             {{- end }}
           readinessProbe:
             exec:

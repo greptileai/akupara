@@ -75,6 +75,10 @@ spec:
             - secretRef:
                 name: {{ include "greptile.secretName" $ }}
             {{- end }}
+            {{- if $component.secrets }}
+            - secretRef:
+                name: {{ include "greptile.componentName" (dict "root" $ "name" $name) }}-secrets
+            {{- end }}
             {{- range $cm := $component.envFromConfigMap }}
             - configMapRef:
                 name: {{ $cm }}

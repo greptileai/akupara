@@ -136,6 +136,10 @@ o11y:
     requests:
       cpu: 250m
       memory: 2Gi
+  # Extra Grafana env. If running Greptile without internet, set:
+  #   GF_PLUGINS_PREINSTALL_DISABLED: "true"
+  #   GF_PLUGINS_PUBLIC_KEY_RETRIEVAL_DISABLED: "true"
+  extraEnv: {}
 
 features:
   # Static on-prem feature flags. Values must be booleans.
@@ -310,7 +314,6 @@ components:
       tag: ""
     containerPort: 3000
     service:
-      enabled: true
       type: ClusterIP
       port: 3000
     extraEnv: {}
@@ -322,7 +325,7 @@ components:
       GREPTILE_AUTH_SERVER: "{{ if .Values.authV2.enabled }}http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"auth-v2\") }}:{{ (index .Values.components \"auth-v2\").service.port }}{{ else }}http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"auth\") }}:{{ .Values.components.auth.service.port }}{{ end }}"
       GREPTILE_API_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"api\") }}:{{ .Values.components.api.service.port }}"
       GREPTILE_WEBHOOK_URL: "{{ .Values.network.webhookUrl }}"
-      BILLING_ENABLED: "false"
+      BILLING: "false"
       ANALYTICS: "false"
       PYLON_ENABLED: "false"
       GITHUB_ENTERPRISE_ENABLED: "{{ .Values.github.enterpriseEnabled }}"
@@ -361,7 +364,6 @@ components:
       tag: ""
     containerPort: 3001
     service:
-      enabled: true
       type: ClusterIP
       port: 3001
     extraEnv: {}
@@ -383,7 +385,6 @@ components:
       tag: ""
     containerPort: 3002
     service:
-      enabled: true
       type: ClusterIP
       port: 3002
     extraEnv: {}
@@ -410,7 +411,6 @@ components:
       tag: ""
     containerPort: 3002
     service:
-      enabled: true
       type: ClusterIP
       port: 3002
     extraEnv: {}
@@ -446,7 +446,6 @@ components:
       tag: ""
     containerPort: 3003
     service:
-      enabled: false
       type: ClusterIP
       port: 3003
     extraEnv: {}
@@ -488,7 +487,6 @@ components:
         add:
           - SYS_ADMIN
     service:
-      enabled: false
       type: ClusterIP
       port: 3005
     extraEnv: {}
@@ -534,7 +532,6 @@ components:
       tag: ""
     containerPort: 3007
     service:
-      enabled: true
       type: ClusterIP
       port: 3007
     extraEnv: {}
@@ -555,7 +552,6 @@ components:
       tag: ""
     containerPort: 8080
     service:
-      enabled: false
       type: ClusterIP
       port: 8080
     extraEnv: {}
@@ -593,7 +589,6 @@ components:
       tag: ""
     containerPort: 4000
     service:
-      enabled: true
       type: ClusterIP
       port: 4000
     extraEnv: {}
@@ -632,7 +627,6 @@ components:
       tag: "26.2.0"
     containerPort: 5225
     service:
-      enabled: true
       type: ClusterIP
       port: 5225
     extraEnv: {}
@@ -646,6 +640,11 @@ components:
       IDP_ENABLED: "{{ .Values.saml.idpEnabled }}"
     envFromConfigMap: []
     envFromSecret: []
+    useSharedSecret: false
+    secretEnv:
+      - DATABASE_URL
+      - DB_URL
+      - WEBHOOK_SECRET
     volumes: []
     volumeMounts: []
 
