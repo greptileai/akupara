@@ -25,9 +25,14 @@ spec:
       labels:
         {{- include "greptile.selectorLabels" $ | nindent 8 }}
         app.kubernetes.io/component: {{ $name }}
-      {{- with $.Values.global.podAnnotations }}
+      {{- if or $.Values.global.podAnnotations $component.secrets }}
       annotations:
+        {{- with $.Values.global.podAnnotations }}
         {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if $component.secrets }}
+        checksum/secrets: {{ toYaml $component.secrets | sha256sum }}
+        {{- end }}
       {{- end }}
     spec:
       serviceAccountName: {{ include "greptile.serviceAccountName" $ }}
@@ -75,6 +80,10 @@ spec:
             - secretRef:
                 name: {{ include "greptile.secretName" $ }}
             {{- end }}
+            {{- if $component.secrets }}
+            - secretRef:
+                name: {{ include "greptile.componentName" (dict "root" $ "name" $name) }}-secrets
+            {{- end }}
             {{- range $cm := $component.envFromConfigMap }}
             - configMapRef:
                 name: {{ $cm }}
@@ -92,6 +101,13 @@ spec:
               value: "6379"
             - name: REDIS_USE_TLS
               value: {{ $.Values.redis.external.tls | quote }}
+            {{- range $envName, $secretKey := $component.secretEnvMap }}
+            - name: {{ $envName }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "greptile.secretName" $ }}
+                  key: {{ $secretKey }}
+            {{- end }}
             {{- range $secretKey := $component.secretEnv }}
             - name: {{ $secretKey }}
               valueFrom:

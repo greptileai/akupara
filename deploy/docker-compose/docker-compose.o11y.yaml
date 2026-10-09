@@ -28,6 +28,19 @@ services:
       GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
       GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES: "false"
       GF_NEWS_NEWS_FEED_ENABLED: "false"
+      GF_CLOUD_MIGRATION_ENABLED: "false"
+      GF_ANALYTICS_FEEDBACK_LINKS_ENABLED: "false"
+      GF_FEATURE_TOGGLES_feedbackButton: "false"
+      GF_PLUGINS_DISABLE_PLUGINS: grafana-llm-app,grafana-pyroscope-app
+      GF_SNAPSHOTS_EXTERNAL_ENABLED: "false"
+      GF_PUBLIC_DASHBOARDS_ENABLED: "false"
+      GF_PROVISIONING_ENABLED: "false"
+      GF_PLUGINS_PREINSTALL_AUTO_UPDATE: "false"
+      GF_AUTH_ANONYMOUS_HIDE_VERSION: "true"
+      # GF_SECURITY_DISABLE_GRAVATAR: "true"
+      # If running Greptile without internet, please uncomment:
+      # GF_PLUGINS_PREINSTALL_DISABLED: "true"
+      # GF_PLUGINS_PUBLIC_KEY_RETRIEVAL_DISABLED: "true"
       GF_SERVER_ROOT_URL: ${GRAFANA_URL:?GRAFANA_URL is not set, see docs/operations/observability.md}
     volumes:
       - lgtm_data:/data

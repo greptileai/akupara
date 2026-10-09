@@ -48,6 +48,15 @@ Put API keys in `secrets.native.*` (or your external secret store):
 - `AZURE_OPENAI_API_KEY`
 - `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`
 
+The llmproxy pod does not mount the shared Greptile secret. It reads only the keys listed in `components.llmproxy.secretEnv`. If your LiteLLM config references other keys (for example `os.environ/MY_GATEWAY_KEY`), set them in `components.llmproxy.secrets`. The chart puts them in a Secret that only llmproxy mounts:
+
+```yaml
+components:
+  llmproxy:
+    secrets:
+      MY_GATEWAY_KEY: "..."
+```
+
 LiteLLM config is `charts/greptile/files/llmproxy-config.yaml`. Chart values also expose `llm.anthropicBaseUrl`, `llm.openaiBaseUrl`, and `llm.azureOpenaiUrl`.
 
 ## GPT-based review routing

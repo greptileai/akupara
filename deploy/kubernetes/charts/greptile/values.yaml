@@ -136,6 +136,10 @@ o11y:
     requests:
       cpu: 250m
       memory: 2Gi
+  # Extra Grafana env. If running Greptile without internet, set:
+  #   GF_PLUGINS_PREINSTALL_DISABLED: "true"
+  #   GF_PLUGINS_PUBLIC_KEY_RETRIEVAL_DISABLED: "true"
+  extraEnv: {}
 
 features:
   # Static on-prem feature flags. Values must be booleans.
@@ -322,7 +326,7 @@ components:
       GREPTILE_AUTH_SERVER: "{{ if .Values.authV2.enabled }}http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"auth-v2\") }}:{{ (index .Values.components \"auth-v2\").service.port }}{{ else }}http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"auth\") }}:{{ .Values.components.auth.service.port }}{{ end }}"
       GREPTILE_API_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"api\") }}:{{ .Values.components.api.service.port }}"
       GREPTILE_WEBHOOK_URL: "{{ .Values.network.webhookUrl }}"
-      BILLING_ENABLED: "false"
+      BILLING: "false"
       ANALYTICS: "false"
       PYLON_ENABLED: "false"
       GITHUB_ENTERPRISE_ENABLED: "{{ .Values.github.enterpriseEnabled }}"
@@ -646,6 +650,21 @@ components:
       IDP_ENABLED: "{{ .Values.saml.idpEnabled }}"
     envFromConfigMap: []
     envFromSecret: []
+    useSharedSecret: false
+    secretEnv:
+      - DATABASE_URL
+      - DB_URL
+      - WEBHOOK_SECRET
+    # Jackson env name: shared secret key
+    secretEnvMap:
+      DB_ENCRYPTION_KEY: JACKSON_DB_ENCRYPTION_KEY
+      JACKSON_API_KEYS: AUTH_BOXYHQ_API_KEY
+      SAML_AUDIENCE: AUTH_BOXYHQ_SAML_ID
+      CLIENT_SECRET_VERIFIER: AUTH_BOXYHQ_SAML_SECRET
+      NEXTAUTH_ADMIN_CREDENTIALS: JACKSON_ADMIN_CREDENTIALS
+      NEXTAUTH_SECRET: JWT_SECRET
+      PUBLIC_KEY: JACKSON_PUBLIC_KEY
+      PRIVATE_KEY: JACKSON_PRIVATE_KEY
     volumes: []
     volumeMounts: []
 
