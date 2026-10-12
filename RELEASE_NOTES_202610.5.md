@@ -7,7 +7,7 @@ This release adds OpenAI GPT-based review policies and self-hosted Knowledge Bas
 - **Supported upgrade from:** `202609.10`
 - **Upgrade urgency:** Recommended
 - **Operator action:** Take a database backup and review the Knowledge Base storage, model access, and environment requirements below before rolling the stack.
-- **Expected downtime:** Less than 1 minute for the upgrade duration.
+- **Expected downtime:** Plan a maintenance window; a specific downtime duration has not been separately validated.
 
 Follow the [self-hosted upgrade guide](https://github.com/greptileai/akupara/blob/release/202610.5/docs/operations/upgrade.md).
 
@@ -46,8 +46,8 @@ See [review variant selection](https://github.com/greptileai/akupara/blob/releas
 
 Knowledge Base is now available for self-hosted deployments. It requires all of the following:
 
-1. **Persistent shared storage.** Knowledge Base artifacts are stored at `/var/lib/greptile/artifacts` and must be available to the web, API, worker, and jobs services. Docker Compose creates the persistent `knowledge_base` volume. The Helm chart creates a 100 GiB `ReadWriteMany` PVC by default; set `storage.knowledgeBase.size`, `storage.knowledgeBase.storageClass`, and `storage.knowledgeBase.accessModes` for your cluster, or provide an existing compatible claim. Preserve the `knowledge-base` volume and mount if you override a component's volume lists.
-2. **Knowledge Base runtime configuration.** The standard 202610.5 Compose and Helm configuration provides these settings. Add them when you maintain a customized deployment manifest or environment configuration:
+1. **Persistent shared storage.** Knowledge Base artifacts are stored at `/var/lib/greptile/artifacts` and must be available to the web, API, worker, and jobs services. Docker Compose creates the persistent `knowledge_base` volume. The Helm chart creates a 100 GiB `ReadWriteMany` PVC by default; set `storage.knowledgeBase.size`, `storage.knowledgeBase.storageClass`, and `storage.knowledgeBase.accessModes` for your cluster, or provide an existing compatible claim. Preserve the `knowledge-base` volume and mount if you override a component's volume lists. See the [Helm storage defaults](https://github.com/greptileai/akupara/blob/release/202610.5/deploy/kubernetes/charts/greptile/values.yaml#L98-L108).
+2. **Knowledge Base runtime configuration.** The standard 202610.5 Compose and Helm configuration provides these settings. Add them when you maintain a customized deployment manifest or environment configuration. See the [Helm environment defaults](https://github.com/greptileai/akupara/blob/release/202610.5/deploy/kubernetes/charts/greptile/values.yaml#L172-L181):
 
    ```bash
    # Shared by Greptile services
@@ -58,6 +58,7 @@ Knowledge Base is now available for self-hosted deployments. It requires all of 
    KNOWLEDGE_BASE_MATERIALIZATION_ENABLED='true'
    KNOWLEDGE_BASE_VIEWER_ENABLED='true'
    DEFAULT_KNOWLEDGE_BASE_ROUTING_POLICY='kb-gen-roll@5'
+   # Refresh Knowledge Base documentation every day at 00:17 UTC.
    KNOWLEDGE_BASE_DOCS_CRON_EXPRESSION='17 0 * * *'
    KNOWLEDGE_BASE_DOCS_CRON_TIMEZONE='UTC'
 
@@ -90,12 +91,14 @@ The web service now reads `BILLING`; it no longer reads `BILLING_ENABLED`. The s
 
 ### Important fixes
 
-- Update the web application to use `BILLING`, avoiding incorrect expired-trial banners in customized deployments still setting only `BILLING_ENABLED`.
+- Respect automatic-approval settings configured on the base branch and safely withhold approval when those settings cannot be loaded.
 
 See the [complete changelog](https://github.com/greptileai/akupara/blob/release/202610.5/CHANGELOG.md).
 
 ## Release artifacts
 
-Release configuration base commit: `16609f02cd6273394474277a0f14d9b50f88137f`
-
+- **Release date:** October 12, 2026
+- **Previous self-hosted release:** `202609.10`
+- **Container image tag:** `202610.5` (designated immutable by the release owner)
+- **Rollback:** An image-only rollback to `202609.10` is not supported after database migrations have run. Restore a database backup taken before the upgrade, then redeploy the prior release.
 - [Compatibility requirements](https://github.com/greptileai/akupara/blob/release/202610.5/docs/installation/requirements.md)
