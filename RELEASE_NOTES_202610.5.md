@@ -19,15 +19,7 @@ The default self-hosted review routing policy is now the OpenAI GPT-based `grept
 
 - `greptile-v5.3@6` requires access to `gpt-6.1-sol`, `gpt-6-sol`, `gpt-6-luna`, and `dsv4-flash-leased-nothink`.
 - If your deployment does not have `gpt-6.1-sol`, set the default policy to `v5.2-tiers@2`; it requires `gpt-6-sol`, `gpt-5.6-luna`, and `dsv4-flash-leased-nothink`.
-- Update any customized LiteLLM configuration with the supplied OpenAI routes and the `dsv4-flash-leased-nothink` alias. Configure `OPENAI_API_KEY` (or the equivalent credentials for your proxy).
-
-For Docker Compose, set these in `.env`:
-
-```bash
-REVIEW_WORKFLOW_ROUTING_ENABLED=true
-DEFAULT_NATIVE_ROUTING_POLICY=greptile-v5.3@6
-FEATURE_FLAGS_JSON='{"effort-levels":true}'
-```
+- Update any customized LiteLLM configuration with the supplied [OpenAI routes and `dsv4-flash-leased-nothink` alias](https://github.com/greptileai/akupara/blob/release/202610.5/deploy/kubernetes/charts/greptile/files/llmproxy-config.yaml).
 
 For Kubernetes, set the equivalent chart values:
 

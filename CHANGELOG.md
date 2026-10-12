@@ -11,7 +11,7 @@
 - Default self-hosted review routing to the OpenAI policy `greptile-v5.3@6`; deployments without `gpt-6.1-sol` can use `v5.2-tiers@2` instead.
 - Require a HTTPS `network.appUrl` when using auth v2, because Hydra rejects non-localhost HTTP OAuth redirects.
 - Require custom web deployments to use `BILLING` instead of `BILLING_ENABLED`.
-- Add documented configuration for private certificate authorities used by internal SCM, SSO, or LLM endpoints.
+- Support private CA certificates for internal SCM, SSO, and LLM endpoints.
 
 ### Fixed
 
