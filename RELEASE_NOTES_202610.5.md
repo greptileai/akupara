@@ -1,13 +1,13 @@
 # Greptile Self-Hosted 202610.5
 
-This release adds OpenAI GPT-based review policies and self-hosted Knowledge Base generation. It also introduces a required storage and configuration change for Knowledge Base users.
+This release adds a stronger collection of review variants based on the latest OpenAI GPT models, superseding the Anthropic-based review variants. It also introduces Knowledge Base to self-hosted instances and requires storage and configuration changes.
 
 ## Before upgrading
 
 - **Supported upgrade from:** `202609.10`
 - **Upgrade urgency:** Recommended
 - **Operator action:** Take a database backup and review the Knowledge Base storage, model access, and environment requirements below before rolling the stack.
-- **Expected downtime:** Plan a maintenance window; a specific downtime duration has not been separately validated.
+- **Expected downtime:** Up to 5 minutes.
 
 Follow the [self-hosted upgrade guide](https://github.com/greptileai/akupara/blob/release/202610.5/docs/operations/upgrade.md).
 
@@ -15,11 +15,11 @@ Follow the [self-hosted upgrade guide](https://github.com/greptileai/akupara/blo
 
 #### OpenAI review policies and review types
 
-The default self-hosted review routing policy is now the OpenAI GPT-based `greptile-v5.3@6` policy. It supports the **Base**, **Plus**, and **Apex** review types when the `effort-levels` feature flag is enabled.
+The default and recommended self-hosted review routing policy is now the OpenAI GPT-based `greptile-v5.3@6` policy. It supports the **Base**, **Plus**, and **Apex** review types when the `effort-levels` feature flag is enabled. Click here to learn more about Plus and Apex reviews: https://www.greptile.com/blog/introducing-plus-and-apex
 
-- `greptile-v5.3@6` requires access to `gpt-6.1-sol`, `gpt-6-sol`, `gpt-6-luna`, and `dsv4-flash-leased-nothink`.
-- If your deployment does not have `gpt-6.1-sol`, set the default policy to `v5.2-tiers@2`; it requires `gpt-6-sol`, `gpt-5.6-luna`, and `dsv4-flash-leased-nothink`.
-- Update any customized LiteLLM configuration with the supplied [OpenAI routes and `dsv4-flash-leased-nothink` alias](https://github.com/greptileai/akupara/blob/release/202610.5/deploy/kubernetes/charts/greptile/files/llmproxy-config.yaml).
+- `greptile-v5.3@6` requires access to `gpt-6.1-sol`, `gpt-6-sol` and `gpt-6-luna`.
+- If your deployment does not have `gpt-6.1-sol`, set the default policy to `v5.2-tiers@2`; it requires `gpt-6-sol` and `gpt-5.6-luna`.
+- Update any customized LiteLLM configuration with the supplied [OpenAI routes and the new `dsv4-flash-leased-nothink` alias](https://github.com/greptileai/akupara/blob/release/202610.5/deploy/kubernetes/charts/greptile/files/llmproxy-config.yaml).
 
 For Kubernetes, set the equivalent chart values:
 
@@ -59,7 +59,7 @@ Knowledge Base is now available for self-hosted deployments. It requires all of 
    FILE_CHANGE_ACTIVITY_BUCKET='file:///var/lib/greptile/artifacts'
    ```
 
-3. **Model access.** Knowledge Base generation requires access to `gpt-5.6-terra` through your LLM proxy. If you do not have access to `gpt-5.6-terra` but would like to try Knowledge Base, contact your Greptile representative.
+3. **Model access.** Knowledge Base generation requires access to `gpt-5.6-terra` through your LLM proxy. If you do not have access to `gpt-5.6-terra` but would like to try Knowledge Base, contact your Greptile representative for next steps.
 
 For user guidance, see the [official Knowledge Base guide](https://www.greptile.com/knowledge-base).
 
