@@ -1,3 +1,21 @@
+## 202610.5
+
+### Added
+
+- Add self-hosted Knowledge Base generation, including a shared persistent artifact store for generated knowledge bases.
+- Add OpenAI GPT review policies with Base, Plus, and Apex review types.
+- Enable the Gitea connection option by default in self-hosted deployments.
+
+### Changed
+
+- Default self-hosted review routing to the OpenAI policy `greptile-v5.3@6`; deployments without `gpt-6.1-sol` can use `v5.2-tiers@2` instead.
+- Require a HTTPS `network.appUrl` when using auth v2, because Hydra rejects non-localhost HTTP OAuth redirects.
+- Add documented configuration for private certificate authorities used by internal SCM, SSO, or LLM endpoints.
+
+### Fixed
+
+- Make the web service use `BILLING` rather than the obsolete `BILLING_ENABLED` environment variable, preventing incorrect expired-trial banners when the web pod lacks the new setting.
+
 ## 202609.10
 
 ### Added

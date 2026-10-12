@@ -1,6 +1,6 @@
 global:
   registry: "REPLACE_ME_REGISTRY"
-  tag: "202609.10"
+  tag: "202610.5"
   pullPolicy: IfNotPresent
   imagePullSecrets: []
   podAnnotations: {}
