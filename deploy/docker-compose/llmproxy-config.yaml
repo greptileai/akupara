@@ -4,6 +4,34 @@ model_list:
         model: anthropic/claude-*
         api_base: "os.environ/ANTHROPIC_BASE_URL"
         api_key: "os.environ/ANTHROPIC_API_KEY"
+    # Longer than gpt-*, so gpt-6-sol, gpt-6.1-sol, and gpt-6-luna keep reasoning
+    # effort, service_tier, and Responses API mode. Other GPT models stay on gpt-*.
+    - model_name: gpt-6*
+      litellm_params:
+        model: openai/gpt-6*
+        api_base: "os.environ/OPENAI_BASE_URL"
+        api_key: "os.environ/OPENAI_API_KEY"
+        allowed_openai_params: [reasoning_effort, service_tier]
+        additional_drop_params: [temperature, top_p, top_logprobs, logprobs]
+      model_info:
+        mode: responses
+        supports_reasoning: true
+        supports_function_calling: true
+        supports_vision: true
+        supports_response_schema: true
+    - model_name: gpt-5.6-luna
+      litellm_params:
+        model: openai/gpt-5.6-luna
+        api_base: "os.environ/OPENAI_BASE_URL"
+        api_key: "os.environ/OPENAI_API_KEY"
+        allowed_openai_params: [reasoning_effort]
+        additional_drop_params: [temperature, top_p, top_logprobs, logprobs]
+      model_info:
+        mode: responses
+        supports_reasoning: true
+        supports_function_calling: true
+        supports_vision: true
+        supports_response_schema: true
     - model_name: gpt-*
       litellm_params:
         model: openai/gpt-*
@@ -20,13 +48,16 @@ model_list:
         api_base: "os.environ/ANTHROPIC_BASE_URL"
         api_key: "os.environ/ANTHROPIC_API_KEY"
         timeout: 300
-    - model_name: dsv4-flash-leased-nothink  # only required for greptile-v5 see docs/configuration/review-variants.md
+    - model_name: dsv4-flash-leased-nothink  # Required by new OpenAI based variants; see docs/configuration/review-variants.md.
       litellm_params:
-        model: openai/gpt-5.6-luna
+        model: openai/gpt-5.6-luna # can be replaced with gpt-6-luna
         api_base: "os.environ/OPENAI_BASE_URL"
         api_key: "os.environ/OPENAI_API_KEY"
         reasoning_effort: low
         allowed_openai_params: [reasoning_effort]
+        additional_drop_params: [temperature, top_p, top_logprobs, logprobs]
+      model_info:
+        mode: responses
     #  Example of bedrock
     # - model_name: bedrock/*
     #   litellm_params:
@@ -65,9 +96,9 @@ router_settings:
   routing_strategy: simple-shuffle # Literal["simple-shuffle", "least-busy", "usage-based-routing","latency-based-routing"]
   model_group_alias:
     "api-chat-completion": "gpt-5.4-nano"
-    "addressed-judge": "gpt-5.4-nano" # could also be gpt-5.6-luna
-    "acknowledged-judge": "gpt-5.4-mini" # could also be gpt-5.6-luna
-    "comment-analytics": "gpt-5.4-nano" # could also be gpt-5.6-luna
+    "addressed-judge": "gpt-5.6-luna"
+    "acknowledged-judge": "gpt-6-luna"
+    "comment-analytics": "gpt-5.6-luna"
     "comment-classifier": "gpt-5.4-nano"
     "post-review-gate": "gpt-5.4-nano"
     "rule-optimization": "gpt-5.4-nano"
@@ -79,7 +110,7 @@ router_settings:
     "review-deep": "claude-opus-4-6"
     "review-light": "claude-haiku-4-5-20251001"
     "refiner": "claude-sonnet-4-6"
-    "reply-agent": "claude-sonnet-4-6" # could also be gpt-5.6-luna
+    "reply-agent": "gpt-5.6-luna"
 
   num_retries: 2
   timeout: 120 # seconds
