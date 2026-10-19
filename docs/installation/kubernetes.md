@@ -88,7 +88,7 @@ Edit `./charts/profiles/values.user.yaml` and set:
 - GitHub and model API keys — see [GitHub App creation](../configuration/github_app_creation.md) and [LLM providers](../configuration/llm-providers.md)
 - Or switch to `secrets.mode=external`
 
-The API receives `GREPTILE_TAG` automatically from its selected image tag: `components.api.image.tag` when set, otherwise `global.tag`. This value is used in usage reports and takes precedence over custom `GREPTILE_TAG` environment settings.
+The API receives `GREPTILE_TAG` automatically from `global.tag`, even when `components.api.image.tag` overrides its container image. This release version is used in usage reports and takes precedence over custom `GREPTILE_TAG` environment settings.
 
 ### Feature flags
 

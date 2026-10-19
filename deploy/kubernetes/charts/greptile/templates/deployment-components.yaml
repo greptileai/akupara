@@ -88,7 +88,7 @@ spec:
               value: {{ $name | quote }}
             {{- if eq $name "api" }}
             - name: GREPTILE_TAG
-              value: {{ default $.Values.global.tag $component.image.tag | quote }}
+              value: {{ $.Values.global.tag | quote }}
             {{- end }}
             - name: REDIS_HOST
               value: {{ include "greptile.redisHost" $ | quote }}
