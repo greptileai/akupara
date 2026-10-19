@@ -86,6 +86,10 @@ spec:
           env:
             - name: COMPONENT_NAME
               value: {{ $name | quote }}
+            {{- if eq $name "api" }}
+            - name: GREPTILE_TAG
+              value: {{ default $.Values.global.tag $component.image.tag | quote }}
+            {{- end }}
             - name: REDIS_HOST
               value: {{ include "greptile.redisHost" $ | quote }}
             - name: REDIS_PORT
@@ -93,15 +97,19 @@ spec:
             - name: REDIS_USE_TLS
               value: {{ $.Values.redis.external.tls | quote }}
             {{- range $secretKey := $component.secretEnv }}
+            {{- if not (and (eq $name "api") (eq $secretKey "GREPTILE_TAG")) }}
             - name: {{ $secretKey }}
               valueFrom:
                 secretKeyRef:
                   name: {{ include "greptile.secretName" $ }}
                   key: {{ $secretKey }}
             {{- end }}
+            {{- end }}
             {{- range $k, $v := $component.extraEnv }}
+            {{- if not (and (eq $name "api") (eq $k "GREPTILE_TAG")) }}
             - name: {{ $k }}
               value: {{ $v | quote }}
+            {{- end }}
             {{- end }}
           {{- with $component.livenessProbe }}
           livenessProbe:
