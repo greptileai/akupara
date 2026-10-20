@@ -264,6 +264,7 @@ secrets:
   mode: native
   name: ""
   native:
+    GREPTILE_LICENSE: ""
     JWT_SECRET: ""
     TOKEN_ENCRYPTION_KEY: ""
     LITELLM_MASTER_KEY: ""
