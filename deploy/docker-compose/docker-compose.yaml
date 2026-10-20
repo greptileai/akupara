@@ -182,7 +182,8 @@ services:
     env_file:
       - .env.greptile-generated
       - .env.hatchet-generated
-      - .env  # User config last (takes precedence)
+      - .env  # User config overrides generated secrets
+      - .env.greptile-instance  # Persistent deployment identity takes precedence
     environment:
       - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - AUTH_BOXYHQ_SAML_ISSUER=${AUTH_BOXYHQ_URL}
@@ -202,6 +203,7 @@ services:
       - .env.greptile-generated
       - .env.hatchet-generated
       - .env
+      - .env.greptile-instance  # Persistent deployment identity takes precedence
     environment:
       - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
     ports:
@@ -216,6 +218,7 @@ services:
       - .env.greptile-generated
       - .env.hatchet-generated
       - .env
+      - .env.greptile-instance  # Persistent deployment identity takes precedence
     environment:
       - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - URL=${API_URL}
@@ -234,6 +237,7 @@ services:
       - .env.greptile-generated
       - .env.hatchet-generated
       - .env
+      - .env.greptile-instance  # Persistent deployment identity takes precedence
     environment:
       - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - PARENT_DIR=/mnt/data/
@@ -250,6 +254,7 @@ services:
       - .env.greptile-generated
       - .env.hatchet-generated
       - .env
+      - .env.greptile-instance  # Persistent deployment identity takes precedence
     environment:
       - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - PORT=3007
@@ -270,6 +275,7 @@ services:
       - .env.greptile-generated
       - .env.hatchet-generated
       - .env
+      - .env.greptile-instance  # Persistent deployment identity takes precedence
     environment:
       - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - PORT=3005
@@ -288,6 +294,7 @@ services:
       - .env.greptile-generated
       - .env.hatchet-generated
       - .env
+      - .env.greptile-instance  # Persistent deployment identity takes precedence
     environment:
       - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - PORT=8080
@@ -305,6 +312,7 @@ services:
     restart: on-failure
     env_file:
       - .env.greptile-generated
+      - .env.greptile-instance  # Persistent deployment identity takes precedence
     environment:
       - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - PORT=4000
@@ -336,6 +344,7 @@ services:
     env_file:
       - .env.greptile-generated
       - .env
+      - .env.greptile-instance  # Persistent deployment identity takes precedence
     environment:
       - DB_ENCRYPTION_KEY=${JACKSON_DB_ENCRYPTION_KEY}
       - HOST_URL=${JACKSON_HOST_URL}

@@ -45,4 +45,6 @@ else
   log "Caddyfile already exists, skipping"
 fi
 
+"${SCRIPT_DIR}/generate-instance-id.sh"
+
 log "Environment setup complete"

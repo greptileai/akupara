@@ -84,6 +84,11 @@ spec:
                 name: {{ $secret }}
             {{- end }}
           env:
+            - name: GREPTILE_INSTANCE_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "greptile.fullname" $ }}-instance-identity
+                  key: GREPTILE_INSTANCE_ID
             - name: COMPONENT_NAME
               value: {{ $name | quote }}
             - name: OTEL_SERVICE_VERSION
@@ -99,7 +104,7 @@ spec:
             - name: REDIS_USE_TLS
               value: {{ $.Values.redis.external.tls | quote }}
             {{- range $secretKey := $component.secretEnv }}
-            {{- if not (and (eq $name "api") (eq $secretKey "GREPTILE_TAG")) }}
+            {{- if and (ne $secretKey "GREPTILE_INSTANCE_ID") (not (and (eq $name "api") (eq $secretKey "GREPTILE_TAG"))) }}
             - name: {{ $secretKey }}
               valueFrom:
                 secretKeyRef:
@@ -108,7 +113,7 @@ spec:
             {{- end }}
             {{- end }}
             {{- range $k, $v := $component.extraEnv }}
-            {{- if not (and (eq $name "api") (eq $k "GREPTILE_TAG")) }}
+            {{- if and (ne $k "GREPTILE_INSTANCE_ID") (not (and (eq $name "api") (eq $k "GREPTILE_TAG"))) }}
             - name: {{ $k }}
               value: {{ $v | quote }}
             {{- end }}
