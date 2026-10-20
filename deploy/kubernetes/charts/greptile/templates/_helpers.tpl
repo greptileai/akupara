@@ -52,8 +52,32 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- printf "%s-shared-workdir" (include "greptile.fullname" .) -}}
 {{- end -}}
 
+{{- define "greptile.knowledgeBasePvcName" -}}
+{{- printf "%s-knowledge-base" (include "greptile.fullname" .) -}}
+{{- end -}}
+
+{{/* Drop the chart-managed knowledge-base volume when its PVC is disabled. An explicit claimName stays. */}}
+{{- define "greptile.omitManagedKnowledgeBaseVolume" -}}
+{{- $vol := .vol -}}
+{{- if and $vol.persistentVolumeClaim (eq ($vol.persistentVolumeClaim.storage | default "") "knowledgeBase") (not $vol.persistentVolumeClaim.claimName) (not .root.Values.storage.knowledgeBase.enabled) -}}
+true
+{{- end -}}
+{{- end -}}
+
 {{- define "greptile.pgbouncerName" -}}
 {{- printf "%s-pgbouncer" (include "greptile.fullname" .) -}}
+{{- end -}}
+
+{{- define "greptile.redisName" -}}
+{{- printf "%s-redis" (include "greptile.fullname" .) -}}
+{{- end -}}
+
+{{- define "greptile.redisHost" -}}
+{{- .Values.redis.external.host | default (include "greptile.redisName" .) -}}
+{{- end -}}
+
+{{- define "greptile.redisUrl" -}}
+{{- printf "%s:6379" (include "greptile.redisHost" .) -}}
 {{- end -}}
 
 {{- define "greptile.componentName" -}}
@@ -163,4 +187,16 @@ vector
 
 {{- define "greptile.vectorDatabaseUrl" -}}
 {{- printf "postgresql://%s:%s@%s:%s/%s" (include "greptile.databaseUser" .) (include "greptile.databasePassword" .) (include "greptile.databaseHost" .) (include "greptile.databasePort" .) (include "greptile.vectorDatabaseName" .) -}}
+{{- end -}}
+
+{{- define "greptile.hydraTokenHookUrl" -}}
+{{- if .Values.authV2.hookUrl -}}
+{{- .Values.authV2.hookUrl -}}
+{{- else -}}
+{{- printf "http://%s:%v/api/hooks/token" (include "greptile.componentName" (dict "root" . "name" "auth-v2")) (index .Values.components "auth-v2").service.port -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "greptile.lgtmName" -}}
+{{- printf "%s-lgtm" (include "greptile.fullname" .) -}}
 {{- end -}}

@@ -1,6 +1,11 @@
+{{- $renderedVolumes := list }}
+{{- $renderedMounts := list }}
+{{- $omitMount := false }}
 {{- range $name, $component := .Values.components }}
 {{- $isJackson := eq $name "jackson" }}
-{{- if and $component.enabled (or (not $isJackson) $.Values.saml.enabled) }}
+{{- $isAuth := eq $name "auth" }}
+{{- $isAuthV2 := eq $name "auth-v2" }}
+{{- if and $component.enabled (or (not $isJackson) $.Values.saml.enabled) (or (not $isAuth) (not $.Values.authV2.enabled)) (or (not $isAuthV2) $.Values.authV2.enabled) }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -83,16 +88,30 @@ spec:
               value: {{ $name | quote }}
             - name: OTEL_SERVICE_VERSION
               value: {{ default $.Values.global.tag $component.image.tag | quote }}
+            {{- if eq $name "api" }}
+            - name: GREPTILE_TAG
+              value: {{ $.Values.global.tag | quote }}
+            {{- end }}
+            - name: REDIS_HOST
+              value: {{ include "greptile.redisHost" $ | quote }}
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_USE_TLS
+              value: {{ $.Values.redis.external.tls | quote }}
             {{- range $secretKey := $component.secretEnv }}
+            {{- if not (and (eq $name "api") (eq $secretKey "GREPTILE_TAG")) }}
             - name: {{ $secretKey }}
               valueFrom:
                 secretKeyRef:
                   name: {{ include "greptile.secretName" $ }}
                   key: {{ $secretKey }}
             {{- end }}
+            {{- end }}
             {{- range $k, $v := $component.extraEnv }}
+            {{- if not (and (eq $name "api") (eq $k "GREPTILE_TAG")) }}
             - name: {{ $k }}
               value: {{ $v | quote }}
+            {{- end }}
             {{- end }}
           {{- with $component.livenessProbe }}
           livenessProbe:
@@ -104,17 +123,43 @@ spec:
           {{- end }}
           resources:
             {{- toYaml $component.resources | nindent 12 }}
-          {{- with $component.volumeMounts }}
+          {{- $renderedVolumes = list }}
+          {{- range $vol := $component.volumes }}
+            {{- if not (include "greptile.omitManagedKnowledgeBaseVolume" (dict "root" $ "vol" $vol)) }}
+              {{- $renderedVolumes = append $renderedVolumes $vol }}
+            {{- end }}
+          {{- end }}
+          {{- $renderedMounts = list }}
+          {{- range $mount := $component.volumeMounts }}
+            {{- $omitMount = false }}
+            {{- range $vol := $component.volumes }}
+              {{- if and (eq $vol.name $mount.name) (include "greptile.omitManagedKnowledgeBaseVolume" (dict "root" $ "vol" $vol)) }}
+                {{- $omitMount = true }}
+              {{- end }}
+            {{- end }}
+            {{- if not $omitMount }}
+              {{- $renderedMounts = append $renderedMounts $mount }}
+            {{- end }}
+          {{- end }}
+          {{- with $renderedMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      {{- if $component.volumes }}
+      {{- with $renderedVolumes }}
       volumes:
-        {{- range $vol := $component.volumes }}
+        {{- range $vol := . }}
         - name: {{ $vol.name }}
           {{- if $vol.persistentVolumeClaim }}
           persistentVolumeClaim:
-            claimName: {{ default (include "greptile.sharedPvcName" $) $vol.persistentVolumeClaim.claimName }}
+            {{- $claimName := $vol.persistentVolumeClaim.claimName }}
+            {{- if not $claimName }}
+              {{- if eq ($vol.persistentVolumeClaim.storage | default "") "knowledgeBase" }}
+                {{- $claimName = include "greptile.knowledgeBasePvcName" $ }}
+              {{- else }}
+                {{- $claimName = include "greptile.sharedPvcName" $ }}
+              {{- end }}
+            {{- end }}
+            claimName: {{ $claimName }}
           {{- end }}
           {{- if $vol.configMap }}
           configMap:

@@ -18,21 +18,21 @@ Set keys and base URLs in `deploy/docker-compose/.env`. Leave unused providers u
 ```bash
 # Anthropic
 ANTHROPIC_BASE_URL='https://api.anthropic.com'
-ANTHROPIC_KEY='sk-ant-secret_key'
+ANTHROPIC_API_KEY='sk-ant-secret_key'
 
 # OpenAI
-OPENAI_API_BASE_URL='https://api.openai.com/v1/'
-OPENAI_KEY='sk-openai_key'
+OPENAI_BASE_URL='https://api.openai.com/v1/'
+OPENAI_API_KEY='sk-openai_key'
 
 # Azure OpenAI
-AZURE_OPENAI_URL='https://onboardai.openai.azure.com/'
-AZURE_OPENAI_KEY='azure_key'
+AZURE_OPENAI_BASE_URL='https://onboardai.openai.azure.com/'
+AZURE_OPENAI_API_KEY='azure_key'
 AZURE_OPENAI_API_VERSION='2024-07-18'
 
 # AWS Bedrock
 AWS_ACCESS_KEY_ID='aws_access_key'
 AWS_SECRET_ACCESS_KEY='aws_secret_key'
-AWS_REGION='us-east-1'
+AWS_REGION_NAME='us-east-1'
 ```
 
 For Bedrock, create a long-term access key under **AWS Bedrock > API Keys > Long-term API Keys** first.
@@ -43,28 +43,33 @@ Model routing lives in `deploy/docker-compose/llmproxy-config.yaml`. Bedrock and
 
 Put API keys in `secrets.native.*` (or your external secret store):
 
-- `ANTHROPIC_KEY` (required for default Anthropic routing)
-- `OPENAI_KEY`
-- `AZURE_OPENAI_KEY`
+- `ANTHROPIC_API_KEY` (required for default Anthropic routing)
+- `OPENAI_API_KEY`
+- `AZURE_OPENAI_API_KEY`
 - `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`
 
 LiteLLM config is `charts/greptile/files/llmproxy-config.yaml`. Chart values also expose `llm.anthropicBaseUrl`, `llm.openaiBaseUrl`, and `llm.azureOpenaiUrl`.
 
 ## GPT-based review routing
 
-If you use GPT for reviews, enable the GPT routing variant.
+Docker Compose and the Helm chart default to the rsv11 policy: `REVIEW_WORKFLOW_ROUTING_ENABLED=true` and `DEFAULT_NATIVE_ROUTING_POLICY=native-rsv11-stndrd4-expansion@3`. See `docs/configuration/review-variants.md` for the supported policies.
 
-**Docker Compose** — uncomment in `.env`:
+If you use GPT for reviews, set the GPT routing policy instead.
+
+**Docker Compose** — in `.env`:
 
 ```bash
 REVIEW_WORKFLOW_ROUTING_ENABLED=true
 DEFAULT_NATIVE_ROUTING_POLICY=native-rod-gpt-simp-v6-composed-primary@1
 ```
 
-**Kubernetes** — uncomment in chart values:
+**Kubernetes** — override `appConfig` in chart values. The worker already maps these onto `REVIEW_WORKFLOW_ROUTING_ENABLED` and `DEFAULT_NATIVE_ROUTING_POLICY`:
 
-- `appConfig.reviewWorkflowRoutingEnabled` / `appConfig.defaultNativeRoutingPolicy`
-- The matching `REVIEW_WORKFLOW_ROUTING_ENABLED` and `DEFAULT_NATIVE_ROUTING_POLICY` entries under `components.worker.componentEnv`
+```yaml
+appConfig:
+  reviewWorkflowRoutingEnabled: "true"
+  defaultNativeRoutingPolicy: "native-rod-gpt-simp-v6-composed-primary@1"
+```
 
 The GPT variant expects `gpt-5.5` by default. If `gpt-5.5` is not available from your provider, add a LiteLLM alias under `router_settings.model_group_alias` mapping `gpt-5.5` to a GPT model you do have:
 

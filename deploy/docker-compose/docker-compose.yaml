@@ -152,6 +152,18 @@ services:
     profiles:
       - greptile
 
+  greptile-redis:
+    image: valkey/valkey:8.1-alpine
+    container_name: greptile-redis
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+    profiles:
+      - greptile
+
   greptile-db-migration:
     image: ${CONTAINER_REGISTRY}/db-migration-job:${GREPTILE_TAG}
     depends_on:
@@ -174,12 +186,13 @@ services:
     environment:
       - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - AUTH_BOXYHQ_SAML_ISSUER=${AUTH_BOXYHQ_URL}
-      - BILLING_ENABLED=${BILLING}
       - NEXT_PUBLIC_BILLING=${BILLING}
       - NEXT_PUBLIC_ANALYTICS=${ANALYTICS}
       - PYLON_ENABLED=false
     ports:
       - "3000:3000"
+    volumes:
+      - knowledge_base:/var/lib/greptile/artifacts
     profiles:
       - greptile
 
@@ -209,6 +222,8 @@ services:
       - PORT=3002
     ports:
       - "3002:3002"
+    volumes:
+      - knowledge_base:/var/lib/greptile/artifacts
     profiles:
       - greptile
 
@@ -263,6 +278,7 @@ services:
       - greptile
     volumes:
       - cloned_repositories:/mnt/efs
+      - knowledge_base:/var/lib/greptile/artifacts
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
 
   greptile-jobs:
@@ -275,8 +291,12 @@ services:
     environment:
       - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - PORT=8080
+      - FILE_CHANGE_ACTIVITY_ENABLED=true
+      - FILE_CHANGE_ACTIVITY_BUCKET=file:///var/lib/greptile/artifacts
     ports:
       - "8086:8080"
+    volumes:
+      - knowledge_base:/var/lib/greptile/artifacts
     profiles:
       - greptile
 
@@ -288,17 +308,16 @@ services:
     environment:
       - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - PORT=4000
-      # Map common.env variable names to what the config file expects
       - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_KEY}
-      - OPENAI_BASE_URL=${OPENAI_API_BASE_URL}
-      - OPENAI_API_KEY=${OPENAI_KEY}
-      - AZURE_OPENAI_BASE_URL=${AZURE_OPENAI_URL}
-      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-${ANTHROPIC_KEY}}
+      - OPENAI_BASE_URL=${OPENAI_BASE_URL:-${OPENAI_API_BASE_URL}}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-${OPENAI_KEY}}
+      - AZURE_OPENAI_BASE_URL=${AZURE_OPENAI_BASE_URL:-${AZURE_OPENAI_URL}}
+      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY:-${AZURE_OPENAI_KEY}}
       - AZURE_OPENAI_API_VERSION=${AZURE_OPENAI_API_VERSION}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_REGION_NAME=${AWS_REGION}
+      - AWS_REGION_NAME=${AWS_REGION_NAME:-${AWS_REGION}}
     ports:
       - "4000:4000"
     profiles:
@@ -351,3 +370,4 @@ volumes:
   caddy_data: {}
   caddy_config: {}
   cloned_repositories: {}
+  knowledge_base: {}

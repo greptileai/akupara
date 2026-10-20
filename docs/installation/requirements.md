@@ -13,7 +13,7 @@ One Linux server with:
 
 ### Kubernetes
 
-Kubernetes storage is configured separately. Bundled Postgres and the shared workdir PVC must have enough backing storage for your workload. Review `postgres.primary.persistence.size` and `storage.sharedWorkdir.size` before deploying to a small cluster. For CPU, memory, and worker replica counts, see [Scaling](../operations/scaling.md).
+Kubernetes storage is configured separately. Bundled Postgres, the shared workdir PVC, and the knowledge base PVC must have enough backing storage for your workload. Review `postgres.primary.persistence.size`, `storage.sharedWorkdir.size`, and `storage.knowledgeBase.size` before deploying to a small cluster. For CPU, memory, and worker replica counts, see [Scaling](../operations/scaling.md).
 
 ## Software
 

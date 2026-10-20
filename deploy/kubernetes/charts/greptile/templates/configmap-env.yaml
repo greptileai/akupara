@@ -5,6 +5,12 @@ metadata:
   labels:
     {{- include "greptile.labels" . | nindent 4 }}
 data:
+  {{- if .Values.o11y.enabled }}
+  {{- if hasKey .Values.env.shared "OTEL_EXPORTER_OTLP_ENDPOINT" }}
+  {{- fail "o11y.enabled pins OTEL_EXPORTER_OTLP_ENDPOINT to the bundled stack; remove it from env.shared" }}
+  {{- end }}
+  OTEL_EXPORTER_OTLP_ENDPOINT: {{ printf "http://%s:4318" (include "greptile.lgtmName" .) | quote }}
+  {{- end }}
   {{- range $k, $v := .Values.env.shared }}
   {{ $k }}: {{ tpl ($v | toString) $ | quote }}
   {{- end }}

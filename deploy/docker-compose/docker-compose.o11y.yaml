@@ -1,0 +1,41 @@
+x-otel-env: &otel-env
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://greptile-lgtm:4318
+
+services:
+  greptile-web:
+    environment: *otel-env
+  greptile-auth:
+    environment: *otel-env
+  greptile-api:
+    environment: *otel-env
+  greptile-indexer-chunker:
+    environment: *otel-env
+  greptile-webhook:
+    environment: *otel-env
+  greptile-worker:
+    environment: *otel-env
+  greptile-jobs:
+    environment: *otel-env
+
+  greptile-lgtm:
+    image: grafana/otel-lgtm:0.33.1
+    container_name: greptile-lgtm
+    restart: on-failure
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD:?GF_SECURITY_ADMIN_PASSWORD is not set, run ./bin/generate-secrets.sh}
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES: "false"
+      GF_NEWS_NEWS_FEED_ENABLED: "false"
+      GF_SERVER_ROOT_URL: ${GRAFANA_URL:?GRAFANA_URL is not set, see docs/operations/observability.md}
+    volumes:
+      - lgtm_data:/data
+    healthcheck:
+      test: ["CMD", "cat", "/tmp/ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  lgtm_data: {}

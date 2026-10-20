@@ -11,7 +11,7 @@ The tables below list the workloads this repository deploys. Kubernetes names as
 | Service | Description |
 |---------|-------------|
 | `web` | User-facing dashboard. Operators and developers sign in here and manage repositories, reviews, and settings. |
-| `auth` | Authentication service used by the dashboard. |
+| `auth-v2` and `hydra` (`auth` in Compose) | Authentication service used by the dashboard; `hydra` is the OAuth/OIDC issuer. The Kubernetes chart runs legacy `auth` instead when `authV2.enabled: false`. |
 | `api` | Application API used by the web UI and by CLI or API clients. Starts review and indexing workflows on Hatchet. |
 | `webhook` | Receives GitHub and GitLab webhook events and dispatches review and repository-sync work to Hatchet. |
 | `worker` | Executes review workflows: clones repositories, runs the review sandbox, posts comments to the SCM provider, and stores review state. Runs privileged with `SYS_ADMIN` so sandboxing can work. |
@@ -30,6 +30,7 @@ The tables below list the workloads this repository deploys. Kubernetes names as
 | Service | Description |
 |---------|-------------|
 | `postgres` | PostgreSQL with pgvector. Stores application metadata, indexes, and review state. Can be bundled or replaced with a managed database. |
+| `redis` | Valkey (Redis-compatible) store required by the application services. Bundled by default; point at an existing instance with `redis.external.host` on Kubernetes or `REDIS_HOST` in Compose. |
 | `pgbouncer` | Connection pooler in front of Postgres. Deployed by the Kubernetes chart when enabled; not used in Docker Compose. |
 | `db-migration` | One-shot job that applies database schema migrations before application services start. |
 | Hatchet | Task queue used for review, indexing, and recurring jobs. Installed separately on Kubernetes (`hatchet-stack`). Docker Compose starts Hatchet and its Postgres and RabbitMQ dependencies alongside Greptile. |
