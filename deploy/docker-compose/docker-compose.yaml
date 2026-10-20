@@ -184,6 +184,7 @@ services:
       - .env.hatchet-generated
       - .env  # User config last (takes precedence)
     environment:
+      - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - AUTH_BOXYHQ_SAML_ISSUER=${AUTH_BOXYHQ_URL}
       - NEXT_PUBLIC_BILLING=${BILLING}
       - NEXT_PUBLIC_ANALYTICS=${ANALYTICS}
@@ -201,6 +202,8 @@ services:
       - .env.greptile-generated
       - .env.hatchet-generated
       - .env
+    environment:
+      - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
     ports:
       - "3001:3001"
     profiles:
@@ -214,6 +217,7 @@ services:
       - .env.hatchet-generated
       - .env
     environment:
+      - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - URL=${API_URL}
       - PORT=3002
     ports:
@@ -231,6 +235,7 @@ services:
       - .env.hatchet-generated
       - .env
     environment:
+      - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - PARENT_DIR=/mnt/data/
       - PORT=3003
     volumes:
@@ -246,6 +251,7 @@ services:
       - .env.hatchet-generated
       - .env
     environment:
+      - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - PORT=3007
     ports:
       - "3007:3007"
@@ -265,6 +271,7 @@ services:
       - .env.hatchet-generated
       - .env
     environment:
+      - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - PORT=3005
       - NFS_WORKING_DIR=/mnt/efs
     profiles:
@@ -282,6 +289,7 @@ services:
       - .env.hatchet-generated
       - .env
     environment:
+      - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - PORT=8080
       - FILE_CHANGE_ACTIVITY_ENABLED=true
       - FILE_CHANGE_ACTIVITY_BUCKET=file:///var/lib/greptile/artifacts
@@ -298,6 +306,7 @@ services:
     env_file:
       - .env.greptile-generated
     environment:
+      - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - PORT=4000
       - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-${ANTHROPIC_KEY}}

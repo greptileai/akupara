@@ -86,6 +86,8 @@ spec:
           env:
             - name: COMPONENT_NAME
               value: {{ $name | quote }}
+            - name: OTEL_SERVICE_VERSION
+              value: {{ default $.Values.global.tag $component.image.tag | quote }}
             {{- if eq $name "api" }}
             - name: GREPTILE_TAG
               value: {{ $.Values.global.tag | quote }}
