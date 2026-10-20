@@ -69,16 +69,6 @@ To stay on legacy auth, set `authV2.enabled: false`.
 
 The four auth secrets (`CSRF_SECRET`, `HYDRA_SYSTEM_SECRET`, `HYDRA_WEB_CLIENT_SECRET`, `HYDRA_TOKEN_HOOK_SECRET`) generate on first install and persist across upgrades; `secrets.mode=external` must supply them (`HYDRA_WEB_CLIENT_SECRET` must be stable).
 
-## Persistent instance identity
-
-Deployment tooling automatically supplies `GREPTILE_INSTANCE_ID` to Greptile application containers. Existing installations receive an ID on their first upgrade with this tooling; no customer input or database migration is needed.
-
-**Docker Compose:** `setup-env.sh`, `start-greptile.sh`, and `restart-greptile.sh` create `.env.greptile-instance` when missing and reuse its UUID thereafter. The file is loaded after other environment files so all services receive the same deployment-owned identity. The restart script includes it in its change detection, so upgrading an existing installation applies the new ID even when the other env files are unchanged. Back up this file with `.env` and the generated secret files; retain it when updating the checkout. Container replacement and `docker compose down` do not remove it. Direct Compose commands require running `./bin/generate-instance-id.sh` once first if the file is absent.
-
-**Kubernetes:** `helm upgrade --install` creates `<fullname>-instance-identity` if absent, including when upgrading a release created before identity support. Subsequent upgrades read and preserve its UUID. The immutable ConfigMap is kept on Helm removal, is independent of native/external secret mode, and is referenced by the application pods. Use Helm with access to the target cluster: client-only `helm template` cannot discover an existing identity and generates a fresh candidate, so its output must not be used to update an existing identity ConfigMap. Include this ConfigMap in cluster backups; deleting its namespace or losing cluster state requires restoring it to retain the ID.
-
-Neither deployment method overwrites a malformed stored identity; restore the original value before proceeding. Separate installations should have separate identity stores. Copy the identity only when restoring the same installation.
-
 ## After every upgrade
 
 - Confirm the web UI loads at `APP_URL` / `network.appUrl`
