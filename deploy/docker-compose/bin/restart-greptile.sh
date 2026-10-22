@@ -3,7 +3,7 @@
 # Usage: ./restart-greptile.sh [--force]
 #
 # This script:
-#   1. Checks if env files (.env, .env.greptile-generated, .env.hatchet-generated) have changed
+#   1. Checks if env files (.env, .env.greptile-generated, .env.hatchet-generated, .env.greptile-instance) have changed
 #   2. Recreates Greptile containers if changes detected or --force flag is used
 #   3. Updates stored checksums for future comparisons
 #
@@ -61,11 +61,12 @@ fi
 
 # Generate application secrets if not already set
 "${SCRIPT_DIR}/generate-secrets.sh"
+"${SCRIPT_DIR}/generate-instance-id.sh"
 
 # Function to calculate checksum of env files
 calculate_checksum() {
     local checksum=""
-    for env_file in .env .env.greptile-generated .env.hatchet-generated; do
+    for env_file in .env .env.greptile-generated .env.hatchet-generated .env.greptile-instance; do
         if [[ -f "$env_file" ]]; then
             checksum="${checksum}$(md5sum "$env_file" 2>/dev/null | cut -d' ' -f1)"
         fi

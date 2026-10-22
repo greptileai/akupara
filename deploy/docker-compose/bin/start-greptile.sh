@@ -30,6 +30,7 @@ fi
 
 # Generate application secrets if not already set
 "${SCRIPT_DIR}/generate-secrets.sh"
+"${SCRIPT_DIR}/generate-instance-id.sh"
 
 # Export generated secrets for docker-compose variable interpolation; values set in .env take precedence
 if [[ -f .env.greptile-generated ]]; then

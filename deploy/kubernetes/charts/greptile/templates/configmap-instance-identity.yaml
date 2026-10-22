@@ -1,0 +1,22 @@
+{{- $name := printf "%s-instance-identity" (include "greptile.fullname" .) }}
+{{- $existing := lookup "v1" "ConfigMap" .Release.Namespace $name }}
+{{- $instanceId := "" }}
+{{- if $existing }}
+{{- $instanceId = index ($existing.data | default dict) "GREPTILE_INSTANCE_ID" | default "" }}
+{{- if not (regexMatch "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89aAbB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$" $instanceId) }}
+{{- fail (printf "ConfigMap %s contains a missing or invalid GREPTILE_INSTANCE_ID; restore its original UUID before upgrading" $name) }}
+{{- end }}
+{{- else }}
+{{- $instanceId = uuidv4 }}
+{{- end }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/resource-policy: keep
+immutable: true
+data:
+  GREPTILE_INSTANCE_ID: {{ $instanceId | quote }}
