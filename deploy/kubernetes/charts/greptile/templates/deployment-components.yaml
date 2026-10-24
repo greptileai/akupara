@@ -5,6 +5,7 @@
 {{- $isJackson := eq $name "jackson" }}
 {{- $isAuth := eq $name "auth" }}
 {{- $isAuthV2 := eq $name "auth-v2" }}
+{{- $hasReleaseTag := or (eq $name "api") (eq $name "jobs") }}
 {{- if and $component.enabled (or (not $isJackson) $.Values.saml.enabled) (or (not $isAuth) (not $.Values.authV2.enabled)) (or (not $isAuthV2) $.Values.authV2.enabled) }}
 ---
 apiVersion: apps/v1
@@ -16,6 +17,10 @@ metadata:
     app.kubernetes.io/component: {{ $name }}
 spec:
   replicas: {{ $component.replicas }}
+  {{- if eq $name "jobs" }}
+  strategy:
+    type: Recreate
+  {{- end }}
   selector:
     matchLabels:
       {{- include "greptile.selectorLabels" $ | nindent 6 }}
@@ -93,7 +98,7 @@ spec:
               value: {{ $name | quote }}
             - name: OTEL_SERVICE_VERSION
               value: {{ default $.Values.global.tag $component.image.tag | quote }}
-            {{- if eq $name "api" }}
+            {{- if $hasReleaseTag }}
             - name: GREPTILE_TAG
               value: {{ $.Values.global.tag | quote }}
             {{- end }}
@@ -104,7 +109,7 @@ spec:
             - name: REDIS_USE_TLS
               value: {{ $.Values.redis.external.tls | quote }}
             {{- range $secretKey := $component.secretEnv }}
-            {{- if and (ne $secretKey "GREPTILE_INSTANCE_ID") (not (and (eq $name "api") (eq $secretKey "GREPTILE_TAG"))) }}
+            {{- if and (ne $secretKey "GREPTILE_INSTANCE_ID") (not (and $hasReleaseTag (eq $secretKey "GREPTILE_TAG"))) }}
             - name: {{ $secretKey }}
               valueFrom:
                 secretKeyRef:
@@ -113,7 +118,7 @@ spec:
             {{- end }}
             {{- end }}
             {{- range $k, $v := $component.extraEnv }}
-            {{- if and (ne $k "GREPTILE_INSTANCE_ID") (not (and (eq $name "api") (eq $k "GREPTILE_TAG"))) }}
+            {{- if and (ne $k "GREPTILE_INSTANCE_ID") (not (and $hasReleaseTag (eq $k "GREPTILE_TAG"))) }}
             - name: {{ $k }}
               value: {{ $v | quote }}
             {{- end }}
@@ -145,6 +150,20 @@ spec:
             {{- if not $omitMount }}
               {{- $renderedMounts = append $renderedMounts $mount }}
             {{- end }}
+          {{- end }}
+          {{- if eq $name "jobs" }}
+            {{- range $vol := $renderedVolumes }}
+              {{- if eq $vol.name "jobs-state" }}
+                {{- fail "jobs-state is chart-managed; use storage.jobsState.existingClaim for an existing PVC" }}
+              {{- end }}
+            {{- end }}
+            {{- range $mount := $renderedMounts }}
+              {{- if or (eq $mount.name "jobs-state") (eq $mount.mountPath "/var/lib/greptile/jobs-state") }}
+                {{- fail "the jobs-state mount is chart-managed; remove it from components.jobs.volumeMounts" }}
+              {{- end }}
+            {{- end }}
+            {{- $renderedVolumes = append $renderedVolumes (dict "name" "jobs-state" "persistentVolumeClaim" (dict "claimName" (include "greptile.jobsStatePvcName" $))) }}
+            {{- $renderedMounts = append $renderedMounts (dict "name" "jobs-state" "mountPath" "/var/lib/greptile/jobs-state") }}
           {{- end }}
           {{- with $renderedMounts }}
           volumeMounts:

@@ -290,6 +290,8 @@ services:
   greptile-jobs:
     image: ${CONTAINER_REGISTRY}/jobs:${GREPTILE_TAG}
     restart: on-failure
+    deploy:
+      replicas: 1
     env_file:
       - .env.greptile-generated
       - .env.hatchet-generated
@@ -303,6 +305,7 @@ services:
     ports:
       - "8086:8080"
     volumes:
+      - jobs_state:/var/lib/greptile/jobs-state
       - knowledge_base:/var/lib/greptile/artifacts
     profiles:
       - greptile
@@ -380,3 +383,4 @@ volumes:
   caddy_config: {}
   cloned_repositories: {}
   knowledge_base: {}
+  jobs_state: {}

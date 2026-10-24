@@ -188,6 +188,17 @@
     "components": {
       "type": "object",
       "required": ["web", "auth", "api", "chunker", "worker", "webhook", "jobs", "llmproxy"],
+      "allOf": [
+        {
+          "properties": {
+            "jobs": {
+              "properties": {
+                "replicas": { "maximum": 1 }
+              }
+            }
+          }
+        }
+      ],
       "additionalProperties": {
         "type": "object",
         "required": ["enabled", "replicas", "image"],
