@@ -22,11 +22,20 @@ HELM = os.environ.get("HELM", "helm")
 # --- Test fixture helpers ---------------------------------------------------
 def render(values):
     """Exercise the real templates so the test also covers each URL consumer."""
-    completed = subprocess.run(
-        [HELM, "template", "greptile", str(CHART), "-f", "-"],
-        input=yaml.safe_dump(values), text=True, capture_output=True, check=True,
-    )
-    return [document for document in yaml.safe_load_all(completed.stdout) if document]
+    try:
+        completed = subprocess.run(
+            [HELM, "template", "greptile", str(CHART), "-f", "-"],
+            input=yaml.safe_dump(values), text=True, capture_output=True, check=True,
+        )
+    except subprocess.CalledProcessError as error:
+        raise AssertionError(
+            f"Helm rendering failed (exit {error.returncode}):\n{error.stderr}"
+        ) from error
+    documents = []
+    for document in yaml.safe_load_all(completed.stdout):
+        if document:
+            documents.append(document)
+    return documents
 
 
 def expected_url(user, password, host, database):
@@ -37,6 +46,11 @@ def expected_url(user, password, host, database):
 
 
 class DatabaseUrlTests(unittest.TestCase):
+    def test_render_failure_includes_helm_diagnostic(self):
+        """Keep Helm validation failures actionable from the test report alone."""
+        with self.assertRaisesRegex(AssertionError, "network.authUrl requires https"):
+            render({"network": {"authUrl": "http://auth.example.test"}})
+
     def test_default_urls_remain_unchanged(self):
         documents = render({})
         secret = next(item for item in documents if item["kind"] == "Secret" and item["metadata"]["name"] == "greptile-secrets")
@@ -103,7 +117,10 @@ class DatabaseUrlTests(unittest.TestCase):
         # PgBouncer consumes DB_PASSWORD separately, outside a connection URI.
         self.assertEqual(data["DB_PASSWORD"], password)
         self.assertEqual(data["VECTOR_DB_PASSWORD"], password)
-        migrations = [item for item in documents if item["kind"] == "Job"]
+        migrations = []
+        for item in documents:
+            if item["kind"] == "Job":
+                migrations.append(item)
         self.assertEqual(len(migrations), 2)
         for job in migrations:
             env = {entry["name"]: entry["value"] for entry in job["spec"]["template"]["spec"]["containers"][0]["env"]}

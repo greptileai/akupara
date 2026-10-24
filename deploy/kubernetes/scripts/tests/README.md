@@ -22,5 +22,7 @@ Postgres, with and without PgBouncer (48 configurations), plus default settings.
 It verifies exact libpq round trips and URI escaping, raw password preservation,
 and both migration jobs' direct database URLs. Literal `%2F`, plus, spaces, and
 Unicode guard against accidental double decoding and form-style space encoding.
+One additional render intentionally uses an invalid HTTP authentication URL and
+checks that the failure includes Helm's diagnostic.
 
 Pass raw username, password, and database values to Helm. Do not pre-encode them.
