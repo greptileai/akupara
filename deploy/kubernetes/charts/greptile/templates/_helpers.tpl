@@ -113,6 +113,7 @@ true
 {{- end -}}
 {{- end -}}
 
+{{/* Database connection helpers. */}}
 {{- define "greptile.databaseHost" -}}
 {{- if .Values.postgres.enabled -}}
 {{ printf "%s-postgres" (include "greptile.fullname" .) }}
@@ -162,7 +163,8 @@ vector
 {{- end -}}
 
 {{- define "greptile.databaseUrl" -}}
-{{- printf "postgresql://%s:%s@%s:%s/%s" (include "greptile.databaseUser" .) (include "greptile.databasePassword" .) (include "greptile.databaseHost" .) (include "greptile.databasePort" .) (include "greptile.databaseName" .) -}}
+{{/* urlquery escapes delimiters; replace its form-style spaces for URI components. */}}
+{{- printf "postgresql://%s:%s@%s:%s/%s" (include "greptile.databaseUser" . | urlquery | replace "+" "%20") (include "greptile.databasePassword" . | urlquery | replace "+" "%20") (include "greptile.databaseHost" .) (include "greptile.databasePort" .) (include "greptile.databaseName" . | urlquery | replace "+" "%20") -}}
 {{- end -}}
 
 {{- define "greptile.databasePooledHost" -}}
@@ -182,12 +184,13 @@ vector
 {{- end -}}
 
 {{- define "greptile.databasePooledUrl" -}}
-{{- printf "postgresql://%s:%s@%s:%s/%s" (include "greptile.databaseUser" .) (include "greptile.databasePassword" .) (include "greptile.databasePooledHost" .) (include "greptile.databasePooledPort" .) (include "greptile.databaseName" .) -}}
+{{- printf "postgresql://%s:%s@%s:%s/%s" (include "greptile.databaseUser" . | urlquery | replace "+" "%20") (include "greptile.databasePassword" . | urlquery | replace "+" "%20") (include "greptile.databasePooledHost" .) (include "greptile.databasePooledPort" .) (include "greptile.databaseName" . | urlquery | replace "+" "%20") -}}
 {{- end -}}
 
 {{- define "greptile.vectorDatabaseUrl" -}}
-{{- printf "postgresql://%s:%s@%s:%s/%s" (include "greptile.databaseUser" .) (include "greptile.databasePassword" .) (include "greptile.databaseHost" .) (include "greptile.databasePort" .) (include "greptile.vectorDatabaseName" .) -}}
+{{- printf "postgresql://%s:%s@%s:%s/%s" (include "greptile.databaseUser" . | urlquery | replace "+" "%20") (include "greptile.databasePassword" . | urlquery | replace "+" "%20") (include "greptile.databaseHost" .) (include "greptile.databasePort" .) (include "greptile.vectorDatabaseName" . | urlquery | replace "+" "%20") -}}
 {{- end -}}
+{{/* End database connection helpers. */}}
 
 {{- define "greptile.hydraTokenHookUrl" -}}
 {{- if .Values.authV2.hookUrl -}}
