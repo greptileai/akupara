@@ -575,8 +575,6 @@ components:
     componentEnv:
       DATABASE_CONNECTION_LIMIT: "10"
       PORT: "8080"
-      USAGE_EXPORT_MODE: "production"
-      USAGE_EXPORT_STATE_FILE: "/var/lib/greptile/jobs-state/usage-export.json"
       EMAIL_PROVIDER: "{{ .Values.email.provider }}"
       SMTP_HOST: "{{ .Values.email.smtp.host }}"
       SMTP_PORT: "{{ .Values.email.smtp.port }}"
