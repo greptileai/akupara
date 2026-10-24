@@ -290,6 +290,8 @@ services:
   greptile-jobs:
     image: ${CONTAINER_REGISTRY}/jobs:${GREPTILE_TAG}
     restart: on-failure
+    deploy:
+      replicas: 1
     env_file:
       - .env.greptile-generated
       - .env.hatchet-generated
@@ -298,11 +300,13 @@ services:
     environment:
       - OTEL_SERVICE_VERSION=${GREPTILE_TAG}
       - PORT=8080
+      - USAGE_EXPORT_STATE_FILE=${USAGE_EXPORT_STATE_FILE:-/var/lib/greptile/jobs-state/usage-export.json}
       - FILE_CHANGE_ACTIVITY_ENABLED=true
       - FILE_CHANGE_ACTIVITY_BUCKET=file:///var/lib/greptile/artifacts
     ports:
       - "8086:8080"
     volumes:
+      - jobs_state:/var/lib/greptile/jobs-state
       - knowledge_base:/var/lib/greptile/artifacts
     profiles:
       - greptile
@@ -380,3 +384,4 @@ volumes:
   caddy_config: {}
   cloned_repositories: {}
   knowledge_base: {}
+  jobs_state: {}
