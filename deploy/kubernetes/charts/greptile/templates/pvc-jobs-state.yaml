@@ -1,0 +1,17 @@
+{{- if and .Values.components.jobs.enabled (not .Values.storage.jobsState.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "greptile.jobsStatePvcName" . }}
+  labels:
+    {{- include "greptile.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    {{- toYaml .Values.storage.jobsState.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.storage.jobsState.size }}
+  {{- if .Values.storage.jobsState.storageClass }}
+  storageClassName: {{ .Values.storage.jobsState.storageClass | quote }}
+  {{- end }}
+{{- end }}

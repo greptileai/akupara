@@ -56,6 +56,10 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- printf "%s-knowledge-base" (include "greptile.fullname" .) -}}
 {{- end -}}
 
+{{- define "greptile.jobsStatePvcName" -}}
+{{- default (printf "%s-jobs-state" (include "greptile.fullname" .)) .Values.storage.jobsState.existingClaim -}}
+{{- end -}}
+
 {{/* Drop the chart-managed knowledge-base volume when its PVC is disabled. An explicit claimName stays. */}}
 {{- define "greptile.omitManagedKnowledgeBaseVolume" -}}
 {{- $vol := .vol -}}

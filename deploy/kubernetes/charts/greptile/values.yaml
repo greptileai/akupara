@@ -92,6 +92,12 @@ pgbouncer:
       memory: 1Gi
 
 storage:
+  jobsState:
+    size: 128Mi
+    storageClass: ""
+    accessModes:
+      - ReadWriteOnce
+    existingClaim: ""
   sharedWorkdir:
     enabled: true
     size: 1Ti
