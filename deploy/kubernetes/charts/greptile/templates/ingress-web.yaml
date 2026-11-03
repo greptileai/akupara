@@ -1,5 +1,5 @@
 {{- if and .Values.ingress.enabled .Values.ingress.web.enabled .Values.components.web.enabled .Values.components.web.service.enabled }}
-{{- $appHost := regexFind "^[^/]+" (regexReplaceAll "^https?://" .Values.network.appUrl "") -}}
+{{- $appHost := regexFind "^[^/:]+" (regexReplaceAll "^https?://" .Values.network.appUrl "") -}}
 {{- $appPathRaw := regexReplaceAll "^https?://[^/]+" .Values.network.appUrl "" -}}
 {{- $appPath := default "/" $appPathRaw -}}
 {{- $host := default $appHost .Values.ingress.web.host -}}
