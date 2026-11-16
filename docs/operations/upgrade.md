@@ -6,6 +6,8 @@ Always take a database backup before upgrading. The bundled Postgres instance st
 
 Check the release notes for the target tag before upgrading. Release notes list any new environment variables for that release. Apply every listed variable before you roll the stack. On Docker Compose, add them to `.env`. On Kubernetes, new chart defaults apply during `helm upgrade`; change `charts/profiles/values.user.yaml` when the release notes tell you to override a default.
 
+Before rolling out the new review UI, follow [Update an existing GitHub App for the review UI](../configuration/github_app_creation.md#update-an-existing-github-app-for-the-review-ui). This applies to both Docker Compose and Kubernetes. The app needs additional permissions and webhook subscriptions, and existing installations need owner approval; a Greptile upgrade does not grant them automatically.
+
 ## Docker Compose
 
 1. Confirm registry access still works:
