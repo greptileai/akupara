@@ -405,6 +405,7 @@ components:
       PORT: "3002"
       PUBLIC_URL: "{{ .Values.network.authUrl }}"
       GREPTILE_WEB_URL: "{{ .Values.network.appUrl }}"
+      EMAIL_VERIFICATION_ENABLED: "false"
       EMAIL_FROM: "{{ .Values.email.from }}"
       API_AUDIENCE: "{{ .Values.network.apiUrl }}/mcp"
       HYDRA_ADMIN_URL: "http://{{ include \"greptile.fullname\" . }}-hydra:{{ .Values.authV2.hydra.adminPort }}"

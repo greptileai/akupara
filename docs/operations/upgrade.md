@@ -69,6 +69,8 @@ To stay on legacy auth, set `authV2.enabled: false`.
 
 The four auth secrets (`CSRF_SECRET`, `HYDRA_SYSTEM_SECRET`, `HYDRA_WEB_CLIENT_SECRET`, `HYDRA_TOKEN_HOOK_SECRET`) generate on first install and persist across upgrades; `secrets.mode=external` must supply them (`HYDRA_WEB_CLIENT_SECRET` must be stable).
 
+Self-hosted auth v2 disables email verification by default so existing password accounts can sign in without email delivery. Kubernetes sets `components.auth-v2.componentEnv.EMAIL_VERIFICATION_ENABLED: "false"`; when preparing a Docker Compose auth-v2 deployment, add `EMAIL_VERIFICATION_ENABLED=false` to your existing `.env` (new environments include it in `.env.example`). Set this to `true` only after configuring a working email provider. Password-reset emails still require email delivery.
+
 ## After every upgrade
 
 - Confirm the web UI loads at `APP_URL` / `network.appUrl`
