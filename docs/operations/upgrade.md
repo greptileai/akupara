@@ -8,6 +8,28 @@ Check the release notes for the target tag before upgrading. Release notes list 
 
 Before rolling out the [new review UI](https://www.greptile.com/blog/code-review-is-evolving), follow [Update an existing GitHub App for the review UI](../configuration/github_app_creation.md#update-an-existing-github-app-for-the-review-ui). This applies to both Docker Compose and Kubernetes. The app needs additional permissions and webhook subscriptions, and existing installations need owner approval; a Greptile upgrade does not grant them automatically.
 
+## License key
+
+All on-prem customers must configure `GREPTILE_LICENSE` for new installations and upgrades. Obtain the license key from your Greptile representative and keep it in your deployment's secret configuration.
+
+**Kubernetes:** set the license in your existing `values.user.yaml`:
+
+```yaml
+secrets:
+  native:
+    GREPTILE_LICENSE: "<license-key-provided-by-Greptile>"
+```
+
+The chart stores this value in the shared application Secret and exposes it as `GREPTILE_LICENSE` to the Greptile services. With `secrets.mode: external`, add a mapping for the `GREPTILE_LICENSE` key to your existing `secrets.external.data` configuration instead, retaining the other secret mappings.
+
+**Docker Compose:** add the following to your existing `deploy/docker-compose/.env`:
+
+```dotenv
+GREPTILE_LICENSE='<license-key-provided-by-Greptile>'
+```
+
+After setting or replacing the license, apply the Kubernetes values and restart the Greptile Deployments, or recreate the Greptile containers on Docker Compose, so the services load the updated environment. Keep real license keys out of source control.
+
 ## Docker Compose
 
 1. Confirm registry access still works:
@@ -70,6 +92,8 @@ Auth v2 (OAuth) is the default auth mode. A legacy install upgrading without an 
 To stay on legacy auth, set `authV2.enabled: false`.
 
 The four auth secrets (`CSRF_SECRET`, `HYDRA_SYSTEM_SECRET`, `HYDRA_WEB_CLIENT_SECRET`, `HYDRA_TOKEN_HOOK_SECRET`) generate on first install and persist across upgrades; `secrets.mode=external` must supply them (`HYDRA_WEB_CLIENT_SECRET` must be stable).
+
+Self-hosted auth v2 disables email verification by default so existing password accounts can sign in without email delivery. Kubernetes sets `components.auth-v2.componentEnv.EMAIL_VERIFICATION_ENABLED: "false"`; when preparing a Docker Compose auth-v2 deployment, add `EMAIL_VERIFICATION_ENABLED=false` to your existing `.env` (new environments include it in `.env.example`). Set this to `true` only after configuring a working email provider. Password-reset emails still require email delivery.
 
 ## After every upgrade
 
