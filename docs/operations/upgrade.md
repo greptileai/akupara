@@ -6,6 +6,28 @@ Always take a database backup before upgrading. The bundled Postgres instance st
 
 Check the release notes for the target tag before upgrading. Release notes list any new environment variables for that release. Apply every listed variable before you roll the stack. On Docker Compose, add them to `.env`. On Kubernetes, new chart defaults apply during `helm upgrade`; change `charts/profiles/values.user.yaml` when the release notes tell you to override a default.
 
+## License key
+
+All on-prem customers must configure `GREPTILE_LICENSE` for new installations and upgrades. Obtain the license key from your Greptile representative and keep it in your deployment's secret configuration.
+
+**Kubernetes:** set the license in your existing `values.user.yaml`:
+
+```yaml
+secrets:
+  native:
+    GREPTILE_LICENSE: "<license-key-provided-by-Greptile>"
+```
+
+The chart stores this value in the shared application Secret and exposes it as `GREPTILE_LICENSE` to the Greptile services. With `secrets.mode: external`, add a mapping for the `GREPTILE_LICENSE` key to your existing `secrets.external.data` configuration instead, retaining the other secret mappings.
+
+**Docker Compose:** add the following to your existing `deploy/docker-compose/.env`:
+
+```dotenv
+GREPTILE_LICENSE='<license-key-provided-by-Greptile>'
+```
+
+After setting or replacing the license, apply the Kubernetes values and restart the Greptile Deployments, or recreate the Greptile containers on Docker Compose, so the services load the updated environment. Keep real license keys out of source control.
+
 ## Docker Compose
 
 1. Confirm registry access still works:

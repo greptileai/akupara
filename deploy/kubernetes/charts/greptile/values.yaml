@@ -270,6 +270,7 @@ secrets:
   mode: native
   name: ""
   native:
+    # Required for all on-prem deployments. Obtain your license key from Greptile.
     GREPTILE_LICENSE: ""
     JWT_SECRET: ""
     TOKEN_ENCRYPTION_KEY: ""
