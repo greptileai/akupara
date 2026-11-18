@@ -1,0 +1,281 @@
+{
+  "cloudTag": "202611.28",
+  "cloudCommit": "d37e2e66a80359c48052825038dd9de76ea6f80e",
+  "akuparaBaseCommit": "39d67d43c8fc3cc2f4c43edb6b633f29117e08d8",
+  "releaseDate": "2026-11-17",
+  "previousRelease": {
+    "cloudTag": "202610.5",
+    "cloudCommit": "1c6e7c7cf7180112517e5e6050b743cefc976bd8",
+    "releaseDate": "2026-10-12"
+  },
+  "images": [
+    {
+      "image": "greptileai/web:202610.5",
+      "indexDigest": "sha256:2f4fb2f0a03ce919ad840f7dceb552efcd3ed3f28f42d5aa8a7b10850bffd97c",
+      "platforms": [
+        {
+          "digest": "sha256:7280ca72d77574da1c5ea2179d78688dd8a78d1ea555adea31d857dcf6e4aed3",
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      ]
+    },
+    {
+      "image": "greptileai/auth:202610.5",
+      "indexDigest": "sha256:b2f35321428ac39b026517feb6fd7942193a3f8ca725c4ef9a35b476aa0e917a",
+      "platforms": [
+        {
+          "digest": "sha256:7b2d2f6b560fc368ddfb648d35fa02d912a370b49764bc055f0903e2cab65160",
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      ]
+    },
+    {
+      "image": "greptileai/auth-v2:202610.5",
+      "indexDigest": "sha256:3e25714b1df5be9b0676ffd9d024012fba8e98d3a4cc00f22cea98b20df68220",
+      "platforms": [
+        {
+          "digest": "sha256:02f982ca06e1cc83fa5720f0eb2f13a36fa9afd35bc23350a7aa615e010c5346",
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      ]
+    },
+    {
+      "image": "greptileai/api:202610.5",
+      "indexDigest": "sha256:f2267c5a478070550259ecbd1d6d7d79db6633c7c411e80e9feb8ec2ad50431d",
+      "platforms": [
+        {
+          "digest": "sha256:6253c14fc688471b85cd046abf93981c74758bd103cf7713772e94ef4cc4b800",
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      ]
+    },
+    {
+      "image": "greptileai/chunker:202610.5",
+      "indexDigest": "sha256:35e3413c6621f5ee8300698680f73b050160b29b06532e2c71a0637117107b08",
+      "platforms": [
+        {
+          "digest": "sha256:746023e2f9f0df1d25ba09374ef95577a6364cd71cda4f83f3451d177ed49610",
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      ]
+    },
+    {
+      "image": "greptileai/worker:202610.5",
+      "indexDigest": "sha256:39cd0906942a10f0ed0347cfc2b50765294e34838f9e6eec11890c964cb60206",
+      "platforms": [
+        {
+          "digest": "sha256:9aa61565201d9991abed34a664a98737632287ecbc856375d9245745dd676a38",
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      ]
+    },
+    {
+      "image": "greptileai/webhook:202610.5",
+      "indexDigest": "sha256:f020569e2ccc9e06a5abe216297edca3831b516cc2b53142d175ddab523746ae",
+      "platforms": [
+        {
+          "digest": "sha256:9c2bd02271d1875c5282c6c75376b852ee977bebc4a37b98600429c266407082",
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      ]
+    },
+    {
+      "image": "greptileai/jobs:202610.5",
+      "indexDigest": "sha256:38e79186b30b69d3eabd0aa5f4f0019bf11f45fba38ead0c471b8daade222e19",
+      "platforms": [
+        {
+          "digest": "sha256:bd5e5c0739fe55be6fe9dd7eb92334f6335caec4ab1a000a38e558122887d927",
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      ]
+    },
+    {
+      "image": "greptileai/llmproxy:202610.5",
+      "indexDigest": "sha256:85dcbbc370a61d02e835fc1363204b7efa72ad685ff4205e4ac2fdb7f4ecabec",
+      "platforms": [
+        {
+          "digest": "sha256:8bb5b8bafc10c9996610e5933d5ebb0792b9e930e6e4939e952eece9bb3f6dd0",
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      ]
+    },
+    {
+      "image": "greptileai/db-migration-job:202610.5",
+      "indexDigest": "sha256:f1a459101511a96bbbe251f4a886545b1c093e48431de4b3121f63c6ffbdb1ef",
+      "platforms": [
+        {
+          "digest": "sha256:de9e32782bb406003a58a11030d41f2d52c4931a748ee467f6929ebbb2010a83",
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      ]
+    },
+    {
+      "image": "greptileai/hydra:202610.5",
+      "indexDigest": "sha256:b8e2ce1b36d964373578bb053eb22dfa3b63ea453eca442991b50cfbd67d37f1",
+      "platforms": [
+        {
+          "digest": "sha256:c8c7857ebcbbbb9da7aa2f70c3535e7e3ca683639b2172502c95982710a6edc6",
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      ]
+    },
+    {
+      "image": "greptileai/web:202611.28",
+      "indexDigest": "sha256:08621a135943e9be0ea42fbc3c4b978b629a016159d531b799f3830b12ea075d",
+      "platforms": [
+        {
+          "digest": "sha256:0bb5a54cf88f0b9356a3755c2f642e0a2031a953abc8daa7a556cdc36c1ff7be",
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      ]
+    },
+    {
+      "image": "greptileai/auth:202611.28",
+      "indexDigest": "sha256:0fe37d0ec3cb7395b14c5b21c43d505ec9b55c3e52e46cf76475cddc3130b592",
+      "platforms": [
+        {
+          "digest": "sha256:253ea8e0f56d2497500eb1aeb526f318ec438aec70bc8a3825d27a8cad5c1516",
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      ]
+    },
+    {
+      "image": "greptileai/auth-v2:202611.28",
+      "indexDigest": "sha256:0688269e8f6f1f042f8a2fc44b90149d080cc22d6927667672ce13f45f57827d",
+      "platforms": [
+        {
+          "digest": "sha256:2f08f2f6f2420992c5e7b9588d4d599d9c4aa228b4458068d0608ff73b7c2fea",
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      ]
+    },
+    {
+      "image": "greptileai/api:202611.28",
+      "indexDigest": "sha256:cb870360f0f43e3f78a5124321e10e9b30e7ec21997dc178727d1254963ca097",
+      "platforms": [
+        {
+          "digest": "sha256:0c86db663940e026fc605b061beda3d859fd2c57eb6f5334d60d78a895c64e8f",
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      ]
+    },
+    {
+      "image": "greptileai/chunker:202611.28",
+      "indexDigest": "sha256:c613716366bed6e3ea318797476bd4187e01d741ec5e6447338c75efcde17a1d",
+      "platforms": [
+        {
+          "digest": "sha256:723cbf3b3c22a7254222be081f2aec17226b615ce75f2f8f4b09b40b5b948d81",
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      ]
+    },
+    {
+      "image": "greptileai/worker:202611.28",
+      "indexDigest": "sha256:a8af14552f99b3402cdce59d20c4f97f5ceb31ff77e9b3e5ac6362ad3e1c23da",
+      "platforms": [
+        {
+          "digest": "sha256:240affcc134652c34963e3518308c26a9eda20879c88e3e7b8b501376e482113",
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      ]
+    },
+    {
+      "image": "greptileai/webhook:202611.28",
+      "indexDigest": "sha256:080f73415ff90baaf3ade40718e93f9cfdb61802b5119b52907eb762bd14032c",
+      "platforms": [
+        {
+          "digest": "sha256:79adb29aedc273e5532465d73c9630bf4120d11ca96a9b246692bb8e1d195eb8",
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      ]
+    },
+    {
+      "image": "greptileai/jobs:202611.28",
+      "indexDigest": "sha256:46fbc931f58bd9bc6f4b799249ee38fcce0a348536f199e5cdebf5b9e632a588",
+      "platforms": [
+        {
+          "digest": "sha256:fb8cd569ab11a124fe9cf0196f85f4b677d9f14685a078ac9b7cb94468529270",
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      ]
+    },
+    {
+      "image": "greptileai/llmproxy:202611.28",
+      "indexDigest": "sha256:05d62a975ef72667134db6e28356695565a6c3f3b938ac83603dbda38a224704",
+      "platforms": [
+        {
+          "digest": "sha256:bf7702b9184f5701348c0900f8efb3604ed1812cc6e5b7123394fab49f2699f6",
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      ]
+    },
+    {
+      "image": "greptileai/db-migration-job:202611.28",
+      "indexDigest": "sha256:5e17b5008ef0158abbf19dd1d9380ba65a538ad83cdf51eaa521e79e35ad2f0a",
+      "platforms": [
+        {
+          "digest": "sha256:1e064c2dd035491c38ad81193e7600b03e4cd660b2a590ecc0ea266947ab360e",
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      ]
+    },
+    {
+      "image": "greptileai/hydra:202611.28",
+      "indexDigest": "sha256:1b4fd70c9372c5961b70007c25fae2eb65be445510cbc64964f8bfaaa436c5ce",
+      "platforms": [
+        {
+          "digest": "sha256:c2362313a3055a0ca115b1b807a2354802617441ed22735708781b9715aa270c",
+          "architecture": "amd64",
+          "os": "linux"
+        }
+      ]
+    }
+  ],
+  "validation": {
+    "upgradeFrom": "202610.5",
+    "target": "202611.28",
+    "checkedAt": "2026-11-18T01:34:07.575812+00:00",
+    "auth": "auth-v2",
+    "backend": "bwrap",
+    "allWorkloadsReady": true,
+    "migrationsSucceeded": true,
+    "identityCredentialsAndStoragePreserved": true,
+    "healthyTargetGroups": 6,
+    "stableSeconds": 120,
+    "modelRequestsSucceeded": [
+      "gpt-6.1-sol",
+      "gpt-6-luna"
+    ],
+    "fullScmReviewTested": true,
+    "freshInstallTested": false,
+    "upgradeFromPreviousSelfHostedReleaseTested": false,
+    "sourceDatabasePreviouslyUpgraded": true,
+    "sourceDatabaseSchemaTag": "202611.26",
+    "scmReviewTrigger": "signed-manual-webhook",
+    "scmOriginatedWebhookTested": false,
+    "reviewVariant": "review-v5.4-no-diagrams-base",
+    "converterTerminalArgumentsBackportVerified": true,
+    "converterReplayCasesPassed": 4
+  }
+}

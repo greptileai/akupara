@@ -20,6 +20,7 @@ spec:
   {{- if eq $name "jobs" }}
   strategy:
     type: Recreate
+    rollingUpdate: null
   {{- end }}
   selector:
     matchLabels:
@@ -97,7 +98,7 @@ spec:
             - name: COMPONENT_NAME
               value: {{ $name | quote }}
             - name: OTEL_SERVICE_VERSION
-              value: {{ default $.Values.global.tag $component.image.tag | quote }}
+              value: {{ first (splitList "@" (default $.Values.global.tag $component.image.tag)) | quote }}
             {{- if $hasReleaseTag }}
             - name: GREPTILE_TAG
               value: {{ $.Values.global.tag | quote }}

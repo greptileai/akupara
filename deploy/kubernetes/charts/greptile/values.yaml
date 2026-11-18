@@ -1,6 +1,6 @@
 global:
   registry: "REPLACE_ME_REGISTRY"
-  tag: "202610.5"
+  tag: "202611.28"
   pullPolicy: IfNotPresent
   imagePullSecrets: []
   podAnnotations: {}
@@ -148,6 +148,7 @@ features:
   # Required to select the Base, Plus, and Apex review tiers in v5.2-tiers@2.
   feature_flags:
     effort-levels: true
+    pr-detail-page: true
 
 env:
   shared:
@@ -191,7 +192,7 @@ appConfig:
   # Enable native routing for the Base, Plus, and Apex review tiers.
   # see docs/configuration/review-variants.md for more details
   reviewWorkflowRoutingEnabled: "true"
-  defaultNativeRoutingPolicy: "greptile-v5.3@6"
+  defaultNativeRoutingPolicy: "review-v5.4-no-diagrams@1"
   trexSettingsEnabled: "false"
   repoClustersEnabled: "true"
   headlessReviewEnabled: "true"
