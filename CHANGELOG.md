@@ -1,3 +1,23 @@
+## 202611.28 - 2026-11-17
+
+### Added
+
+- Added the new review UI at `<your_greptile_url>/pulls`, with code review, discussions, and pull request actions in one place.
+- Send daily usage reports from the jobs service, including hashed author and reviewed-PR identifiers and review counts by effort level and T-Rex usage; update the Kubernetes chart and allow outbound HTTPS to `usage.greptile.com`.
+- Search across file diffs and combine pull request filters with AND and OR groups.
+
+
+### Changed
+
+- Update the Akupara scripts to persist the installation ID and usage-export checkpoints across service restarts, and wire self-hosted license configuration.
+- Default review routing to `review-v5.4-no-diagrams@1`, requiring `gpt-6.1-sol` and `gpt-6-luna` through the LLM proxy.
+- Require additional GitHub App permissions and installation-owner approval to use the new review UI's repository actions; see the [upgrade guide](docs/operations/upgrade.md).
+- Disable email verification by default for self-hosted auth v2 deployments without email delivery.
+
+### Deprecated
+
+- Deprecate legacy auth, which will be fully replaced by auth-v2 in the next self-hosted release; migrate now using the [auth-v2 upgrade guide](docs/operations/upgrade.md#migrating-to-auth-v2).
+
 ## 202610.5 - 2026-10-12
 
 ### Added

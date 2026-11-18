@@ -5,10 +5,11 @@ A Greptile review depends on two things:
 1. **The LLM provider and the model.** For example, OpenAI with GPT or Anthropic with Claude Sonnet/Opus. (Provided by you)
 2. **The prompt instructions and its structure.** We call this the **variant**. (Provided by Greptile)
 
-We compare models and variants against each other with an internal eval system. For self-hosted deployments, the Anthropic policy is `rsv11`. Two OpenAI policies exist: `greptile-v5.3@6` and `v5.2-tiers@2`. `greptile-v5.3@6` is considered better. Use `v5.2-tiers@2` when the deployment does not have access to `gpt-6.1-sol` yet.
+We compare models and variants against each other with an internal eval system. For self-hosted deployments, the Anthropic policy is `rsv11`. The default OpenAI policy is `review-v5.4-no-diagrams@1`. The previous policies `greptile-v5.3@6` and `v5.2-tiers@2` remain available. Use `v5.2-tiers@2` when the deployment does not have access to `gpt-6.1-sol` yet.
 
 | Recommendation | Use when | Seeded routing policy |
 | --- | --- | --- |
+| OpenAI (default) | Access to `gpt-6.1-sol` and `gpt-6-luna` | `review-v5.4-no-diagrams@1` |
 | Anthropic | Claude Sonnet 4.6 | `native-rsv11-stndrd4-expansion@3` |
 | OpenAI | The deployment has access to `gpt-6.1-sol` | `greptile-v5.3@6` |
 | OpenAI | The deployment does not have access to `gpt-6.1-sol` yet | `v5.2-tiers@2` |
@@ -23,13 +24,13 @@ Set these on the worker.
 
 ```bash
 REVIEW_WORKFLOW_ROUTING_ENABLED=true
-DEFAULT_NATIVE_ROUTING_POLICY=greptile-v5.3@6
-FEATURE_FLAGS_JSON='{"effort-levels":true}'
+DEFAULT_NATIVE_ROUTING_POLICY=review-v5.4-no-diagrams@1
+FEATURE_FLAGS_JSON='{"effort-levels":true,"pr-detail-page":true}'
 ```
 
 `FEATURE_FLAGS_JSON` is shared by every Greptile container. With `effort-levels` set to `true`, Base, Plus, and Apex are available. Set `effort-levels` to `false` to disable Plus and Apex for the whole instance. Every review then runs at Base, which limits inference cost.
 
-Set `DEFAULT_NATIVE_ROUTING_POLICY` to `v5.2-tiers@2` when the deployment does not have access to `gpt-6.1-sol` yet. Docker Compose and the Helm chart ship `greptile-v5.3@6`.
+Set `DEFAULT_NATIVE_ROUTING_POLICY` to `v5.2-tiers@2` when the deployment does not have access to `gpt-6.1-sol` yet. Docker Compose and the Helm chart ship `review-v5.4-no-diagrams@1`. This policy requires `gpt-6.1-sol` and `gpt-6-luna` through the LLM proxy.
 
 Recreate the worker so it loads the environment. From `deploy/docker-compose`, run `./bin/restart-greptile.sh`, or `docker compose up -d --force-recreate greptile-worker`.
 
@@ -38,14 +39,16 @@ Recreate the worker so it loads the environment. From `deploy/docker-compose`, r
 ```yaml
 appConfig:
   reviewWorkflowRoutingEnabled: "true"
-  defaultNativeRoutingPolicy: "greptile-v5.3@6"
+  defaultNativeRoutingPolicy: "review-v5.4-no-diagrams@1"
 features:
   feature_flags:
     effort-levels: true
+    pr-detail-page: true
 ```
 
 | Policy | `DEFAULT_NATIVE_ROUTING_POLICY` |
 | --- | --- |
+| review-v5.4-no-diagrams (default) | `review-v5.4-no-diagrams@1` |
 | rsv11 | `native-rsv11-stndrd4-expansion@3` |
 | greptile-v5.3 | `greptile-v5.3@6` |
 | v5.2 tiers | `v5.2-tiers@2` |
@@ -76,6 +79,8 @@ model_group_alias:
 `claude-sonnet-4-6` still needs a `model_list` route, such as the `claude-*` wildcard or a Bedrock model id.
 
 ## LiteLLM: OpenAI policies
+
+`review-v5.4-no-diagrams@1` requires `gpt-6.1-sol` and `gpt-6-luna`. The bundled `gpt-6*` wildcard supplies these routes. Preserve this route when customizing the proxy configuration.
 
 `greptile-v5.3@6` and `v5.2-tiers@2` call OpenAI. They do not call `review` or `post-review-gate`.
 
