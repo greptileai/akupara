@@ -480,6 +480,7 @@ components:
       LLM_PROXY_BASE_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"llmproxy\") }}:{{ .Values.components.llmproxy.containerPort }}"
       APP_URL: "{{ .Values.network.appUrl }}"
       GREPTILE_APP_URL: "{{ .Values.network.appUrl }}"
+      GREPTILE_WEBHOOK_URL: "http://{{ include \"greptile.componentName\" (dict \"root\" . \"name\" \"webhook\") }}:{{ .Values.components.webhook.service.port }}/webhook"
     envFromConfigMap: []
     envFromSecret: []
     volumes:
